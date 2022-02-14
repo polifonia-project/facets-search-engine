@@ -1,9 +1,9 @@
 from rest_framework import routers
 from . import views
-from django.conf.urls import include, url
+from django.conf.urls import include
 from django.views.decorators.csrf import csrf_exempt
 
-from django.urls import  path
+from django.urls import path, re_path
 
 from .views import *
 
@@ -31,7 +31,7 @@ schema_view = get_schema_view(
 urlpatterns = [
 	path('', views.welcome, name='welcome'),
 	   #### Swagger documentation
-	url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+	re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 	path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 	# Index management
 	path('<str:index_name>/', views.index, name='index'),
