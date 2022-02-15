@@ -1,9 +1,10 @@
 from rest_framework import routers
 from . import views
-from django.conf.urls import include, url
+#in Django 4.0 django.conf.urls.url() is removed
+from django.conf.urls import include #,url
 from django.views.decorators.csrf import csrf_exempt
 
-from django.urls import  path
+from django.urls import path, re_path
 
 from .views import *
 
@@ -15,7 +16,6 @@ from drf_yasg import openapi
 from rest_framework.documentation import include_docs_urls
 
 app_name="rest"
-
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -29,9 +29,10 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
+	#url -> re_path because django 4 no longer support
 	path('', views.welcome, name='welcome'),
 	   #### Swagger documentation
-	url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+	re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 	path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 	# Index management
 	path('<str:index_name>/', views.index, name='index'),

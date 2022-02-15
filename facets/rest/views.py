@@ -25,6 +25,9 @@ from rest_framework.schemas import AutoSchema, ManualSchema
 from django.conf.global_settings import LOGGING
 import logging
 
+from lib.process import ScoreProcessing
+
+from lib.search.IndexWrapper import IndexWrapper
 
 from music21 import converter, mei
 
@@ -77,7 +80,7 @@ def index(request, index_name):
 
 	if request.method == "GET":
 		'''
-		  To do: reeturn some info on the index
+		  To do: return some info on the index
 		'''
 		return JSONResponse({"Message": "Request to read index " + index_name})
 	
@@ -93,7 +96,7 @@ def index(request, index_name):
 
 @csrf_exempt
 @api_view(["GET", "PUT"])
-def document(request, index_name,doc_id):
+def document(request, index_name, doc_id):
 
 	"""
 		Document management
@@ -111,10 +114,14 @@ def document(request, index_name,doc_id):
 			if request.content_type == "application/mei":
 				# Apply the MEI -> Music21 converter
 				conv = mei.MeiToM21Converter(request.body)
+				# Get M21 object of the score
 				m21_score = conv.run()
-				'''
-				  At this point we got the Music21 object: let's proceed
-				'''
+
+				# Process current score
+				ScoreProcessing.score_process(m21_score)
+
+				# index it
+
 				return JSONResponse({"message": "Request to create MEI document " + doc_id})
 			else:
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})
