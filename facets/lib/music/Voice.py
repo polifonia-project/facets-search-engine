@@ -6,8 +6,9 @@ from collections import namedtuple, OrderedDict
 from fractions import Fraction
 
 #import manager.models
-#from search.Item import Item
-#from search.Sequence import Sequence
+
+from lib.search.Item import Item
+from lib.search.Sequence import Sequence
 
 #from home.templatetags.extras import scale_degree, semitoneconv
 #from home.templatetags.extras import rhythm_figures_print
@@ -30,7 +31,7 @@ class Voice:
     def set_from_m21(self, m21stream):
         """Feed the voice representation from a MusicXML document"""
         
-        self.m21_stream = m21stream    
+        self.m21_stream = m21stream
         
     def get_half_step_intervals(self):
         '''Return half-steps intervals'''
@@ -156,12 +157,12 @@ class Voice:
         # sorting
         return OrderedDict(sorted(all_pitches.items(),key=lambda x:pitch_to_int(x)))
 
-    # Normalized version of "get_pitches"
+    #Normalized version of "get_pitches"
     def get_pitches_norm(self):
         all_freq_pitches = OrderedDict({0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0})
         ctn = len(self.m21_stream.notes)
 
-        if not ctn:  # just to avoid /0
+        if not ctn:  #just to avoid /0
             ctn = -1
 
         for n in self.m21_stream.notes:
@@ -358,4 +359,3 @@ class Voice:
 # FIXME
 class IncompleteBarsError(Exception):
     pass
-

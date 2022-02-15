@@ -64,6 +64,7 @@ def index(request, index_name):
 
 	if request.method == "GET":
 		return JSONResponse({"Message": "Request to read index " + index_name})
+
 	elif request.method == "PUT":
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -81,6 +82,9 @@ def index(request, index_name):
 	if request.method == "GET":
 		'''
 		  To do: return some info on the index
+
+		  Example:
+		      curl -X GET  http://localhost:8000/index/
 		'''
 		return JSONResponse({"Message": "Request to read index " + index_name})
 	
@@ -88,6 +92,8 @@ def index(request, index_name):
 		'''
 		  To do: create the index if it does not exist
 		'''
+		index_wrapper = IndexWrapper()
+
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
 	# Should not happen
@@ -103,11 +109,16 @@ def document(request, index_name, doc_id):
 	"""
 
 	if request.method == "GET":
+		'''
+			Example:
+			    curl -X GET  http://localhost:8000/index/lklk/
+		'''
 		return JSONResponse({"Message": "Request to read document " + doc_id})
+
 	elif request.method == "PUT":
 		'''
-		   Example=
-		     curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
+		   Example:
+		       curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
 		'''
 		# Read the document
 		try:
@@ -119,8 +130,13 @@ def document(request, index_name, doc_id):
 
 				# Process current score
 				ScoreProcessing.score_process(m21_score)
+				
+				#Extract features TBC
 
-				# index it
+				#Index it
+				index_wrapper = IndexWrapper()
+				#index_wrapper.index_musicdoc(m21_score)
+
 
 				return JSONResponse({"message": "Request to create MEI document " + doc_id})
 			else:

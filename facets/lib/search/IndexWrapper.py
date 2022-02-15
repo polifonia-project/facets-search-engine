@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class IndexWrapper:
     """
     
-    A class to send NEUMA-specific queries to ElasticSearch
+    A class to send queries to ElasticSearch
     
     This class acts as a proxy for all queries sent to ElasticSearch. It relies on
     the ``elasticsearch_dsl`` package, documented here:
@@ -41,17 +41,17 @@ class IndexWrapper:
            Connect to the ElasticSearch server, and open the index
         """
         if auth_login is None:
-            self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
-                                            port=settings.ELASTIC_SEARCH["port"],
-                                            index=settings.ELASTIC_SEARCH["index"])
+            self.elastic_search = Elasticsearch(host="localhost", 
+                                            port=9200,
+                                            index="index")
         else:
-            self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
-                                            port=settings.ELASTIC_SEARCH["port"],
-                                            index=settings.ELASTIC_SEARCH["index"],
+            self.elastic_search = Elasticsearch(host="localhost", 
+                                            port=9200,
+                                            index="index",
                                             http_auth=(auth_login, auth_password))
             
         # Open, and possibly create the index
-        self.index = Index (settings.ELASTIC_SEARCH["index"],using=self.elastic_search)
+        self.index = Index ("index_test",using=self.elastic_search)
         
         if not self.index.exists(using=self.elastic_search):
             # Create the index
@@ -63,43 +63,37 @@ class IndexWrapper:
         self.query_dir = settings.ES_QUERY_DIR
         
     
-    def get_index_info (self):
+    def get_index_info(self):
         '''
         Obtain main infos on the index
         '''
         return self.index.get()
 
-    def index_opus (self, opus):
+    def index_musicdoc(self, MusicDoc):
         """ 
-        Add of replace an Opus in the ElasticSeaerch index
+        Add or replace an Opus in the ElasticSearch index
         
         """
         
-        print ("Index Opus " + opus.ref)
+        print ("Index MusicDoc " + MusicDoc.doc_id)
         # First time that we index this Opus
         try:
-            score = opus.get_score()
-            # CHANGE: we do not longer store the summary in ES
-            #music_summary = score.get_music_summary()
-            #music_summary.opus_id = opus.ref
-            #msummary_for_es = music_summary.encode()
 
-            opus_index = OpusIndex(
-                meta={'id': opus.ref, 'index': settings.ELASTIC_SEARCH["index"]},
-                corpus_ref=opus.corpus.ref,
-                ref=opus.ref,
-                #summary = msummary_for_es,
-                title=opus.title,
-                composer=opus.composer,
-                lyricist=opus.lyricist,
+            musicdoc_index = MusicDocIndex(
+                meta={'id': MusicDoc.doc_id, 'index': "index"}
+                #title=opus.title,
+                #composer=opus.composer,
+                #lyricist=opus.lyricist,
             )
             
-            # Add descriptors to opus index
-            for descriptor in opus.descriptor_set.all():
+            # Add features/descriptors to index
+            ##LATER!!
+            ##for descriptor in opus.descriptor_set.all():
                 #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.type)
-                opus_index.add_descriptor(descriptor)
+                ##opus_index.add_descriptor(descriptor)
             # Saving the opus_index object triggers insert or replacement in ElasticSearch
-            opus_index.save(using=self.elastic_search,id=opus.ref)
+
+            musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
         except Exception as ex:
             print ("Error met when trying to index: " + str(ex))
@@ -108,12 +102,13 @@ class IndexWrapper:
         return
 
         # Add descriptors to opus index
-        for descriptor in opus.descriptor_set.all():
+        ##LATER!!
+        ##for descriptor in opus.descriptor_set.all():
             #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.type)
-            opus_index.add_descriptor(descriptor)
+            ##opus_index.add_descriptor(descriptor)
 
         # Saving the opus_index object triggers insert or replacement in ElasticSearch
-        opus_index.save(using=self.elastic_search,id=opus.ref)
+        musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
 class DescriptorIndex(InnerDoc):
     '''
@@ -128,23 +123,23 @@ class DescriptorIndex(InnerDoc):
     voice = Text()
     value = Text()
 
-class OpusIndex(Document):
+class MusicDocIndex(Document):
     '''
-     Encoding of informations related to an Opus, stored in ElasrticSearch
+     Encoding of informations related to a MusicDoc, stored in ElasticSearch
     '''
-    corpus_ref = Text()
     id = Integer()
-    ref = Text()
-    title = Text()
-    lyricist = Text()
-    composer = Text()
+    #ref = Text()
+    #title = Text()
+    #composer = Text()
     # Music summary: compressed representation of the music content
-    summary = Text()
-    #: Ngram encoding of the melody
-    melody = Nested(
+    #summary = Text()
+    
+    #Ngram encoding of the chromatic intervals
+    chromatic = Nested(
         doc_class=DescriptorIndex,
     )
-    #: Ngram encoding of the rythm
+    #: Ngram encoding of the rhythm
+    """
     rhythm = Nested(
         doc_class=DescriptorIndex,
     )
@@ -160,6 +155,7 @@ class OpusIndex(Document):
     diatonic = Nested(
         doc_class=DescriptorIndex,
     )
+    """
     '''
       Add a new descriptor to the OpusIndex. Must be done before sending the latter to ES
     '''

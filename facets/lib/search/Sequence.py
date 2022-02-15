@@ -13,8 +13,7 @@ DURATION_UNIT = 16
 
 class Sequence:
     """
-        A compact representation of a voice, used
-        for search operations
+        A compact representation of a voice, used for search operations
     """
     def __init__(self):
         # A sequence is a list of music items
@@ -112,7 +111,7 @@ class Sequence:
                         #otherwise, it is a descending interval.
                         direction = 'D'
 
-                    if descriptor == settings.DIATONIC_DESCR:
+                    if descriptor == "diatonic":
                         """
                         Get diatonic interval name via music21, and store as a dictionary. 
                         Each object contains the position of the first event, the position of the last event,
@@ -131,19 +130,18 @@ class Sequence:
                         """
                             "directedSimpleNiceName" examples: "Descending Doubly-Diminished Fifth", "Ascending Perfect Fourth", "Ascending Doubly-Augmented Fourth"
                             "simpleName" examples: dd5, P5, AA4. There's no direction information
-                            Since the program only executes here when a new note with different pitch is detected, the "unison" here should be an augmented unison, a.k.a minor second
+                            Since it only executes when a pitch interval is detected, "unison" refers to an augmented unison, a.k.a minor second
                         """
                         m21_interval_directed = m21.interval.Interval(noteStart=m21_pre_item, noteEnd=m21_item).directedSimpleNiceName
                         
                         arr_diatonic = m21_interval_directed.split(" ")
                         """
-                        #This part is no longer necessary because we could tell direction by gap value                            
+                        #This part is no longer necessary because we could tell direction by value                            
                         if arr_diatonic[0] == "Ascending": direction = 'A'
                         elif arr_diatonic[0] == "Descending": direction = 'D'
                         else: direction = ''
                         """
                         m21_generic = dict_wordtonum[arr_diatonic[-1]]
-                        #m21_generic_interval = m21.interval.GenericInterval(arr_diatonic[-1])
 
                         m21_interval = m21_generic + direction
 
@@ -161,7 +159,7 @@ class Sequence:
 
             i_pos += 1
 
-        if descriptor == settings.DIATONIC_DESCR:
+        if descriptor == "diatonic":
             #by diatonic interval names
             return diatonic_intervals
         else:
@@ -235,8 +233,6 @@ class Sequence:
             ngram = ""
             for j in range(i, i + NGRAM_SIZE):
                 ngram = ngram + str(symbols[j]) + ""
-            #if hash:
-            #    phrase += self.hash_ngrams(ngram) + " "
             else:
                 phrase += ngram + " N "
         return phrase

@@ -1,4 +1,3 @@
-
 from .Voice import Voice
 
 from music21 import *
@@ -110,16 +109,20 @@ class Score:
     
     def get_music_summary(self):
         '''Produce a compact representation of a score for search operations'''
+
         music_summary = MusicSummary()
+
         # Adds a single part, for historical reasons: we do not care about parts
         # for search operations
         part_id = settings.ALL_PARTS
         music_summary.add_part(part_id)
+
         # Now add all the voices
         voices = self.get_all_voices()
+
         for voice in voices:
             music_summary.add_voice_to_part(part_id, voice.id, voice)
-            
+
         return music_summary
     
     def get_title(self):
@@ -127,11 +130,13 @@ class Score:
             return self.m21_score.metadata.title
         else:
             return ""
+
     def get_composer(self):
         if self.m21_score.metadata:
             return self.m21_score.metadata.composer
         else:
             return ""
+            
     def get_metadata(self):
         return self.m21_score.metadata
 
