@@ -49,9 +49,9 @@ class IndexWrapper:
                                             port=9200,
                                             index="index",
                                             http_auth=(auth_login, auth_password))
-            
+
         # Open, and possibly create the index
-        self.index = Index ("index_test",using=self.elastic_search)
+        self.index = Index ("index", using=self.elastic_search)
         
         if not self.index.exists(using=self.elastic_search):
             # Create the index
@@ -61,7 +61,7 @@ class IndexWrapper:
         self.index.open(using=self.elastic_search)
         #: Directory containing some pre-defined queries in JSON
         self.query_dir = settings.ES_QUERY_DIR
-        
+        #ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
     
     def get_index_info(self):
         '''
@@ -81,6 +81,7 @@ class IndexWrapper:
 
             musicdoc_index = MusicDocIndex(
                 meta={'id': MusicDoc.doc_id, 'index': "index"}
+                
                 #title=opus.title,
                 #composer=opus.composer,
                 #lyricist=opus.lyricist,
@@ -138,8 +139,7 @@ class MusicDocIndex(Document):
     chromatic = Nested(
         doc_class=DescriptorIndex,
     )
-    #: Ngram encoding of the rhythm
-    """
+    #: N-gram encoding of the rhythm
     rhythm = Nested(
         doc_class=DescriptorIndex,
     )
@@ -155,7 +155,6 @@ class MusicDocIndex(Document):
     diatonic = Nested(
         doc_class=DescriptorIndex,
     )
-    """
     '''
       Add a new descriptor to the OpusIndex. Must be done before sending the latter to ES
     '''
