@@ -25,6 +25,9 @@ from rest_framework.schemas import AutoSchema, ManualSchema
 from django.conf.global_settings import LOGGING
 import logging
 
+from lib.process import ScoreProcessing
+
+from lib.search.IndexWrapper import IndexWrapper
 
 from music21 import converter, mei
 
@@ -61,6 +64,7 @@ def index(request, index_name):
 
 	if request.method == "GET":
 		return JSONResponse({"Message": "Request to read index " + index_name})
+
 	elif request.method == "PUT":
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -77,7 +81,10 @@ def index(request, index_name):
 
 	if request.method == "GET":
 		'''
-		  To do: reeturn some info on the index
+		  To do: return some info on the index
+
+		  Example:
+		      curl -X GET  http://localhost:8000/index/
 		'''
 		return JSONResponse({"Message": "Request to read index " + index_name})
 	
@@ -85,6 +92,9 @@ def index(request, index_name):
 		'''
 		  To do: create the index if it does not exist
 		'''
+
+		index_wrapper = IndexWrapper()
+
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
 	# Should not happen
@@ -93,28 +103,44 @@ def index(request, index_name):
 
 @csrf_exempt
 @api_view(["GET", "PUT"])
-def document(request, index_name,doc_id):
+def document(request, index_name, doc_id):
 
 	"""
 		Document management
 	"""
 
 	if request.method == "GET":
+		'''
+			Example:
+			    curl -X GET  http://localhost:8000/index/lklk/
+		'''
 		return JSONResponse({"Message": "Request to read document " + doc_id})
+
 	elif request.method == "PUT":
 		'''
-		   Example=
-		     curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
+		   Example:
+		       curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
+		       
+		       In which "index" is index_name, and "lklk" is doc_id.
 		'''
 		# Read the document
 		try:
 			if request.content_type == "application/mei":
 				# Apply the MEI -> Music21 converter
 				conv = mei.MeiToM21Converter(request.body)
+
+				# Get M21 object of the score
 				m21_score = conv.run()
-				'''
-				  At this point we got the Music21 object: let's proceed
-				'''
+
+				# Process current score
+				musicdoc = ScoreProcessing.score_process(m21_score, index_name, doc_id)
+				
+				#Extract features TBC
+
+				#Index it
+				index_wrapper = IndexWrapper()
+				index_wrapper.index_musicdoc(musicdoc)
+				
 				return JSONResponse({"message": "Request to create MEI document " + doc_id})
 			else:
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})
