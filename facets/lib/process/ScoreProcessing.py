@@ -14,19 +14,22 @@ def extract_features(MS):
 		'''
 		return
 
-def score_process(m21_score):
+def score_process(m21_score, index_name, doc_id):
 
 		score = Score()
 	
 		# Get a Score object from M21 object of the score. 
 		score.load_component(m21_score)
-	 
+	 	
+	 	#Create object musicdoc, save metadata
+
+		musicdoc = MusicDoc()
+		musicdoc.doc_id = doc_id
+
 		# Get MusicSummary from the Score object
-		MusicSummary = score.get_music_summary()
 
-		print(MusicSummary.doc_id)
-		print(MusicSummary.parts)
-		extract_features(MusicSummary)
+		MS = score.get_music_summary()
 
-		return
+		extract_features(MS)
 
+		return musicdoc

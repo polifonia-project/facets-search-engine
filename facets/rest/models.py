@@ -12,7 +12,7 @@ class Index(models.Model):
 class MusicDoc(models.Model):
 	index = models.ForeignKey(Index, on_delete=models.CASCADE)
 	doc_id = models.CharField(max_length=255, unique=True)
-	doc_type = models.CharField(max_length=255)
+	#doc_type = models.CharField(max_length=255)
 
 	#title = models.CharField(max_length=255, null=True, blank=True)
 	#composer = models.CharField(max_length=255, null=True, blank=True)

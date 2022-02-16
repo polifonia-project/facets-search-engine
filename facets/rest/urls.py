@@ -4,6 +4,7 @@ from . import views
 from django.conf.urls import include #,url
 from django.views.decorators.csrf import csrf_exempt
 
+from django.contrib import admin
 from django.urls import path, re_path
 
 from .views import *
@@ -38,5 +39,6 @@ urlpatterns = [
 	path('<str:index_name>/', views.index, name='index'),
 	# Music document management
 	path('<str:index_name>/<str:doc_id>/', views.document, name='document'),
+	path('admin/', admin.site.urls),
 
 ]

@@ -92,6 +92,7 @@ def index(request, index_name):
 		'''
 		  To do: create the index if it does not exist
 		'''
+
 		index_wrapper = IndexWrapper()
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
@@ -119,25 +120,27 @@ def document(request, index_name, doc_id):
 		'''
 		   Example:
 		       curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
+		       
+		       In which "index" is index_name, and "lklk" is doc_id.
 		'''
 		# Read the document
 		try:
 			if request.content_type == "application/mei":
 				# Apply the MEI -> Music21 converter
 				conv = mei.MeiToM21Converter(request.body)
+
 				# Get M21 object of the score
 				m21_score = conv.run()
 
 				# Process current score
-				ScoreProcessing.score_process(m21_score)
+				musicdoc = ScoreProcessing.score_process(m21_score, index_name, doc_id)
 				
 				#Extract features TBC
 
 				#Index it
 				index_wrapper = IndexWrapper()
-				#index_wrapper.index_musicdoc(m21_score)
-
-
+				index_wrapper.index_musicdoc(musicdoc)
+				
 				return JSONResponse({"message": "Request to create MEI document " + doc_id})
 			else:
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})

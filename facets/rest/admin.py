@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Index
+from .models import MusicDoc
+from .models import Descriptor
+
+admin.site.register(Index)
+admin.site.register(MusicDoc)
+admin.site.register(Descriptor)

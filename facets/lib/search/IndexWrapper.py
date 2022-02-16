@@ -80,7 +80,7 @@ class IndexWrapper:
         try:
 
             musicdoc_index = MusicDocIndex(
-                meta={'id': MusicDoc.doc_id, 'index': "index"}
+                meta={'id': MusicDoc.doc_id, 'index': "index", 'summary': MusicDoc.summary}
                 
                 #title=opus.title,
                 #composer=opus.composer,
@@ -109,7 +109,7 @@ class IndexWrapper:
             ##opus_index.add_descriptor(descriptor)
 
         # Saving the opus_index object triggers insert or replacement in ElasticSearch
-        musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
+        ##musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
 class DescriptorIndex(InnerDoc):
     '''
@@ -128,12 +128,13 @@ class MusicDocIndex(Document):
     '''
      Encoding of informations related to a MusicDoc, stored in ElasticSearch
     '''
-    id = Integer()
-    #ref = Text()
+    id = Text()
+    index = Text()
+
     #title = Text()
     #composer = Text()
     # Music summary: compressed representation of the music content
-    #summary = Text()
+    summary = Text()
     
     #Ngram encoding of the chromatic intervals
     chromatic = Nested(
