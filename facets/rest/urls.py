@@ -37,6 +37,5 @@ urlpatterns = [
 	path('<str:index_name>/', views.index, name='index'),
 	# Music document management
 	path('<str:index_name>/<str:doc_id>/', views.document, name='document'),
-	path('admin/', admin.site.urls),
 
 ]
