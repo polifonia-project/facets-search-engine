@@ -3,7 +3,6 @@ from . import views
 from django.conf.urls import include 
 from django.views.decorators.csrf import csrf_exempt
 
-from django.contrib import admin
 from django.urls import path, re_path
 
 from .views import *
