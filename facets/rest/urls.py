@@ -1,7 +1,7 @@
 from rest_framework import routers
 from . import views
 #in Django 4.0 django.conf.urls.url() is removed
-from django.conf.urls import include #,url
+from django.conf.urls import include 
 from django.views.decorators.csrf import csrf_exempt
 
 from django.contrib import admin

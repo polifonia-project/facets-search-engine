@@ -80,7 +80,7 @@ class IndexWrapper:
         try:
 
             musicdoc_index = MusicDocIndex(
-                meta={'id': MusicDoc.doc_id, 'index': "index", 'summary': MusicDoc.summary}
+                meta={'id': MusicDoc.doc_id, 'index': "index"}
                 
                 #title=opus.title,
                 #composer=opus.composer,
@@ -134,7 +134,7 @@ class MusicDocIndex(Document):
     #title = Text()
     #composer = Text()
     # Music summary: compressed representation of the music content
-    summary = Text()
+    #summary = Text()
     
     #Ngram encoding of the chromatic intervals
     chromatic = Nested(
