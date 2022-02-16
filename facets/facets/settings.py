@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-   'drf_yasg',
+    'drf_yasg',
     'rest'
 ]
 
@@ -124,3 +125,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+NGRAM_SIZE = 3
+ALL_PARTS = "all_parts"
+
+# Descriptor types
+CHROMATIC_DESCR = "chromatic"
+LYRICS_DESCR = "lyrics"
+RHYTHM_DESCR = "rhythmic"
+NOTES_DESCR = "notes"
+DIATONIC_DESCR = "diatonic"
+
+# Search types
+EXACT_SEARCH = "exactSearch"
+CHROMATIC_SEARCH = "chromaticSearch"
+RHYTHMIC_SEARCH = "rhythmicSearch"
+DIATONIC_SEARCH = "diatonicSearch"
+
+ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
