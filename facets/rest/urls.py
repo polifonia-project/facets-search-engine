@@ -1,6 +1,6 @@
 from rest_framework import routers
 from . import views
-from django.conf.urls import include 
+from django.conf.urls import include
 from django.views.decorators.csrf import csrf_exempt
 
 from django.urls import path, re_path
