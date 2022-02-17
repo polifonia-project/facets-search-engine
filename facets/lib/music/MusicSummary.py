@@ -61,4 +61,3 @@ class MusicSummary:
            Encode a music summary in in JSON
         '''
         return jsonpickle.encode(self, unpicklable=False)
-

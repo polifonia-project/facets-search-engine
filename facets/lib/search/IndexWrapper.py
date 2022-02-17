@@ -16,7 +16,7 @@ from lib.music import *
 from rest import models
 
 #from manager.models import Opus
-#from search.Sequence import Sequence
+from lib.search.Sequence import Sequence
 
 # import the logging library
 import logging
@@ -69,7 +69,7 @@ class IndexWrapper:
         '''
         return self.index.get()
 
-    def index_musicdoc(self, MusicDoc):
+    def index_musicdoc(self, MusicDoc, descr_dict):
         """ 
         Add or replace an Opus in the ElasticSearch index
         
@@ -81,17 +81,13 @@ class IndexWrapper:
 
             musicdoc_index = MusicDocIndex(
                 meta={'id': MusicDoc.doc_id, 'index': "index"}
-                
-                #title=opus.title,
-                #composer=opus.composer,
-                #lyricist=opus.lyricist,
             )
             
             # Add features/descriptors to index
-            ##LATER!!
-            ##for descriptor in opus.descriptor_set.all():
+
+            for descriptor in descr_dict:
                 #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.type)
-                ##opus_index.add_descriptor(descriptor)
+                musicdoc_index.add_descriptor(descriptor)
             # Saving the opus_index object triggers insert or replacement in ElasticSearch
 
             musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
@@ -103,7 +99,7 @@ class IndexWrapper:
         return
 
         # Add descriptors to opus index
-        ##LATER!!
+
         ##for descriptor in opus.descriptor_set.all():
             #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.type)
             ##opus_index.add_descriptor(descriptor)
@@ -136,8 +132,8 @@ class MusicDocIndex(Document):
     # Music summary: compressed representation of the music content
     #summary = Text()
     
-    #Ngram encoding of the chromatic intervals
-    chromatic = Nested(
+    #N-gram encoding of the chromatic intervals
+    chromatic = Nested( 
         doc_class=DescriptorIndex,
     )
     #: N-gram encoding of the rhythm
@@ -159,14 +155,17 @@ class MusicDocIndex(Document):
     '''
       Add a new descriptor to the OpusIndex. Must be done before sending the latter to ES
     '''
-    def add_descriptor(self, descriptor):
+    def add_descriptor(self, descr_dict):
+        self.chromatic = self.update_list(self.chromatic, descr_dict, 'voice')
+        """
         if descriptor.type == settings.LYRICS_DESCR:
             self.lyrics = self.update_list(self.lyrics, descriptor.to_dict(), 'voice')
-        elif descriptor.type == settings.MELODY_DESCR:
-            self.melody = self.update_list(self.melody, descriptor.to_dict(), 'voice')
+        elif descriptor.type == settings.CHROMATIC_DESCR:
+            self.chromatic = self.update_list(self.chromatic, descriptor.to_dict(), 'voice')
         elif descriptor.type == settings.RHYTHM_DESCR:
             self.rhythm = self.update_list(self.rhythm, descriptor.to_dict(), 'voice')
         elif descriptor.type == settings.NOTES_DESCR:
             self.notes = self.update_list(self.notes, descriptor.to_dict(), 'voice')
         elif descriptor.type == settings.DIATONIC_DESCR:
             self.diatonic = self.update_list(self.diatonic, descriptor.to_dict(), 'voice')
+        """

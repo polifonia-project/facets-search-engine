@@ -132,16 +132,15 @@ def document(request, index_name, doc_id):
 				# Get M21 object of the score
 				m21_score = conv.run()
 
-				# Process current score
-				musicdoc = ScoreProcessing.score_process(m21_score, index_name, doc_id)
+				# Process the current score, produce descriptors
+				musicdoc, descr_dict = ScoreProcessing.score_process(m21_score, index_name, doc_id)
 				
-				#Extract features TBC
-
 				#Index it
 				index_wrapper = IndexWrapper()
-				index_wrapper.index_musicdoc(musicdoc)
+				index_wrapper.index_musicdoc(musicdoc, descr_dict)
 				
-				return JSONResponse({"message": "Request to create MEI document " + doc_id})
+				#return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
+				return JSONResponse({"message": descr_dict})
 			else:
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})
 

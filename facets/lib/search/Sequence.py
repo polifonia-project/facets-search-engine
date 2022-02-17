@@ -71,13 +71,13 @@ class Sequence:
 
     def get_intervals(self, descriptor="chromatic"):
         """
+            For both chromatic and diatonic intervals.
+
             Get the list of intervals. Ignore repeated notes, grace notes, 
             and rests / silences.
-
             Intervals are encoded as a list of objects (dict). Each object 
             contains the pos of the first event, the pos of the last event,
             and the interval value.
-
             The list "diatonic_intervals" stores diatonic intervals(for example, an ascending fifth is a diatonic interval),
             while the list "intervals" stores the number of semitones as value.
         """
@@ -116,7 +116,6 @@ class Sequence:
                         Get diatonic interval name via music21, and store as a dictionary. 
                         Each object contains the position of the first event, the position of the last event,
                         and diatonic interval name. The interval is reduced to no more than an octave.
-
                         P.S:
                         For obtaining original interval name(not reduced to an octave), may change "directedsimpleNiceName" to "niceName".
                         For not getting the direction info(descending or ascending), may change "directedSimpleNiceName" to "simpleNiceName".
@@ -189,25 +188,25 @@ class Sequence:
     def get_intervals_as_string(self):
         """Used for debugging in templates """
         return self.encode_as_string(self.get_intervals())
-    
-    def get_melody_encoding(self, mirror_setting = False, NGRAM_SIZE = 3):
+
+    def get_chromatic_encoding(self, mirror_setting = False, NGRAM_SIZE = 3):
         """
-            Get melody and decompose in ngram text for melodic search.
+            Get chromatic intervals and decompose in ngram text for chromatic search.
             
             When mirror_setting=True, it means that the search specified to include mirror patterns in the search context,
-            this function returns the original melody encodings, and the mirrored melody encodings, both as a list of n-grams.
+            this function returns the original chromatic encodings, and the mirrored chromatic encodings, both as a list of n-grams.
 
             Please find definition of "mirror patterns" in description of get_mirror_intervals()
 
         """
-        melody_list = self.get_intervals("chromatic")
-        melody_encoding = self.intervals_to_ngrams(melody_list, NGRAM_SIZE)
+        chromatic_list = self.get_intervals(settings.CHROMATIC_DESCR)
+        chromatic_encoding = self.intervals_to_ngrams(chromatic_list, NGRAM_SIZE)
 
         if mirror_setting == False:
-            return melody_encoding
+            return chromatic_encoding
         elif mirror_setting == True:
-            mirror_melody = self.get_mirror_intervals(melody_list)
-            return melody_encoding, self.intervals_to_ngrams(mirror_melody)
+            mirror_chromatic = self.get_mirror_intervals(chromatic_list)
+            return chromatic_encoding, self.intervals_to_ngrams(mirror_chromatic)
 
     def intervals_to_ngrams(self, dict, NGRAM_SIZE = 3):
         #
@@ -221,20 +220,6 @@ class Sequence:
             for j in range(i, i + NGRAM_SIZE): 
                 ngram = ngram + str(dict[j]["value"]) + ";"
             phrase += ngram + " N "
-        return phrase
-
-    def to_ngrams(self, symbols, hash=False, NGRAM_SIZE = 3):
-        #
-        #   Splits symbol list into ngrams with size NGRAM_SIZE, used for exact search
-        #
-        nb_codes = len(symbols)
-        phrase = ""
-        for i in range(nb_codes - NGRAM_SIZE + 1):
-            ngram = ""
-            for j in range(i, i + NGRAM_SIZE):
-                ngram = ngram + str(symbols[j]) + ""
-            else:
-                phrase += ngram + " N "
         return phrase
 
     @staticmethod

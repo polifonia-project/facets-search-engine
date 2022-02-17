@@ -10,8 +10,6 @@ from fractions import Fraction
 from lib.search.Item import Item
 from lib.search.Sequence import Sequence
 
-#from home.templatetags.extras import scale_degree, semitoneconv
-#from home.templatetags.extras import rhythm_figures_print
 
 DURATION_UNIT = 16
 
@@ -222,7 +220,6 @@ class Voice:
                 all_degrees[x] = 1
         return all_degrees
 
-
     def get_degrees_norm(self):
         ctn = len(self.m21_stream.notes)
         x = {k: float(v)/float(ctn) for k, v in self.get_degrees().items()}
@@ -297,39 +294,6 @@ class Voice:
         for i in self.format_rhythmicfigures():
             a.append(float(i.duration))
         return a
-
-    def get_pitches_histogram(self):
-        pitches = self.get_pitches()
-        labels = map(lambda x: "'"+x+"'",pitches.keys())
-        #no need for closure here, using music21 _str_
-        return manager.models.Histogram(pitches.values(),labels,'Pitches')
-
-    def get_intervals_histogram(self):
-        intervals = self.get_intervals()
-        return manager.models.Histogram(intervals.values(),intervals.keys(),
-            'Intervals',semitoneconv)
-
-    def get_degrees_histogram(self):
-        degrees = self.get_degrees()
-        return manager.models.Histogram(degrees.values(),degrees.keys(),
-            'Degrees',scale_degree)
-
-    def get_rhythms_histogram(self):
-        rhythms = self.get_rhythms()
-        return manager.models.Histogram(rhythms.values(),rhythms.keys(),
-            'Rhythms',rhythm_figures_print)
-
-
-    def get_histogram(self,measure):
-        c = {'pitches':self.get_pitches_histogram,
-             'intervals':self.get_intervals_histogram,
-             'degrees':self.get_degrees_histogram,
-             'rhythms':self.get_rhythms_histogram}
-
-        if not measure.code in c:
-            raise UnknownSimMeasure
-
-        return (c[measure.code])()
 
     def get_incomplete_bars(self):
         ''' cherche les mesures incompletes (rythmes et silences qui ne matchent pas la signature rythmique)'''
