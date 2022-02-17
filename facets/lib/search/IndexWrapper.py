@@ -30,8 +30,8 @@ class IndexWrapper:
     
     A class to send queries to ElasticSearch
     
-    This class acts as a proxy for all queries sent to ElasticSearch. It relies on
-    the ``elasticsearch_dsl`` package, documented here:
+    This class acts as a proxy for all queries sent to ElasticSearch. 
+    It relies on the ``elasticsearch_dsl`` package, documented here:
     https://elasticsearch-dsl.readthedocs.io/en/latest/. 
     
     """
@@ -60,7 +60,7 @@ class IndexWrapper:
 
         self.index.open(using=self.elastic_search)
         #: Directory containing some pre-defined queries in JSON
-        self.query_dir = settings.ES_QUERY_DIR
+        #self.query_dir = settings.ES_QUERY_DIR
         #ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
     
     def get_index_info(self):
@@ -85,14 +85,17 @@ class IndexWrapper:
             
             # Add features/descriptors to index
 
-            """
-            for descriptor in descr_dict:
-                #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.descr_type)
-                musicdoc_index.add_descriptor(descriptor)
-            """
-            #Every voice from the descriptor dict of this musicdoc
-            for voice in descr_dict:
-                musicdoc_index.add_descriptor(descr_dict[voice])
+            #save values, part_id, and voice_id to ES, using descr_dict
+            #example: descr_dict["chromatic"]["P1-1"]["value"] contains the chromatic descriptor of voice P1-1 of the current musicdoc
+
+            #Iterate over types of descriptors in the dictionary
+            for descr_type in descr_dict:
+                #Iterate over parts in one type of descriptor
+                for part in descr_dict[descr_type]:
+                    part_id = descr_dict[descr_type][part]["part"]
+                    voice_id = descr_dict[descr_type][part]["voice"]
+                    des_value = descr_dict[descr_type][part]["value"]
+                    musicdoc_index.add_descriptor(part_id, voice_id, des_value)
             
             musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
@@ -101,9 +104,19 @@ class IndexWrapper:
         
         return
 
+    def bulk_indexing():
+        '''
+            Index all descriptor objects into ElasticSearch
+        '''
+        musicdoc_index.init(index="index")
+        """
+        Descriptor = apps.get_model('rest', 'descriptor')
+        bulk(client=self.elas, actions=(b.indexing() for b in Descriptor.objects.all().iterator()))
+        """
+
 class DescriptorIndex(InnerDoc):
     '''
-     Encoding of a specific descriptor for a voice, stored in ElasrticSearch
+     Encoding of a specific descriptor for a voice, stored in ElasticSearch
      
      A descriptor is a character string that encodes a specific aspect (rhythm, melody, lyrics)
      of a voice in a music piece. Its structure (sequence of ngrams) is such that effective text-based search
@@ -151,17 +164,5 @@ class MusicDocIndex(Document):
     '''
       Add a new descriptor to the OpusIndex. Must be done before sending the latter to ES
     '''
-    def add_descriptor(self, descr_dict):
-        self.chromatic = self.update_list(self.chromatic, descr_dict["chromatic"], 'voice')
-        """
-        if descriptor.type == settings.LYRICS_DESCR:
-            self.lyrics = self.update_list(self.lyrics, descriptor.to_dict(), 'voice')
-        elif descriptor.type == settings.CHROMATIC_DESCR:
-            self.chromatic = self.update_list(self.chromatic, descriptor.to_dict(), 'voice')
-        elif descriptor.type == settings.RHYTHM_DESCR:
-            self.rhythm = self.update_list(self.rhythm, descriptor.to_dict(), 'voice')
-        elif descriptor.type == settings.NOTES_DESCR:
-            self.notes = self.update_list(self.notes, descriptor.to_dict(), 'voice')
-        elif descriptor.type == settings.DIATONIC_DESCR:
-            self.diatonic = self.update_list(self.diatonic, descriptor.to_dict(), 'voice')
-        """
+    def add_descriptor(self, part_id, voice_id, des_value):
+        self.chromatic = (part_id, voice_id, des_value)

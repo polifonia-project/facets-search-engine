@@ -31,6 +31,7 @@ def produce_descriptors(music_summary, musicdoc):
 						descriptor.value = music_descr
 
 						descr_dict["chromatic"][str(voice_id)] = descriptor.to_dict()
+						#descriptor.to_dict() contains part + voice + value
 
 		except  Exception as ex:
 			print ("Exception when trying to write descriptor" + music_summary.doc_id + " Message:" + str(ex))

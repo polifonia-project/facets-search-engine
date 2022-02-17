@@ -92,8 +92,7 @@ def index(request, index_name):
 		'''
 		  To do: create the index if it does not exist
 		'''
-
-		index_wrapper = IndexWrapper()
+		#index_wrapper = IndexWrapper()
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -139,8 +138,8 @@ def document(request, index_name, doc_id):
 				index_wrapper = IndexWrapper()
 				index_wrapper.index_musicdoc(musicdoc, descr_dict)
 				
-				return JSONResponse({"message": descr_dict["chromatic"]["P1-1"]})
-				#return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
+				#return JSONResponse({"message": descr_dict})#["chromatic"]["P1-1"]})
+				return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
 			else:
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})
 
