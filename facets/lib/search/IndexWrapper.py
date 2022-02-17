@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class IndexWrapper:
     """
     
-    A class to send queries to ElasticSearch
+    A class to index music documents and send queries to ElasticSearch
     
     This class acts as a proxy for all queries sent to ElasticSearch. 
     It relies on the ``elasticsearch_dsl`` package, documented here:
@@ -59,9 +59,9 @@ class IndexWrapper:
             self.index.settings(number_of_shards=1, number_of_replicas=0)
 
         self.index.open(using=self.elastic_search)
+
         #: Directory containing some pre-defined queries in JSON
         #self.query_dir = settings.ES_QUERY_DIR
-        #ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
     
     def get_index_info(self):
         '''
@@ -71,32 +71,33 @@ class IndexWrapper:
 
     def index_musicdoc(self, MusicDoc, descr_dict):
         """ 
-        Add or replace an Opus in the ElasticSearch index
+        Add or replace a MusicDoc in the ElasticSearch index
         
         """
         
         print ("Index MusicDoc " + MusicDoc.doc_id)
-        # First time that we index this Opus
+
         try:
 
             musicdoc_index = MusicDocIndex(
                 meta={'id': MusicDoc.doc_id, 'index': "index"}
             )
-            
-            # Add features/descriptors to index
 
-            #save values, part_id, and voice_id to ES, using descr_dict
-            #example: descr_dict["chromatic"]["P1-1"]["value"] contains the chromatic descriptor of voice P1-1 of the current musicdoc
-
-            #Iterate over types of descriptors in the dictionary
+            """
+            # Iterate over types of descriptors in the dictionary
+            # For example, descr_dict["chromatic"]["P1-1"]["value"] contains the chromatic descriptor of voice P1-1 of the doc
             for descr_type in descr_dict:
                 #Iterate over parts in one type of descriptor
                 for part in descr_dict[descr_type]:
                     part_id = descr_dict[descr_type][part]["part"]
                     voice_id = descr_dict[descr_type][part]["voice"]
                     des_value = descr_dict[descr_type][part]["value"]
-                    musicdoc_index.add_descriptor(part_id, voice_id, des_value)
-            
+
+            """
+
+            # Add/update descriptors(a.k.a. features) to ES index
+            musicdoc_index.add_descriptor(descr_dict)
+            # Save the updated index
             musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
         except Exception as ex:
@@ -104,22 +105,12 @@ class IndexWrapper:
         
         return
 
-    def bulk_indexing():
-        '''
-            Index all descriptor objects into ElasticSearch
-        '''
-        musicdoc_index.init(index="index")
-        """
-        Descriptor = apps.get_model('rest', 'descriptor')
-        bulk(client=self.elas, actions=(b.indexing() for b in Descriptor.objects.all().iterator()))
-        """
-
 class DescriptorIndex(InnerDoc):
     '''
      Encoding of a specific descriptor for a voice, stored in ElasticSearch
      
      A descriptor is a character string that encodes a specific aspect (rhythm, melody, lyrics)
-     of a voice in a music piece. Its structure (sequence of ngrams) is such that effective text-based search
+     of a voice in a music piece. Its structure (sequence of n-grams) is such that effective text-based search
      supported by ElasticSearch can be carried out on its content.
     '''
     
@@ -136,33 +127,29 @@ class MusicDocIndex(Document):
 
     #title = Text()
     #composer = Text()
-    # Music summary: compressed representation of the music content
-    #summary = Text()
     
-    #N-gram encoding of the chromatic intervals
+    # N-gram encoding of the chromatic intervals
     chromatic = Nested( 
         doc_class=DescriptorIndex,
     )
     """
-    #: N-gram encoding of the rhythm
-    rhythm = Nested(
-        doc_class=DescriptorIndex,
-    )
-    #: Ngram encoding of the notes
-    notes = Nested(
-        doc_class=DescriptorIndex,
-    )
-    #: Text encoding of the lyrics
-    lyrics = Nested(
-        doc_class=DescriptorIndex,
-    )
     # N-gram encoding of the diatonic intervals
     diatonic = Nested(
         doc_class=DescriptorIndex,
     )
+    # N-gram encoding of the rhythm intervals
+    rhythm = Nested(
+        doc_class=DescriptorIndex,
+    )
+    # Ngram encoding of the notes for exact search
+    notes = Nested(
+        doc_class=DescriptorIndex,
+    )
+    # Text encoding of the lyrics
+    lyrics = Nested(
+        doc_class=DescriptorIndex,
+    )
     """
-    '''
-      Add a new descriptor to the OpusIndex. Must be done before sending the latter to ES
-    '''
-    def add_descriptor(self, part_id, voice_id, des_value):
-        self.chromatic = (part_id, voice_id, des_value)
+
+    def add_descriptor(self, descr_dict):
+        self.chromatic = descr_dict["chromatic"]
