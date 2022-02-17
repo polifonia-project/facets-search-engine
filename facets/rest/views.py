@@ -132,15 +132,15 @@ def document(request, index_name, doc_id):
 				# Get M21 object of the score
 				m21_score = conv.run()
 
-				# Process the current score, produce descriptors
+				# Process the current score, produce descriptors from MusicSummary
 				musicdoc, descr_dict = ScoreProcessing.score_process(m21_score, index_name, doc_id)
 				
-				#Index it
+				#Index the current musicdoc and its descriptors
 				index_wrapper = IndexWrapper()
 				index_wrapper.index_musicdoc(musicdoc, descr_dict)
 				
+				return JSONResponse({"message": descr_dict["chromatic"]["P1-1"]})
 				#return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
-				return JSONResponse({"message": descr_dict})
 			else:
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})
 

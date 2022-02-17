@@ -7,7 +7,7 @@ from lib.music.Score import *
 from lib.music.MusicSummary import *
 from rest.models import *
 
-def produce_descriptors(score, music_summary, musicdoc):
+def produce_descriptors(music_summary, musicdoc):
 
 		descr_dict = {}
 		try:
@@ -44,16 +44,15 @@ def score_process(m21_score, index_name, doc_id):
 		# Get a Score object from M21 object of the score. 
 		score.load_component(m21_score)
 	 	
-	 	#Create object musicdoc, save metadata
-
+	 	# Create object musicdoc, save metadata
 		musicdoc = MusicDoc()
 		musicdoc.doc_id = doc_id
 
 		# Get MusicSummary from the Score object
-
 		MS = score.get_music_summary()
 		MS.doc_id = doc_id
 
-		descr_dict = produce_descriptor(m21_score, MS, musicdoc)
+		# Feature extraction
+		descr_dict = produce_descriptors(MS, musicdoc)
 
 		return musicdoc, descr_dict

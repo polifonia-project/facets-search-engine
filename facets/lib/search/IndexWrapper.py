@@ -85,27 +85,21 @@ class IndexWrapper:
             
             # Add features/descriptors to index
 
+            """
             for descriptor in descr_dict:
-                #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.type)
+                #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.descr_type)
                 musicdoc_index.add_descriptor(descriptor)
-            # Saving the opus_index object triggers insert or replacement in ElasticSearch
-
+            """
+            #Every voice from the descriptor dict of this musicdoc
+            for voice in descr_dict:
+                musicdoc_index.add_descriptor(descr_dict[voice])
+            
             musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
         except Exception as ex:
             print ("Error met when trying to index: " + str(ex))
-            #When the analysis finish, no value would be assigned to mel_pat_dict etc.. thus simply return void
         
         return
-
-        # Add descriptors to opus index
-
-        ##for descriptor in opus.descriptor_set.all():
-            #print ("Add descriptor for voice " + descriptor.voice, " type " + descriptor.type)
-            ##opus_index.add_descriptor(descriptor)
-
-        # Saving the opus_index object triggers insert or replacement in ElasticSearch
-        ##musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
 class DescriptorIndex(InnerDoc):
     '''
@@ -136,6 +130,7 @@ class MusicDocIndex(Document):
     chromatic = Nested( 
         doc_class=DescriptorIndex,
     )
+    """
     #: N-gram encoding of the rhythm
     rhythm = Nested(
         doc_class=DescriptorIndex,
@@ -148,15 +143,16 @@ class MusicDocIndex(Document):
     lyrics = Nested(
         doc_class=DescriptorIndex,
     )
-    # Ngram encoding of the diatonic intervals
+    # N-gram encoding of the diatonic intervals
     diatonic = Nested(
         doc_class=DescriptorIndex,
     )
+    """
     '''
       Add a new descriptor to the OpusIndex. Must be done before sending the latter to ES
     '''
     def add_descriptor(self, descr_dict):
-        self.chromatic = self.update_list(self.chromatic, descr_dict, 'voice')
+        self.chromatic = self.update_list(self.chromatic, descr_dict["chromatic"], 'voice')
         """
         if descriptor.type == settings.LYRICS_DESCR:
             self.lyrics = self.update_list(self.lyrics, descriptor.to_dict(), 'voice')
