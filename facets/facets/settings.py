@@ -143,3 +143,5 @@ RHYTHMIC_SEARCH = "rhythmicSearch"
 DIATONIC_SEARCH = "diatonicSearch"
 
 ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
+
+ELASTIC_SEARCH = {"host": "localhost", "port": 9200, "index": "index"}
