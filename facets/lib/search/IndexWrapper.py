@@ -36,22 +36,22 @@ class IndexWrapper:
     
     """
 
-    def __init__(self, auth_login=None, auth_password=None) :
+    def __init__(self, index_name, auth_login=None, auth_password=None) :
         """
            Connect to the ElasticSearch server, and open the index
         """
         if auth_login is None:
-            self.elastic_search = Elasticsearch(host="localhost", 
-                                            port=9200,
-                                            index="index")
+            self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
+                                            port=settings.ELASTIC_SEARCH["port"],
+                                            index=index_name)
         else:
-            self.elastic_search = Elasticsearch(host="localhost", 
-                                            port=9200,
-                                            index="index",
+            self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"],
+                                            port=settings.ELASTIC_SEARCH["port"],
+                                            index=index_name,
                                             http_auth=(auth_login, auth_password))
 
         # Open, and possibly create the index
-        self.index = Index ("index", using=self.elastic_search)
+        self.index = Index (index_name, using=self.elastic_search)
         
         if not self.index.exists(using=self.elastic_search):
             # Create the index
@@ -132,7 +132,6 @@ class MusicDocIndex(Document):
     chromatic = Nested( 
         doc_class=DescriptorIndex,
     )
-    """
     # N-gram encoding of the diatonic intervals
     diatonic = Nested(
         doc_class=DescriptorIndex,
@@ -149,11 +148,10 @@ class MusicDocIndex(Document):
     lyrics = Nested(
         doc_class=DescriptorIndex,
     )
-    """
 
     def add_descriptor(self, descr_dict):
 
-        # To be modified: voices are still there as a highest hierachy, it shouldn't be like that?
+        # To be modified: voices are there as a highest hierachy
         self.chromatic = descr_dict["chromatic"]
         self.diatonic = descr_dict["diatonic"]
         self.rhythm = descr_dict["rhythmic"]
