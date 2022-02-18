@@ -74,7 +74,7 @@ def index(request, index_name):
 		'''
 		  To do: create the index if it does not exist
 		'''
-		#index_wrapper = IndexWrapper()
+		index_wrapper = IndexWrapper(index_name)
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -86,11 +86,7 @@ def index(request, index_name):
 @api_view(["POST"])
 def search(request, index_name):
 	result = []
-<<<<<<< Updated upstream
 	return JSONResponse({"Message": "Search executed in index " + index_name,
-=======
-	return JSONResponse({"Message": "Search executed in index " + index_name ,
->>>>>>> Stashed changes
 						"Result": result})
 
 @csrf_exempt
@@ -128,10 +124,9 @@ def document(request, index_name, doc_id):
 				musicdoc, descr_dict = ScoreProcessing.score_process(m21_score, index_name, doc_id)
 				
 				#Index the current musicdoc and its descriptors
-				index_wrapper = IndexWrapper()
+				index_wrapper = IndexWrapper(index_name)
 				index_wrapper.index_musicdoc(musicdoc, descr_dict)
 				
-				#return JSONResponse({"message": descr_dict})#["chromatic"]["P1-1"]})
 				return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
 			else:
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})
