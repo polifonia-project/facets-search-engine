@@ -65,7 +65,6 @@ def index(request, index_name):
 	if request.method == "GET":
 		'''
 		  To do: return some info on the index
-
 		  Example:
 		      curl -X GET  http://localhost:8000/index/
 		'''
@@ -75,7 +74,7 @@ def index(request, index_name):
 		'''
 		  To do: create the index if it does not exist
 		'''
-		index_wrapper = IndexWrapper()
+		#index_wrapper = IndexWrapper()
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -87,7 +86,11 @@ def index(request, index_name):
 @api_view(["POST"])
 def search(request, index_name):
 	result = []
+<<<<<<< Updated upstream
 	return JSONResponse({"Message": "Search executed in index " + index_name,
+=======
+	return JSONResponse({"Message": "Search executed in index " + index_name ,
+>>>>>>> Stashed changes
 						"Result": result})
 
 @csrf_exempt
@@ -138,4 +141,3 @@ def document(request, index_name, doc_id):
 	
 	# Should not happen
 	return Response(status=status.HTTP_400_BAD_REQUEST)
-

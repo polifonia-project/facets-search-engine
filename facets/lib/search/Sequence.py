@@ -72,7 +72,6 @@ class Sequence:
     def get_intervals(self, descriptor="chromatic"):
         """
             For both chromatic and diatonic intervals.
-
             Get the list of intervals. Ignore repeated notes, grace notes, 
             and rests / silences.
             Intervals are encoded as a list of objects (dict). Each object 
@@ -195,9 +194,7 @@ class Sequence:
             
             When mirror_setting=True, it means that the search specified to include mirror patterns in the search context,
             this function returns the original chromatic encodings, and the mirrored chromatic encodings, both as a list of n-grams.
-
             Please find definition of "mirror patterns" in description of get_mirror_intervals()
-
         """
         chromatic_list = self.get_intervals(settings.CHROMATIC_DESCR)
         chromatic_encoding = self.intervals_to_ngrams(chromatic_list, NGRAM_SIZE)
