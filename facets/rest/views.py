@@ -101,6 +101,13 @@ def index(request, index_name):
 
 
 @csrf_exempt
+@api_view(["POST"])
+def search(request, index_name):
+	result = []
+	return JSONResponse({"Message": "Search executed in index " + index_name ,
+						"Result": result})
+
+@csrf_exempt
 @api_view(["GET", "PUT"])
 def document(request, index_name, doc_id):
 
