@@ -63,23 +63,6 @@ def index(request, index_name):
 	"""
 
 	if request.method == "GET":
-		return JSONResponse({"Message": "Request to read index " + index_name})
-
-	elif request.method == "PUT":
-		return JSONResponse({"Message": "Request to create index " + index_name})
-	
-	# Should not happen
-	return Response(status=status.HTTP_400_BAD_REQUEST)
-
-@csrf_exempt
-@api_view(["GET", "PUT"])
-def index(request, index_name):
-
-	"""
-		Index management
-	"""
-
-	if request.method == "GET":
 		'''
 		  To do: return some info on the index
 
@@ -104,7 +87,7 @@ def index(request, index_name):
 @api_view(["POST"])
 def search(request, index_name):
 	result = []
-	return JSONResponse({"Message": "Search executed in index " + index_name ,
+	return JSONResponse({"Message": "Search executed in index " + index_name,
 						"Result": result})
 
 @csrf_exempt
