@@ -92,7 +92,7 @@ def index(request, index_name):
 		'''
 		  To do: create the index if it does not exist
 		'''
-		#index_wrapper = IndexWrapper()
+		index_wrapper = IndexWrapper()
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
