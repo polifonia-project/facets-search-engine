@@ -101,7 +101,7 @@ def extract_features(score, music_summary, musicdoc):
 				all_voices = score.get_all_voices()
 				for this_voice in all_voices:
 					#  "this_voice" is different from the previous "curr_voice":
-					# "this_voice" is a Voice object
+					# "this_voice" is a Voice object. 
 					if this_voice.has_lyrics():
 						# Get lyrics from the Voice object
 						lyrics_descr = this_voice.get_lyrics()
@@ -122,7 +122,7 @@ def extract_features(score, music_summary, musicdoc):
 
 		return descr_dict
 
-def score_process(m21_score, index_name, doc_id):
+def score_process(m21_score, doc_id):
 
 		# Create a Score object
 		score = Score()

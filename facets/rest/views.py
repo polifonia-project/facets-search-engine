@@ -64,23 +64,25 @@ def index(request, index_name):
 
 	if request.method == "GET":
 		'''
-		  To do: return some info on the index
+		  Return info about the index.
 
 		  Example:
 		      curl -X GET  http://localhost:8000/index/
 		'''
 		index_wrapper = IndexWrapper(index_name)
-		# TODO: return the list of documents under ES index - query DSL?
+		info = index_wrapper.get_index_info(index_name)
 
-		return JSONResponse({"Message": "Request to read index " + index_name})
+		# return the info about ES index "index_name"
+		#print(info[index_name]['mappings'])
+		
+		#return JSONResponse({"Message": "Request to read index " + index_name})
+		return JSONResponse(info[index_name]['mappings'])
 	
 	elif request.method == "PUT":
 		'''
 		  To do: create the index if it does not exist
 		'''
 		index_wrapper = IndexWrapper(index_name)
-		#check if there exists index with index_name in ES. If not, send to ES.
-
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -127,10 +129,10 @@ def document(request, index_name, doc_id):
 				m21_score = conv.run()
 
 				# Process the current score, produce descriptors from MusicSummary
-				musicdoc, descr_dict = ScoreProcessing.score_process(m21_score, index_name, doc_id)
+				musicdoc, descr_dict = ScoreProcessing.score_process(m21_score, doc_id)
 				
-				#Index the current musicdoc and its descriptors
-				index_wrapper = IndexWrapper(index_name)
+				#Index the current musicdoc and its descriptors in the index named "index_name"
+				index_wrapper = IndexWrapper(index_name) 
 				index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict)
 				
 				return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})

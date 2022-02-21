@@ -58,14 +58,10 @@ class IndexWrapper:
 
         self.index.open(using=self.elastic_search)
 
-        #: Directory containing some pre-defined queries in JSON
+        # Directory containing some pre-defined queries in JSON
         #self.query_dir = settings.ES_QUERY_DIR
     
-    def index_exists(self, index_name):
-        #Check if the index exists in ES and return
-        return
-
-    def get_index_info(self):
+    def get_index_info(self, index_name):
         '''
         Obtain main infos on the index
         '''
@@ -77,7 +73,7 @@ class IndexWrapper:
         
         """
         
-        print ("Index MusicDoc " + MusicDoc.doc_id)
+        print ("Index MusicDoc " + MusicDoc.doc_id + "in Index: " + index_name)
 
         try:
 
