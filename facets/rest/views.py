@@ -64,6 +64,8 @@ def index(request, index_name):
 
 	if request.method == "GET":
 		'''
+		  To do: return some info on the index
+
 		  Example:
 		      curl -X GET  http://localhost:8000/index/
 		'''
@@ -78,6 +80,7 @@ def index(request, index_name):
 		'''
 		index_wrapper = IndexWrapper(index_name)
 		#check if there exists index with index_name in ES. If not, send to ES.
+
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -138,4 +141,5 @@ def document(request, index_name, doc_id):
 			return JSONResponse({"error": str(ex)})
 	
 	# Should not happen
+
 	return Response(status=status.HTTP_400_BAD_REQUEST)

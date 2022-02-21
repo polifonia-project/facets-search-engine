@@ -89,18 +89,17 @@ def extract_features(score, music_summary, musicdoc):
 
 						# Save to descriptor dictionary for indexing
 						descr_dict["notes"][str(voice_id)] = descriptor.to_dict()
-
 				
 				"""
 					Extract lyrics feature
 					Attention: this may only work for musicXML files!!
 					To be checked...				
+
 				"""
 
 				#  Get a list of Voice objects from the current Score object
 				all_voices = score.get_all_voices()
 				for this_voice in all_voices:
-
 					#  "this_voice" is different from the previous "curr_voice":
 					# "this_voice" is a Voice object
 					if this_voice.has_lyrics():

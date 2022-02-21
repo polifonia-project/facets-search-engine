@@ -154,6 +154,7 @@ class MusicDocIndex(Document):
     def add_descriptor(self, descr_dict):
 
         # To be modified: voices are there as a highest hierachy
+
         self.chromatic = descr_dict["chromatic"]
         self.diatonic = descr_dict["diatonic"]
         self.rhythm = descr_dict["rhythmic"]

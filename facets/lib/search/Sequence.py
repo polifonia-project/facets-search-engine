@@ -4,6 +4,7 @@ from fractions import Fraction
 
 #from .Distance import *
 #from .Distance_neuma import *
+
 from .Item import Item
 
 from django.conf import settings
@@ -84,16 +85,7 @@ class Sequence:
 
     def get_intervals(self, descriptor="chromatic"):
         """
-<<<<<<< Updated upstream
-            For both chromatic and diatonic intervals.
-            Get the list of intervals. Ignore repeated notes, grace notes, 
-            and rests / silences.
-            Intervals are encoded as a list of objects (dict). Each object 
-            contains the pos of the first event, the pos of the last event,
-            and the interval value.
-            The list "diatonic_intervals" stores diatonic intervals(for example, an ascending fifth is a diatonic interval),
-            while the list "intervals" stores the number of semitones as value.
-=======
+
             Get a list of chromatic or diatonic intervals.
             Default setting: getting the chromatic intervals.
 
@@ -108,7 +100,6 @@ class Sequence:
             The list "diatonic_intervals" stores diatonic intervals as value,
             while the list "chromatic_intervals" stores the number of semitones as value.
 
->>>>>>> Stashed changes
         """
         dict_wordtonum = {"Unison": '2', "Second": '2', "Third": '3', "Fourth": '4', "Fifth": '5', "Sixth": '6', "Seventh": '7'}
         #P.S.: Unison as "2" instead of "0" for a reason, see explanation later
@@ -307,6 +298,7 @@ class Sequence:
         return mirror_intervals
 
 
+
     """
         The functions below are for encoding a list of intervals.
 
@@ -315,23 +307,16 @@ class Sequence:
             def get_rhythm_encoding() for encoding a list of rhythmic intervals.
     """
 
-    """
-        Encoding chromatic / diatonic intervals
-    """
+
     def get_chromatic_encoding(self, mirror_setting = False, NGRAM_SIZE = 3):
         """
             Get chromatic intervals and decompose in ngram text for chromatic search.
             
-<<<<<<< Updated upstream
-            When mirror_setting=True, it means that the search specified to include mirror patterns in the search context,
-            this function returns the original chromatic encodings, and the mirrored chromatic encodings, both as a list of n-grams.
-            Please find definition of "mirror patterns" in description of get_mirror_intervals()
-=======
             When mirror_setting=True, the search is specified to include mirror patterns in the search context,
             it returns the original chromatic encodings, and the mirrored chromatic encodings, both as a list of n-grams.
 
             Please find definition of "mirror patterns" in description of def get_mirror_intervals()
->>>>>>> Stashed changes
+
         """
         chromatic_list = self.get_intervals("chromatic")
         chromatic_encoding = self.intervals_to_ngrams(chromatic_list, NGRAM_SIZE)
