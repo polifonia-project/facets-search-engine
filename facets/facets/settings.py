@@ -131,16 +131,17 @@ ALL_PARTS = "all_parts"
 
 # Descriptor types
 CHROMATIC_DESCR = "chromatic"
-LYRICS_DESCR = "lyrics"
+DIATONIC_DESCR = "diatonic"
 RHYTHM_DESCR = "rhythmic"
 NOTES_DESCR = "notes"
-DIATONIC_DESCR = "diatonic"
+LYRICS_DESCR = "lyrics"
 
 # Search types
-EXACT_SEARCH = "exactSearch"
 CHROMATIC_SEARCH = "chromaticSearch"
-RHYTHMIC_SEARCH = "rhythmicSearch"
 DIATONIC_SEARCH = "diatonicSearch"
+RHYTHMIC_SEARCH = "rhythmicSearch"
+EXACT_SEARCH = "exactSearch"
+LYRICS_SEARCH = "lyricsSearch"
 
 ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
 

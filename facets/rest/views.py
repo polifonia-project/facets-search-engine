@@ -64,10 +64,12 @@ def index(request, index_name):
 
 	if request.method == "GET":
 		'''
-		  To do: return some info on the index
 		  Example:
 		      curl -X GET  http://localhost:8000/index/
 		'''
+		index_wrapper = IndexWrapper(index_name)
+		# TODO: return the list of documents under ES index - query DSL?
+
 		return JSONResponse({"Message": "Request to read index " + index_name})
 	
 	elif request.method == "PUT":
@@ -75,6 +77,7 @@ def index(request, index_name):
 		  To do: create the index if it does not exist
 		'''
 		index_wrapper = IndexWrapper(index_name)
+		#check if there exists index with index_name in ES. If not, send to ES.
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -125,7 +128,7 @@ def document(request, index_name, doc_id):
 				
 				#Index the current musicdoc and its descriptors
 				index_wrapper = IndexWrapper(index_name)
-				index_wrapper.index_musicdoc(musicdoc, descr_dict)
+				index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict)
 				
 				return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
 			else:

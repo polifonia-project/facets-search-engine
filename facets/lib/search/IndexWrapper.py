@@ -14,8 +14,6 @@ from operator import itemgetter
 from lib.music import *
 
 from rest import models
-
-#from manager.models import Opus
 from lib.search.Sequence import Sequence
 
 # import the logging library
@@ -51,7 +49,7 @@ class IndexWrapper:
                                             http_auth=(auth_login, auth_password))
 
         # Open, and possibly create the index
-        self.index = Index (index_name, using=self.elastic_search)
+        self.index = Index(index_name, using=self.elastic_search)
         
         if not self.index.exists(using=self.elastic_search):
             # Create the index
@@ -63,13 +61,17 @@ class IndexWrapper:
         #: Directory containing some pre-defined queries in JSON
         #self.query_dir = settings.ES_QUERY_DIR
     
+    def index_exists(self, index_name):
+        #Check if the index exists in ES and return
+        return
+
     def get_index_info(self):
         '''
         Obtain main infos on the index
         '''
         return self.index.get()
 
-    def index_musicdoc(self, MusicDoc, descr_dict):
+    def index_musicdoc(self, index_name, MusicDoc, descr_dict):
         """ 
         Add or replace a MusicDoc in the ElasticSearch index
         
@@ -80,7 +82,7 @@ class IndexWrapper:
         try:
 
             musicdoc_index = MusicDocIndex(
-                meta={'id': MusicDoc.doc_id, 'index': "index"}
+                meta={'id': MusicDoc.doc_id, 'index': index_name}
             )
 
             """

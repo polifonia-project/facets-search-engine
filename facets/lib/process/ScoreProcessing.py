@@ -1,7 +1,7 @@
-# ScoreProcessing.py
-
-# Transform a Music21 object into MusicSummary 
-# Then extract features from MS.
+"""
+	Transform a Music21 object into MusicSummary,
+	Then extract features from MS.
+"""
 
 from lib.music.Score import *
 from lib.music.MusicSummary import *
@@ -58,8 +58,6 @@ def extract_features(score, music_summary, musicdoc):
 
 						# Save to descriptor dictionary for indexing
 						descr_dict["diatonic"][str(voice_id)] = descriptor.to_dict()
-						##descr_dict["diatonic"][str(voice_id)] = dict("part"=part_id, "voice"=voice_id, "value"=dia_descr)
-
 
 						"""
 							Extract rhythmic interval feature
@@ -75,7 +73,6 @@ def extract_features(score, music_summary, musicdoc):
 
 						# Save to descriptor dictionary for indexing
 						descr_dict["rhythmic"][str(voice_id)] = descriptor.to_dict()
-						##descr_dict["rhythmic"][str(voice_id)] = dict("part"=part_id, "voice"=voice_id, "value"=rhy_descr)
 
 
 						"""
@@ -92,21 +89,20 @@ def extract_features(score, music_summary, musicdoc):
 
 						# Save to descriptor dictionary for indexing
 						descr_dict["notes"][str(voice_id)] = descriptor.to_dict()
-						##descr_dict["notes"][str(voice_id)] = dict("part"=part_id, "voice"=voice_id, "value"=notes_descr)
 
 				
 				"""
 					Extract lyrics feature
-					Attention: this may only work for musicXML files!
-					To be checked and debugged...
-				
+					Attention: this may only work for musicXML files!!
+					To be checked...				
 				"""
 
 				#  Get a list of Voice objects from the current Score object
 				all_voices = score.get_all_voices()
 				for this_voice in all_voices:
 
-					#  "this_voice" is different from the previous "curr_voice": "this_voice" is a Voice object
+					#  "this_voice" is different from the previous "curr_voice":
+					# "this_voice" is a Voice object
 					if this_voice.has_lyrics():
 						# Get lyrics from the Voice object
 						lyrics_descr = this_voice.get_lyrics()
