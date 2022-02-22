@@ -67,7 +67,7 @@ def index(request, index_name):
 		  Return info about the index.
 
 		  Example:
-		      curl -X GET  http://localhost:8000/index/
+		      curl -X GET  http://localhost:8000/index_name/
 		'''
 		index_wrapper = IndexWrapper(index_name)
 		info = index_wrapper.get_index_info(index_name)
@@ -80,7 +80,9 @@ def index(request, index_name):
 	
 	elif request.method == "PUT":
 		'''
-		  To do: create the index if it does not exist
+		  Create the index if it does not exist
+		  Example:
+		      curl -X PUT  http://localhost:8000/index_name/
 		'''
 		index_wrapper = IndexWrapper(index_name)
 
