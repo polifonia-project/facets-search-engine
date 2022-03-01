@@ -70,10 +70,9 @@ def index(request, index_name):
 		      curl -X GET  http://localhost:8000/index_name/
 		'''
 		index_wrapper = IndexWrapper(index_name)
-		info = index_wrapper.get_index_info(index_name)
 
 		# return the info about ES index "index_name"
-		#print(info[index_name]['mappings'])
+		info = index_wrapper.get_index_info(index_name)
 		
 		#return JSONResponse({"Message": "Request to read index " + index_name})
 		return JSONResponse(info[index_name]['mappings'])
@@ -96,6 +95,13 @@ def index(request, index_name):
 @api_view(["POST"])
 def search(request, index_name):
 	result = []
+	'''
+	       curl -X POST http://localhost:8000/index_name/ -d @json_path
+	'''
+	if request.method == "PUT":
+		if index_name exists
+		request.body
+
 	return JSONResponse({"Message": "Search executed in index " + index_name,
 						"Result": result})
 
@@ -112,6 +118,12 @@ def document(request, index_name, doc_id):
 			Example:
 			    curl -X GET  http://localhost:8000/index/lklk/
 		'''
+		index_wrapper = IndexWrapper(index_name)
+
+		#TODO: get doc info
+		#docinfo = index_wrapper.get_doc_info(index_name, doc_id)
+		#return JSONResponse(docinfo)
+
 		return JSONResponse({"Message": "Request to read document " + doc_id})
 
 	elif request.method == "PUT":
@@ -119,7 +131,7 @@ def document(request, index_name, doc_id):
 		   Example:
 		       curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
 		       
-		       In which "index" is index_name, and "lklk" is doc_id.
+		       In which "index" refers to index_name, and "lklk" refers to doc_id.
 		'''
 		# Read the document
 		try:

@@ -19,7 +19,12 @@ class Item:
         self.tied = False
         # Lilypond duration: used to easily produce a PAE code from an item
         #self.pae_dur = 0
-    
+
+    def m21_to_item(self, m21_note):
+        # From music21 note to an item 
+
+        return
+
     def get_music21_note(self):
         """
         Transfer an Item into a Music21 note object with the step, octave and alteration values.

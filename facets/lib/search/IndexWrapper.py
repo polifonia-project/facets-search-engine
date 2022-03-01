@@ -67,6 +67,14 @@ class IndexWrapper:
         '''
         return self.index.get()
 
+    def get_doc_info(self, index_name, doc_id):
+        index_info = self.index.get()
+
+        # TODO: implement get doc info with doc_id
+        doc_info = index_info[index_name]['mappings']
+        
+        return doc_info
+        
     def index_musicdoc(self, index_name, MusicDoc, descr_dict):
         """ 
         Add or replace a MusicDoc in the ElasticSearch index
