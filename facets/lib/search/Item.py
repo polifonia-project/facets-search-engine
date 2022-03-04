@@ -12,7 +12,9 @@ class Item:
         self.step = "A"
         self.octave = 4
         self.alteration = 0
-        # Duration of the item: the normalized representation (n times the DURATION_UNIT)
+        # Duration of the item: 
+        # self.duration = 1: 16th note, self.duration = 2: eighth note
+        # self.duration = 4: quarter note, ...
         self.duration = 4
         self.is_rest = False
         #self.is_grace=False
@@ -20,7 +22,7 @@ class Item:
 
     def m21_to_item(self, m21_note):
         # From music21 note to Item 
-        if m21_note.isRest():
+        if m21_note.isRest:
             self.is_rest = True
         else:
             self.step = m21_note.step
@@ -35,8 +37,10 @@ class Item:
                 self.alteration = 1
             else:
                 self.alteration = 0
-            self.duration = m21_note.duration
-            self.tied = m21_note.tied
+            # standard is quarter length.
+            # when self.duration = 4.0, it is a quarter note.
+            self.duration = m21_note.duration.quarterLength*4
+            #self.tied = m21_note.tied
         return
 
     def get_music21_note(self):

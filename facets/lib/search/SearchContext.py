@@ -4,6 +4,8 @@ from lib.music.Score import *
 from lib.music.Voice  import *
 from .Sequence import Sequence
 from music21 import *
+import re
+
 class SearchContext:
     """
        Representation of a search context
@@ -49,6 +51,28 @@ class SearchContext:
         else:
             self.mirror_search = False
 
+    def check_default_meter(self):
+        # Check if the pattern contains definition of meter or unit note length
+        # If not, add 1/4 as unit note length
+        
+        abcStr = self.pattern
+        indexes = [x.start() for x in re.finditer(':', abcStr)]
+        
+        # Check if meter or unit note length is defined
+        meterexists = False
+        for i in indexes:
+            if abcStr[i-1] == 'M' or abcStr[i-1] == 'L':
+                meterexists = True
+
+        # Set unit note length as 1/4 if not defined
+        if meterexists == False:
+            abcStr = "L:1/4\n" + abcStr
+            # if you wish to set 4/4 as meter
+            # instead of using quarter note as unit note length:
+            #abcStr = "M:4/4\n" + abcStr
+
+        return abcStr
+
     def decode_pattern_context(self):
         # This function process abc format patterns -> a m21 stream -> a list of Items.
 
@@ -56,35 +80,29 @@ class SearchContext:
         # assume self.pattern is abc format
         
         abcStr = self.pattern
+        # Make sure there is a meter or unit note length
+        abcStr = self.check_default_meter()
         handler = abcFormat.ABCHandler()
         handler.process(abcStr)
         m21score = m21.abcFormat.translate.abcToStreamScore(handler)
-        for i in m21score.recurse():
-            print(i)
-        
-        """
 
-        # TODO: make sure that there is M or L(?) in the abc input 
-        # otherwise use 4/4 as default
-
-        # Transform music21 into Items
+        # Transform music21 notes into Items
         item_list = []
-
-        for m21_note in m21_pattern:
+        for m21_note in m21score.recurse().notes:
             newitem = Item()
             newitem.m21_to_item(m21_note)
             item_list.append(newitem)
-        
         return item_list
-        """
+
     def get_pattern_sequence(self):
-        ''' Decode the pattern as a Sequence object '''
+        ''' Given the pattern content, output a Sequence obj representing the pattern'''
         pattern_seq = Sequence()
         if self.pattern:
             pattern_seq = Sequence()
-            list_of_items = self.decode_pattern_context
+            list_of_items = self.decode_pattern_context()
             for item in list_of_items:
                 pattern_seq.add_item(item)
+
         return pattern_seq
 
     def check_pattern_length(self):

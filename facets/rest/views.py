@@ -111,6 +111,7 @@ def search(request, index_name):
 		body = json.loads(body_unicode)
 
 		searchcontext = SearchContext()
+		# json -> searchcontext
 		searchcontext.read(body)
 		
 		"""
@@ -121,7 +122,13 @@ def search(request, index_name):
 		print("text: ", searchcontext.text)
 		print("mirror search: ", searchcontext.mirror_search,"\n\n")
 
-		searchcontext.decode_pattern_context()
+		# searchcontext.pattern(abc format) -> music21 objects
+		# music21 objects -> items -> pattern sequence
+		pattern_seq = searchcontext.get_pattern_sequence()
+
+		#index_wrapper = IndexWrapper(index_name)
+		#index_wrapper.search(searchcontext)
+
 
 	return JSONResponse({"Message": "Search executed in index " + index_name})
 	#return JSONResponse({"Message": "Search executed in index " + index_name, "Result": result})
