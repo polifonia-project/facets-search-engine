@@ -1,9 +1,9 @@
 # coding: utf-8
 from django.conf import settings
-from music import *
+from lib.music.Score import *
+from lib.music.Voice  import *
 from .Sequence import Sequence
 from music21 import *
-
 class SearchContext:
     """
        Representation of a search context
@@ -39,7 +39,7 @@ class SearchContext:
         return self.text != "" or self.pattern != ""
 
     def read(self, search_input):
-        # search_input should be JSON?
+
         # Read from the input and make a SearchContext out of it
         self.search_type = search_input["type"]
         self.pattern = search_input["pattern"]
@@ -54,8 +54,19 @@ class SearchContext:
 
         # To be checked: does it need to be an abc format file stored?
         # assume self.pattern is abc format
-        m21_pattern = converter.parse(self.pattern)
         
+        abcStr = self.pattern
+        handler = abcFormat.ABCHandler()
+        handler.process(abcStr)
+        m21score = m21.abcFormat.translate.abcToStreamScore(handler)
+        for i in m21score.recurse():
+            print(i)
+        
+        """
+
+        # TODO: make sure that there is M or L(?) in the abc input 
+        # otherwise use 4/4 as default
+
         # Transform music21 into Items
         item_list = []
 
@@ -65,7 +76,7 @@ class SearchContext:
             item_list.append(newitem)
         
         return item_list
-
+        """
     def get_pattern_sequence(self):
         ''' Decode the pattern as a Sequence object '''
         pattern_seq = Sequence()

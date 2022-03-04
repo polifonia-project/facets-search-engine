@@ -31,6 +31,8 @@ from lib.search.IndexWrapper import IndexWrapper
 
 from music21 import converter, mei
 
+from lib.search.SearchContext import *
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -67,7 +69,8 @@ def index(request, index_name):
 		  Return info about the index.
 
 		  Example:
-		      curl -X GET  http://localhost:8000/index_name/
+		      curl -X GET  http://localhost:8000/index/
+		      In which "index" is the "index_name".
 		'''
 		index_wrapper = IndexWrapper(index_name)
 
@@ -81,7 +84,7 @@ def index(request, index_name):
 		'''
 		  Create the index if it does not exist
 		  Example:
-		      curl -X PUT  http://localhost:8000/index_name/
+		      curl -X PUT  http://localhost:8000/index/
 		'''
 		index_wrapper = IndexWrapper(index_name)
 
@@ -96,7 +99,7 @@ def index(request, index_name):
 def search(request, index_name):
 	result = []
 	'''
-	       curl -X POST http://localhost:8000/index_name/ -d @json_path
+	       curl -X POST http://localhost:8000/index/_search -d @json_path
 	'''
 	if request.method == "POST":
 		#check if index_name exists
@@ -104,13 +107,23 @@ def search(request, index_name):
 		#which has info including: search type, search attern, search text,
 		#and mirror search.
 
-		searchcontext = SearchContext()
-		searchcontext.read(request.body)
-		list_of_items = searchcontext.decode_pattern_context
-		print(searchcontext)
-		print(items)
+		body_unicode = request.body.decode('utf-8')
+		body = json.loads(body_unicode)
 
-	return JSONResponse({"Message": "Search executed in index " + index_name, "Search Context": searchcontext})
+		searchcontext = SearchContext()
+		searchcontext.read(body)
+		
+		"""
+		print the content of SearchContext object
+		"""
+		print("\n\nsearch type: ", searchcontext.search_type)
+		print("pattern: ", searchcontext.pattern)
+		print("text: ", searchcontext.text)
+		print("mirror search: ", searchcontext.mirror_search,"\n\n")
+
+		searchcontext.decode_pattern_context()
+
+	return JSONResponse({"Message": "Search executed in index " + index_name})
 	#return JSONResponse({"Message": "Search executed in index " + index_name, "Result": result})
 
 @csrf_exempt
