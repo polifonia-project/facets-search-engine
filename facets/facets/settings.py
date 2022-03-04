@@ -146,3 +146,5 @@ LYRICS_SEARCH = "lyricsSearch"
 ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
 
 ELASTIC_SEARCH = {"host": "localhost", "port": 9200}
+
+MAX_ITEMS_IN_RESULT = 1000

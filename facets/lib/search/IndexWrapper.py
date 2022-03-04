@@ -78,7 +78,6 @@ class IndexWrapper:
     def index_musicdoc(self, index_name, MusicDoc, descr_dict):
         """ 
         Add or replace a MusicDoc in the ElasticSearch index
-        
         """
         
         print ("Index MusicDoc " + MusicDoc.doc_id + "in Index: " + index_name)
@@ -110,6 +109,84 @@ class IndexWrapper:
             print ("Error met when trying to index: " + str(ex))
         
         return
+
+    def search(self, search_context):
+        '''
+        Search function: sends a combined query to ElasticSearch
+        '''
+        pattern_sequence = search_context.get_pattern_sequence()
+        print("Search '" 
+               + "'  Text: '" + search_context.text + "'"
+               + "'  Pattern: [" + str(pattern_sequence) + "]")
+        
+        # Get search query
+        search = self.get_search(search_context)
+
+        logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))
+        print ("Search doc sent to ElasticSearch: " + str(search.to_dict()).replace("'", "\""))
+        # Get results
+        results = search.execute()
+        
+        return results
+
+    def get_search(self, search_context):
+        """
+        Create the search object with ElasticSearch DSL
+        """
+        search = Search(using=self.elastic_search)
+        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+
+        # If there is text content to search in lyrics
+        if search_context.text:
+            q_title = Q("multi_match", query=search_context.text, fields=['lyrics'])#, 'composer', 'title'])
+            # Searching for the keywords in lyrics
+            q_lyrics = Q("match_phrase", lyrics__value=search_context.text)
+            # Combine the search
+            search = search.query(q_title | q_lyrics)
+
+        # If there is pattern to search
+        if search_context.is_pattern_search():
+            if search_context.search_type == settings.RHYTHMIC_SEARCH:
+                search = search.query("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())
+
+            elif search_context.search_type == settings.CHROMATIC_SEARCH:
+                # If mirror search mode is on, search the mirror patterns too.
+                if search_context.is_mirror_search() == True:
+                    # calling get_chromatic_pattern function returns a tuple of 2 lists here
+                    mel_patterns = search_context.get_chromatic_pattern(True)
+                    og_patterns = mel_patterns[0]
+                    mr_patterns = mel_patterns[1]
+                    # Search for the original patterns
+                    q_og = Q("match_phrase", chromatic__value=og_patterns)
+                    # Search for the mirror patterns
+                    q_mr = Q("match_phrase", chromatic__value=mr_patterns)
+                    # Combine the search
+                    search = search.query(q_og | q_mr)
+                else:
+                    # Otherwise only search for the original chromatic patterns
+                    search = search.query("match_phrase", chromatic__value=search_context.get_chromatic_pattern())
+
+            elif search_context.search_type == settings.DIATONIC_SEARCH:
+                # If mirror search mode is on
+                if search_context.is_mirror_search() == True:
+                    # dia_patterns includes two lists, a list of original patterns and a list of mirror patterns
+                    dia_patterns = search_context.get_diatonic_pattern(True)
+                    # original patterns
+                    og_patterns = dia_patterns[0]
+                    # mirror patterns
+                    mr_patterns = dia_patterns[1]
+                    q_og = Q("match_phrase", diatonic__value=og_patterns)
+                    q_mr = Q("match_phrase", diatonic__value=mr_patterns)
+                    search = search.query(q_og | q_mr)
+                else:
+                    # Otherwise only search for the original diatonic patterns
+                    search = search.query("match_phrase", diatonic__value=search_context.get_diatonic_pattern())
+
+            elif search_context.search_type == settings.EXACT_SEARCH:
+                search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
+
+        return search
+
 
 class DescriptorIndex(InnerDoc):
     '''
@@ -156,11 +233,8 @@ class MusicDocIndex(Document):
     )
 
     def add_descriptor(self, descr_dict):
-
-        # To be modified: voices are there as a highest hierachy
-
         self.chromatic = descr_dict["chromatic"]
         self.diatonic = descr_dict["diatonic"]
         self.rhythm = descr_dict["rhythmic"]
         self.notes = descr_dict["notes"]
-        #self.lyrics = descr_dict["lyrics"]
+        self.lyrics = descr_dict["lyrics"]

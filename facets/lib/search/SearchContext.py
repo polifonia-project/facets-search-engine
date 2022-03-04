@@ -9,21 +9,24 @@ class SearchContext:
        Representation of a search context
           
           - a search type that defines the type of search content
-          - pattern context that you wish to search for 
-          - text context, for searching within lyrics and metadata information
+          - pattern that you wish to search for 
+          - text, for searching within lyrics and metadata information
           - mirror search, could be enabled for chromatic, diatonic and rhythmic search. 
           
     """
     def __init__(self) :        
         self.search_type = settings.CHROMATIC_SEARCH
-        self.pattern_context = ""
-        self.text_context = ""
+        self.pattern = ""
+        self.text = ""
         # Mirror search enabled or not
         self.mirror_search = False
         
     def is_text_search(self):
-        return self.text_context != ""
+        return self.text != ""
         
+    def is_pattern_search(self):
+        return self.pattern != ""
+
     def is_mirror_search(self):
         return self.mirror_search
 
@@ -33,17 +36,29 @@ class SearchContext:
          """
         #TO-DO: add the code to validate if pattern is valid, 
         #using check_pattern_length
-        return self.text_context != "" or self.pattern_context != ""
+        return self.text != "" or self.pattern != ""
+
+    def read(self, search_input):
+        # search_input should be JSON?
+        # Read from the input and make a SearchContext out of it
+        self.search_type = search_input["type"]
+        self.pattern = search_input["pattern"]
+        self.text = search_input["text"]
+        if search_input["mirror"] == "True":
+            self.mirror_search = True
+        else:
+            self.mirror_search = False
 
     def decode_pattern_context(self):
-        # self.pattern_context is abc format
-        # Transform abc into music21 object
-        m21_pattern = converter.parse(self.pattern_context)
+        # This function process abc format patterns -> a m21 stream -> a list of Items.
 
+        # To be checked: does it need to be an abc format file stored?
+        # assume self.pattern is abc format
+        m21_pattern = converter.parse(self.pattern)
+        
         # Transform music21 into Items
         item_list = []
-        
-        # To be checked: iterate over m21 pattern
+
         for m21_note in m21_pattern:
             newitem = Item()
             newitem.m21_to_item(m21_note)
@@ -56,7 +71,9 @@ class SearchContext:
         pattern_seq = Sequence()
         if self.pattern:
             pattern_seq = Sequence()
-            pattern_seq.set_from_pattern(self.pattern)
+            list_of_items = self.decode_pattern_context
+            for item in list_of_items:
+                pattern_seq.add_item(item)
         return pattern_seq
 
     def check_pattern_length(self):
@@ -72,7 +89,7 @@ class SearchContext:
         else:
             return False
 
-    def get_melodic_pattern(self, mirror_setting=False):
+    def get_chromatic_pattern(self, mirror_setting=False):
         '''
           Transform the melodic pattern to an ngram representation
         '''
@@ -85,21 +102,6 @@ class SearchContext:
                 return ""
             else:
                 return pattern_seq.get_chromatic_encoding(mirror_setting)
-        else:
-            return ""
-
-    def get_rhythmic_pattern(self):
-        '''
-         Transform the rhythmic pattern to an ngram representation
-         '''
-        if self.pattern != "":
-            pattern_seq = self.get_pattern_sequence()
-            # Check that the number of intervals is at least an ngram size
-            rhythms = pattern_seq.get_rhythms()
-            if len(rhythms) < settings.NGRAM_SIZE:
-                return ""
-            else:
-                return pattern_seq.get_rhythm_encoding()
         else:
             return ""
 
@@ -116,6 +118,21 @@ class SearchContext:
                 return ""
             else:
                 return pattern_seq.get_diatonic_encoding(mirror_setting)
+        else:
+            return ""
+
+    def get_rhythmic_pattern(self):
+        '''
+         Transform the rhythmic pattern to an ngram representation
+         '''
+        if self.pattern != "":
+            pattern_seq = self.get_pattern_sequence()
+            # Check that the number of intervals is at least an ngram size
+            rhythms = pattern_seq.get_rhythms()
+            if len(rhythms) < settings.NGRAM_SIZE:
+                return ""
+            else:
+                return pattern_seq.get_rhythm_encoding()
         else:
             return ""
 

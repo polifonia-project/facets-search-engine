@@ -98,12 +98,20 @@ def search(request, index_name):
 	'''
 	       curl -X POST http://localhost:8000/index_name/ -d @json_path
 	'''
-	if request.method == "PUT":
-		if index_name exists
-		request.body
+	if request.method == "POST":
+		#check if index_name exists
+		#Request body should be a SearchContext object,
+		#which has info including: search type, search attern, search text,
+		#and mirror search.
 
-	return JSONResponse({"Message": "Search executed in index " + index_name,
-						"Result": result})
+		searchcontext = SearchContext()
+		searchcontext.read(request.body)
+		list_of_items = searchcontext.decode_pattern_context
+		print(searchcontext)
+		print(items)
+
+	return JSONResponse({"Message": "Search executed in index " + index_name, "Search Context": searchcontext})
+	#return JSONResponse({"Message": "Search executed in index " + index_name, "Result": result})
 
 @csrf_exempt
 @api_view(["GET", "PUT"])
@@ -122,6 +130,7 @@ def document(request, index_name, doc_id):
 
 		#TODO: get doc info
 		#docinfo = index_wrapper.get_doc_info(index_name, doc_id)
+		#send a match_all query and only get the doc names
 		#return JSONResponse(docinfo)
 
 		return JSONResponse({"Message": "Request to read document " + doc_id})
@@ -155,7 +164,6 @@ def document(request, index_name, doc_id):
 
 		except Exception as ex:
 			return JSONResponse({"error": str(ex)})
-	
-	# Should not happen
+
 
 	return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -17,12 +17,26 @@ class Item:
         self.is_rest = False
         #self.is_grace=False
         self.tied = False
-        # Lilypond duration: used to easily produce a PAE code from an item
-        #self.pae_dur = 0
 
     def m21_to_item(self, m21_note):
-        # From music21 note to an item 
-
+        # From music21 note to Item 
+        if m21_note.isRest():
+            self.is_rest = True
+        else:
+            self.step = m21_note.step
+            self.octave = m21_note.octave
+            if '--' in m21_note.name:
+                self.alteration = -2
+            elif '##' in m21_note.name:
+                self.alteration = 2
+            elif '-' in m21_note.name:
+                self.alteration = -1
+            elif '#' in m21_note.name:
+                self.alteration = 1
+            else:
+                self.alteration = 0
+            self.duration = m21_note.duration
+            self.tied = m21_note.tied
         return
 
     def get_music21_note(self):
@@ -55,9 +69,6 @@ class Item:
             self.octave = json_obj["octave"]
             self.alteration = json_obj["alteration"]
             self.tied = json_obj["tied"]
-            #if ("isGrace" in json_obj):
-            #    self.is_grace = json_obj["isGrace"]
-            #self.pae_dur = json_obj["paeDur"]
 
     def encode(self):
         '''Encode in JSON'''
