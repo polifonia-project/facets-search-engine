@@ -11,4 +11,4 @@ curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index_name/
 curl -X GET  http://localhost:8000/index_name/doc_id/
 
 5. Initiate a search under an index:
-curl -X POST http://localhost:8000/index_name/_search/ -d @json_path
+curl -X POST http://localhost:8000/index_name/_search -d @json_path
