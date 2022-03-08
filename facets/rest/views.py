@@ -122,13 +122,16 @@ def search(request, index_name):
 		print("text: ", searchcontext.text)
 		print("mirror search: ", searchcontext.mirror_search,"\n\n")
 
-		# searchcontext.pattern(abc format) -> music21 objects
-		# music21 objects -> items -> pattern sequence
-		pattern_seq = searchcontext.get_pattern_sequence()
-
-		#index_wrapper = IndexWrapper(index_name)
-		#index_wrapper.search(searchcontext)
-
+		index_wrapper = IndexWrapper(index_name)
+		"""
+		  The following call includes:
+		  searchcontext.pattern(abc format) -> music21 objects
+		  music21 objects -> items -> pattern sequence
+		  sequence -> encoded n-grams according to search type
+		  search in ES
+		"""
+		results = index_wrapper.search(searchcontext)
+		print(results)
 
 	return JSONResponse({"Message": "Search executed in index " + index_name})
 	#return JSONResponse({"Message": "Search executed in index " + index_name, "Result": result})
@@ -158,7 +161,7 @@ def document(request, index_name, doc_id):
 	elif request.method == "PUT":
 		'''
 		   Example:
-		       curl -X PUT -H "Content-type: application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
+		       curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
 		       
 		       In which "index" refers to index_name, and "lklk" refers to doc_id.
 		'''

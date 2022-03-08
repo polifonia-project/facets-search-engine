@@ -115,29 +115,32 @@ class IndexWrapper:
         Search function: sends a combined query to ElasticSearch
         '''
         pattern_sequence = search_context.get_pattern_sequence()
-        print("Search '" 
-               + "'  Text: '" + search_context.text + "'"
-               + "'  Pattern: [" + str(pattern_sequence) + "]")
+        """
+        print("Search " 
+               + "  Text: '" + search_context.text + "'"
+               + "'  Pattern Sequence: [" + str(pattern_sequence) + "]")
+        """
         
         # Get search query
+        print("Pattern sequence is", pattern_sequence)
         search = self.get_search(search_context)
 
         logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))
         print ("Search doc sent to ElasticSearch: " + str(search.to_dict()).replace("'", "\""))
         # Get results
         results = search.execute()
-        
         return results
 
     def get_search(self, search_context):
         """
         Create the search object with ElasticSearch DSL
         """
+        
         search = Search(using=self.elastic_search)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
 
         # If there is text content to search in lyrics
-        if search_context.text:
+        if search_context.text != '':
             q_title = Q("multi_match", query=search_context.text, fields=['lyrics'])#, 'composer', 'title'])
             # Searching for the keywords in lyrics
             q_lyrics = Q("match_phrase", lyrics__value=search_context.text)
@@ -145,7 +148,8 @@ class IndexWrapper:
             search = search.query(q_title | q_lyrics)
 
         # If there is pattern to search
-        if search_context.is_pattern_search():
+
+        if search_context.pattern != '':
             if search_context.search_type == settings.RHYTHMIC_SEARCH:
                 search = search.query("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())
 

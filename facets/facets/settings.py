@@ -137,11 +137,11 @@ NOTES_DESCR = "notes"
 LYRICS_DESCR = "lyrics"
 
 # Search types
-CHROMATIC_SEARCH = "chromaticSearch"
-DIATONIC_SEARCH = "diatonicSearch"
-RHYTHMIC_SEARCH = "rhythmicSearch"
-EXACT_SEARCH = "exactSearch"
-LYRICS_SEARCH = "lyricsSearch"
+CHROMATIC_SEARCH = "chromatic"
+DIATONIC_SEARCH = "diatonic"
+RHYTHMIC_SEARCH = "rhythmic"
+EXACT_SEARCH = "exact"
+LYRICS_SEARCH = "lyrics"
 
 ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
 
