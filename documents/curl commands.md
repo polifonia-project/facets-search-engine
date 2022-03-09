@@ -13,6 +13,10 @@ curl -X GET  http://localhost:8000/index_name/doc_id/
 5. Initiate a search under an index:
 curl -X POST http://localhost:8000/index_name/_search -d @json_path
 
+6. Delete an indexed document from ES:
+curl -X DELETE http://localhost:9200/index_name/_doc/doc_id_that_you_want_delete
+
+
 
 Example for new user to initiate a search:
 
