@@ -75,7 +75,7 @@ def index(request, index_name):
 		index_wrapper = IndexWrapper(index_name)
 
 		# return the info about ES index "index_name"
-		info = index_wrapper.get_index_info(index_name)
+		info = index_wrapper.get_index_info()
 		
 		#return JSONResponse({"Message": "Request to read index " + index_name})
 		return JSONResponse(info[index_name]['mappings'])
@@ -118,9 +118,12 @@ def search(request, index_name):
 		print the content of SearchContext object
 		"""
 		print("\n\nsearch type: ", searchcontext.search_type)
-		print("pattern: ", searchcontext.pattern)
-		print("text: ", searchcontext.text)
-		print("mirror search: ", searchcontext.mirror_search,"\n\n")
+		if searchcontext.pattern:
+			print("ABC encoded pattern: ", searchcontext.pattern)
+		if searchcontext.text:
+			print("text: ", searchcontext.text)
+		if searchcontext.search_type != "lyrics":
+			print("mirror search: ", searchcontext.mirror_search,"\n\n")
 
 		index_wrapper = IndexWrapper(index_name)
 		"""
@@ -152,8 +155,8 @@ def document(request, index_name, doc_id):
 		index_wrapper = IndexWrapper(index_name)
 
 		#TODO: get doc info
-		#docinfo = index_wrapper.get_doc_info(index_name, doc_id)
-		#send a match_all query and only get the doc names
+		docinfo = index_wrapper.get_doc_info(index_name, doc_id)
+		#send a match_all query and only get the doc names?
 		#return JSONResponse(docinfo)
 
 		return JSONResponse({"Message": "Request to read document " + doc_id})

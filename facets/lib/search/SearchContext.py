@@ -44,8 +44,10 @@ class SearchContext:
 
         # Read from the input and make a SearchContext out of it
         self.search_type = search_input["type"]
-        self.pattern = search_input["pattern"]
-        self.text = search_input["text"]
+        if "pattern" in search_input:
+            self.pattern = search_input["pattern"]
+        if "text" in search_input:
+            self.text = search_input["text"]
         if search_input["mirror"] == "True":
             self.mirror_search = True
         else:

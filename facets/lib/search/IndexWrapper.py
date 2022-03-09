@@ -61,7 +61,7 @@ class IndexWrapper:
         # Directory containing some pre-defined queries in JSON
         #self.query_dir = settings.ES_QUERY_DIR
     
-    def get_index_info(self, index_name):
+    def get_index_info(self):
         '''
         Obtain main infos on the index
         '''
@@ -93,15 +93,16 @@ class IndexWrapper:
             # For example, descr_dict["chromatic"]["P1-1"]["value"] contains the chromatic descriptor of voice P1-1 of the doc
             for descr_type in descr_dict:
                 #Iterate over parts in one type of descriptor
-                for part in descr_dict[descr_type]:
-                    part_id = descr_dict[descr_type][part]["part"]
-                    voice_id = descr_dict[descr_type][part]["voice"]
-                    des_value = descr_dict[descr_type][part]["value"]
-
+                for voice_id in descr_dict[descr_type]:
+                    #part_id = descr_dict[descr_type][voice_id]["part"]
+                    #voice_id = descr_dict[descr_type][voice_id]["voice"]
+                    #descr_value = descr_dict[descr_type][voice_id]["value"]
             """
 
             # Add/update descriptors(a.k.a. features) to ES index
             musicdoc_index.add_descriptor(descr_dict)
+
+
             # Save the updated index
             musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
 
@@ -122,7 +123,6 @@ class IndexWrapper:
         """
         
         # Get search query
-        print("Pattern sequence is", pattern_sequence)
         search = self.get_search(search_context)
 
         logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))
@@ -148,7 +148,6 @@ class IndexWrapper:
             search = search.query(q_title | q_lyrics)
 
         # If there is pattern to search
-
         if search_context.pattern != '':
             if search_context.search_type == settings.RHYTHMIC_SEARCH:
                 search = search.query("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())
@@ -237,8 +236,23 @@ class MusicDocIndex(Document):
     )
 
     def add_descriptor(self, descr_dict):
+        for voice_id in descr_dict["chromatic"]:
+            self.chromatic.append(descr_dict["chromatic"][voice_id])
+        for voice_id in descr_dict["diatonic"]:
+            self.diatonic.append(descr_dict["diatonic"][voice_id])
+        for voice_id in descr_dict["rhythmic"]:
+            self.rhythm.append(descr_dict["rhythmic"][voice_id])
+        for voice_id in descr_dict["notes"]:
+            self.notes.append(descr_dict["notes"][voice_id])
+        for voice_id in descr_dict["lyrics"]:
+            self.lyrics.append(descr_dict["lyrics"][voice_id])
+
+    """
+    def add_descriptor(self, descr_dict):
         self.chromatic = descr_dict["chromatic"]
+        print(descr_dict["chromatic"])
         self.diatonic = descr_dict["diatonic"]
         self.rhythm = descr_dict["rhythmic"]
         self.notes = descr_dict["notes"]
         self.lyrics = descr_dict["lyrics"]
+    """
