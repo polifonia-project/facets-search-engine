@@ -133,11 +133,17 @@ def search(request, index_name):
 		  sequence -> encoded n-grams according to search type
 		  search in ES
 		"""
+		# ES returns a "response" object with all the documents that matches query
 		results = index_wrapper.search(searchcontext)
-		print(results)
+		
+		# Get a list of doc_id
+		matching_doc_ids = []
+		for hit in results.hits.hits:
+			matching_doc_ids.append(hit['_id'])
 
-	return JSONResponse({"Message": "Search executed in index " + index_name})
-	#return JSONResponse({"Message": "Search executed in index " + index_name, "Result": result})
+		print("Matching documents are:", matching_doc_ids)
+
+	return JSONResponse({"Message": "Search executed in index " + index_name, "Matching docs:": matching_doc_ids})
 
 @csrf_exempt
 @api_view(["GET", "PUT"])
@@ -193,3 +199,15 @@ def document(request, index_name, doc_id):
 
 
 	return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+@api_view(["DELETE"])
+def delete_indexed_doc(request, index_name, doc_id):
+	if request.method == "GET":
+		'''
+			Example:
+			    curl -X DELETE http://localhost:8000/index/lklk/
+		'''
+		index_wrapper = IndexWrapper(index_name)
+		return
+		#TODO: delete from ES?

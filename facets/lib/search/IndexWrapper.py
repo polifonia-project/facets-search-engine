@@ -94,14 +94,13 @@ class IndexWrapper:
             for descr_type in descr_dict:
                 #Iterate over parts in one type of descriptor
                 for voice_id in descr_dict[descr_type]:
-                    #part_id = descr_dict[descr_type][voice_id]["part"]
-                    #voice_id = descr_dict[descr_type][voice_id]["voice"]
-                    #descr_value = descr_dict[descr_type][voice_id]["value"]
+                    part_id = descr_dict[descr_type][voice_id]["part"]
+                    voice_id = descr_dict[descr_type][voice_id]["voice"]
+                    descr_value = descr_dict[descr_type][voice_id]["value"]
             """
 
             # Add/update descriptors(a.k.a. features) to ES index
             musicdoc_index.add_descriptor(descr_dict)
-
 
             # Save the updated index
             musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
@@ -246,13 +245,3 @@ class MusicDocIndex(Document):
             self.notes.append(descr_dict["notes"][voice_id])
         for voice_id in descr_dict["lyrics"]:
             self.lyrics.append(descr_dict["lyrics"][voice_id])
-
-    """
-    def add_descriptor(self, descr_dict):
-        self.chromatic = descr_dict["chromatic"]
-        print(descr_dict["chromatic"])
-        self.diatonic = descr_dict["diatonic"]
-        self.rhythm = descr_dict["rhythmic"]
-        self.notes = descr_dict["notes"]
-        self.lyrics = descr_dict["lyrics"]
-    """
