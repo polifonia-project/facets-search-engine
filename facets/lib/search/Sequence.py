@@ -388,6 +388,16 @@ class Sequence:
                 phrase += ngram + " N "
         return phrase
 
+    @staticmethod
+    def find_sub_list(sub_list, l):
+        # Find sublists in list
+        # Returns a list of the first and last indexes of the matching sublists
+        results = []
+        sll = len(sub_list)
+        for ind in (i for i, e in enumerate(l) if e == sub_list[0]):
+            if l[ind:ind + sll] == sub_list:
+                results.append((ind, ind + sll - 1))
+        return results
 
     def __str__(self):
         s = ""
@@ -396,3 +406,76 @@ class Sequence:
             s =  s + sep + str(item) 
             sep = ";"
         return s
+
+    """
+    find positions
+    """
+
+    @staticmethod
+    def get_intervals_as_list(intervals):
+        """
+            Get intervals value in a list
+        """
+        interval_list = []
+        for interval in intervals:
+            interval_list.append(str(interval["value"]))
+        return interval_list
+
+    def find_positions(self, pattern, search_type, mirror_setting = False):
+        """
+         Find the position(s) of a pattern in the sequence
+         p_intervals: the encoded pattern to search for
+         s_intervals: all the intervals/sequences from each voice
+         m_intervals: mirror pattern of the original pattern
+         the goal is to find p_intervals_list in s_intervals_list
+        """
+        occurrences = []
+
+        if search_type == settings.RHYTHMIC_SEARCH:
+            p_intervals = pattern.get_rhythms()
+            s_intervals = self.get_rhythms()
+            m_intervals = ""
+
+        elif search_type == settings.CHROMATIC_SEARCH:
+            p_intervals = pattern.get_intervals(settings.CHROMATIC_DESCR)
+            m_intervals = pattern.get_mirror_intervals(p_intervals)
+            s_intervals = self.get_intervals(settings.CHROMATIC_DESCR)
+
+        elif search_type == settings.EXACT_SEARCH:
+            p_intervals = pattern.get_notes()
+            s_intervals = self.get_notes()
+
+        elif search_type == settings.DIATONIC_SEARCH:
+            p_intervals = pattern.get_intervals(settings.DIATONIC_DESCR)
+            m_intervals = pattern.get_mirror_intervals(p_intervals)
+            s_intervals = self.get_intervals(settings.DIATONIC_DESCR)
+        else:
+            #if search type is not defined, default setting is melody search
+            p_intervals = pattern.get_intervals(settings.CHROMATIC_DESCR)
+            s_intervals = self.get_intervals(settings.CHROMATIC_DESCR)
+
+        # Get intervals as list, e.g. ['2', '2', '2']
+        if search_type == settings.EXACT_SEARCH:
+            p_intervals_list = self.notes_to_symbols(p_intervals)
+            s_intervals_list = self.notes_to_symbols(s_intervals)
+        else:
+            p_intervals_list = pattern.get_intervals_as_list(p_intervals)
+            m_intervals_list = pattern.get_intervals_as_list(m_intervals)
+            s_intervals_list = pattern.get_intervals_as_list(s_intervals)
+        
+        # Find patterns positions in list
+        occurrences_indexes = self.find_sub_list(p_intervals_list, s_intervals_list)
+
+        #If it is mirror search, the function also finds the positions of mirror patterns
+        if mirror_setting == True:
+            mirror_occ_indexes = self.find_sub_list(m_intervals_list, s_intervals_list)
+
+            #Add mirror pattern occurrences into occurrences_indexes
+            for occ in mirror_occ_indexes:
+                occurrences_indexes.append(occ)
+        
+        for tuple in occurrences_indexes:
+            # Get start and end positions
+            occurrences.append(range(int(s_intervals[tuple[0]]["start_pos"]), int(s_intervals[tuple[1]]["end_pos"]) + 1))
+
+        return occurrences

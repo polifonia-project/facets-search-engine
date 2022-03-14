@@ -15,7 +15,7 @@ from lib.music import *
 
 from rest import models
 from lib.search.Sequence import Sequence
-
+from lib.music.MusicSummary import *
 # import the logging library
 import logging
 
@@ -67,15 +67,18 @@ class IndexWrapper:
         '''
         return self.index.get()
 
-    def get_doc_info(self, index_name, doc_id):
-        index_info = self.index.get()
+    def get_MS_from_doc(self, index_name, doc_id):
 
-        # TODO: implement get doc info with doc_id
-        doc_info = index_info[index_name]['mappings']
+        # Get musicsummary of the given doc_id
+        search = Search(using=self.elastic_search)
+        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+        search = search.query("match_phrase", _id=doc_id)
+        doc_info = search.execute()
+        encodedMS = doc_info.hits.hits[0]['_source']['summary']
+
+        return encodedMS
         
-        return doc_info
-        
-    def index_musicdoc(self, index_name, MusicDoc, descr_dict):
+    def index_musicdoc(self, index_name, MusicDoc, descr_dict, encodedMS):
         """ 
         Add or replace a MusicDoc in the ElasticSearch index
         """
@@ -85,7 +88,8 @@ class IndexWrapper:
         try:
 
             musicdoc_index = MusicDocIndex(
-                meta={'id': MusicDoc.doc_id, 'index': index_name}
+                meta={'id': MusicDoc.doc_id, 'index': index_name},
+                summary = encodedMS
             )
 
             """
@@ -110,6 +114,34 @@ class IndexWrapper:
         
         return
 
+    def locate_matching_patterns(self, index_name, matching_doc_ids, search_context):
+
+        opera = []
+        for doc_id in matching_doc_ids:
+            matching_ids = []
+            if search_context.is_pattern_search():
+                # Get encoded MusicSummary of the given doc_id.
+                encodedMS = self.get_MS_from_doc(index_name, doc_id)
+
+                # Decode MusicSummary
+                msummary = MusicSummary()
+                msummary.decode(encodedMS)
+
+                pattern_sequence = search_context.get_pattern_sequence()
+
+                #Find matching ids for the matches to highlight
+                matching_ids = msummary.find_matching_ids(pattern_sequence, search_context.search_type, search_context.mirror_search)
+
+            #elif search_context.is_keyword_search():
+                '''
+                TO-DO: do we store scores? 
+                If not how do we do it? from the stored lyrics in ES?
+                Originally, we get IDs of matching M21 objects from the scores.
+                '''
+            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids)})
+
+        return opera
+
     def search(self, search_context):
         '''
         Search function: sends a combined query to ElasticSearch
@@ -126,9 +158,11 @@ class IndexWrapper:
 
         logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))
         print ("Search doc sent to ElasticSearch: " + str(search.to_dict()).replace("'", "\""))
-        # Get results
-        results = search.execute()
-        return results
+
+        # Get matching results from Elasticsearch
+        matching_docs = search.execute()
+
+        return matching_docs
 
     def get_search(self, search_context):
         """
@@ -213,6 +247,8 @@ class MusicDocIndex(Document):
     #title = Text()
     #composer = Text()
     
+    summary = Text()
+
     # N-gram encoding of the chromatic intervals
     chromatic = Nested( 
         doc_class=DescriptorIndex,

@@ -29,9 +29,11 @@ from lib.process import ScoreProcessing
 
 from lib.search.IndexWrapper import IndexWrapper
 
+from lib.search.SearchContext import *
+
+from lib.music.MusicSummary import *
 from music21 import converter, mei
 
-from lib.search.SearchContext import *
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -110,6 +112,8 @@ def search(request, index_name):
 		body_unicode = request.body.decode('utf-8')
 		body = json.loads(body_unicode)
 
+		print(body)
+		
 		searchcontext = SearchContext()
 		# json -> searchcontext
 		searchcontext.read(body)
@@ -134,23 +138,34 @@ def search(request, index_name):
 		  search in ES
 		"""
 		# ES returns a "response" object with all the documents that matches query
-		results = index_wrapper.search(searchcontext)
-		
+		matching_docs = index_wrapper.search(searchcontext)
+
 		# Get a list of doc_id
 		matching_doc_ids = []
-		for hit in results.hits.hits:
+		for hit in matching_docs.hits.hits:
 			matching_doc_ids.append(hit['_id'])
 
 		print("Matching documents are:", matching_doc_ids)
 
-	return JSONResponse({"Message": "Search executed in index " + index_name, "Matching docs:": matching_doc_ids})
+		# Get matching ids(positions) of patterns in MusicSummary for highlighting
+		matching_locations = index_wrapper.locate_matching_patterns(index_name, matching_doc_ids, searchcontext)
 
+		print("Locations of matching patterns are:", matching_locations)
+		return JSONResponse({"Message": "Search executed in index " + index_name, "Matching locations:": matching_locations})
+		
 @csrf_exempt
 @api_view(["GET", "PUT"])
 def document(request, index_name, doc_id):
 
 	"""
-		Document management
+		Document management.
+
+		"GET" a musicdoc refers to MusicSummary retrieval of the musicdoc, given its id.
+
+		"PUT" a musicdoc refers to index an music document in ElasticSearch index, given the index name, musicdoc id and music document.
+
+		The indexed information of a musicdoc are its id, json encoded MusicSummary, and descriptors.
+
 	"""
 
 	if request.method == "GET":
@@ -160,16 +175,17 @@ def document(request, index_name, doc_id):
 		'''
 		index_wrapper = IndexWrapper(index_name)
 
-		#TODO: get doc info
-		docinfo = index_wrapper.get_doc_info(index_name, doc_id)
-		#send a match_all query and only get the doc names?
-		#return JSONResponse(docinfo)
+		# Return MusicSummary of the given doc_id which is indexed in ES.
 
-		return JSONResponse({"Message": "Request to read document " + doc_id})
+		MS = index_wrapper.get_MS_from_doc(index_name, doc_id)
+
+		print("MusicSummary of ", doc_id, "is", MS)
+
+		return JSONResponse({"Message": "Request to read MusicSummary of " + doc_id + ":" + MS})
 
 	elif request.method == "PUT":
 		'''
-		   Example:
+		    Example:
 		       curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
 		       
 		       In which "index" refers to index_name, and "lklk" refers to doc_id.
@@ -184,14 +200,16 @@ def document(request, index_name, doc_id):
 				m21_score = conv.run()
 
 				# Process the current score, produce descriptors from MusicSummary
-				musicdoc, descr_dict = ScoreProcessing.score_process(m21_score, doc_id)
+				musicdoc, descr_dict, encodedMS = ScoreProcessing.score_process(m21_score, doc_id)
 				
-				#Index the current musicdoc and its descriptors in the index named "index_name"
+				# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
 				index_wrapper = IndexWrapper(index_name) 
-				index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict)
+				index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
 				
 				return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
 			else:
+				# TODO: bulk indexing given a zip file
+
 				return JSONResponse({"error": "Unknown content type : " + request.content_type})
 
 		except Exception as ex:
@@ -199,15 +217,3 @@ def document(request, index_name, doc_id):
 
 
 	return Response(status=status.HTTP_400_BAD_REQUEST)
-
-@csrf_exempt
-@api_view(["DELETE"])
-def delete_indexed_doc(request, index_name, doc_id):
-	if request.method == "GET":
-		'''
-			Example:
-			    curl -X DELETE http://localhost:8000/index/lklk/
-		'''
-		index_wrapper = IndexWrapper(index_name)
-		return
-		#TODO: delete from ES?

@@ -48,10 +48,11 @@ class SearchContext:
             self.pattern = search_input["pattern"]
         if "text" in search_input:
             self.text = search_input["text"]
-        if search_input["mirror"] == "True":
-            self.mirror_search = True
-        else:
-            self.mirror_search = False
+        if "mirror" in search_input:
+            if search_input["mirror"] == "True":
+                self.mirror_search = True
+            else:
+                self.mirror_search = False
 
     def check_default_meter(self):
         # Check if the pattern contains definition of meter or unit note length

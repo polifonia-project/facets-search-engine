@@ -136,8 +136,9 @@ def score_process(m21_score, doc_id):
 		# Get MusicSummary from the Score object
 		MS = score.get_music_summary()
 		MS.doc_id = doc_id
+		encodedMS = MS.encode()
 
 		# Feature extraction
 		descr_dict = extract_features(score, MS, musicdoc)
 
-		return musicdoc, descr_dict
+		return musicdoc, descr_dict, encodedMS
