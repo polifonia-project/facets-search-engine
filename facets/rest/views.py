@@ -101,13 +101,18 @@ def index(request, index_name):
 def search(request, index_name):
 	result = []
 	'''
-	       curl -X POST http://localhost:8000/index/_search -d @json_path
+	       curl -X POST http://localhost:8000/index/_search -d @queries/...
 	'''
 	if request.method == "POST":
-		#check if index_name exists
-		#Request body should be a SearchContext object,
-		#which has info including: search type, search attern, search text,
-		#and mirror search.
+		"""
+		TODO: Check if index_name exists. 
+		
+		Request body should be a SearchContext object,
+		which has info including: 
+		search type(mandatory), search pattern(mandatory when pattern search),
+		search text(optional when pattern search, mandatory when lyrics search), 
+		and mirror search(optional).
+		"""
 
 		body_unicode = request.body.decode('utf-8')
 		body = json.loads(body_unicode)
@@ -160,9 +165,10 @@ def document(request, index_name, doc_id):
 	"""
 		Document management.
 
-		"GET" a musicdoc refers to MusicSummary retrieval of the musicdoc, given its id.
+		GET a musicdoc refers to MusicSummary retrieval of the musicdoc, given its doc_id.
 
-		"PUT" a musicdoc refers to index an music document in ElasticSearch index, given the index name, musicdoc id and music document.
+		PUT a musicdoc refers to index an music document in ElasticSearch index, 
+		given the index_name, doc_id and music document.
 
 		The indexed information of a musicdoc are its id, json encoded MusicSummary, and descriptors.
 

@@ -2,14 +2,12 @@ import jsonpickle
 import string
 from fractions import Fraction
 
-#from .Distance import *
-#from .Distance_neuma import *
-
-from .Item import Item
-
 from django.conf import settings
 
 import music21 as m21
+
+from .Item import Item
+from .Distance import *
 
 INTERVAL_SEPARATOR = "|"
 DURATION_UNIT = 16
@@ -235,7 +233,7 @@ class Sequence:
 
     def get_mirror_intervals(self, intervals):
         """
-            Get an interval list(diatonic or melodic), 
+            Get an interval list(diatonic or chromatic), 
             then return the "mirror" of the pattern list.
 
             It goes through the original interval list,
@@ -317,7 +315,7 @@ class Sequence:
 
     def intervals_to_ngrams(self, dict, NGRAM_SIZE = 3):
         """
-            Splits intervals into ngrams with size NGRAM_SIZE, for melodic / diatonic search.
+            Splits intervals into ngrams with size NGRAM_SIZE, for chromatic / diatonic search.
         """
         nb_codes = len(dict)
         phrase = ""
@@ -479,3 +477,38 @@ class Sequence:
             occurrences.append(range(int(s_intervals[tuple[0]]["start_pos"]), int(s_intervals[tuple[1]]["end_pos"]) + 1))
 
         return occurrences
+
+
+    def get_rhythmic_distance(self, s1, s2):
+        #Get rhythm of both to determine the rhythm distance between two patterns with identical melody 
+        """Evaluate the distance between two sequences"""
+
+        r1 = s1.get_rhythms()
+        r2 = s2.get_rhythms()
+        if not r1 or not r2:
+            return 100
+        
+        score = Distance.rhythmic_distance(s1, s2)
+        print ("Rhythmic distance between the pattern and occurrence " + str(s1) + " : " + str(round(score, 4)))
+        return score
+
+    def get_melodic_distance(self, s1, s2):
+
+        #Get the diatonic intervals of both query and the match to calculate melodic distance
+        m1 = s1.get_intervals(settings.DIATONIC_DESCR)
+        m2 = s2.get_intervals(settings.DIATONIC_DESCR)
+        if not m1 or not m2:
+            return 100
+
+        #Use modified edit distance to represent the melodic distance between two sequences
+        m_distance = Distance.melodic_distance(s1, s2)
+
+        print("Melodic distance between the pattern and occurrence " + str(s1) + " : "+ str(round(m_distance, 4)))
+        return m_distance
+
+    def sequence_to_symbols(self):
+        notes = list()
+        for item in self.items:
+            s = str(item.get_index()) + '|' + str(Fraction.from_float(item.duration))
+            notes.append(s)
+        return notes

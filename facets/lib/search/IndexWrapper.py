@@ -116,9 +116,16 @@ class IndexWrapper:
 
     def locate_matching_patterns(self, index_name, matching_doc_ids, search_context):
 
+        """
+            Locate every matching patterns in the music document,
+            and rank the results by melodic or rhythmic distance.
+        """
         opera = []
         for doc_id in matching_doc_ids:
             matching_ids = []
+            distance = 0
+            best_occurrence = None
+
             if search_context.is_pattern_search():
                 # Get encoded MusicSummary of the given doc_id.
                 encodedMS = self.get_MS_from_doc(index_name, doc_id)
@@ -129,7 +136,26 @@ class IndexWrapper:
 
                 pattern_sequence = search_context.get_pattern_sequence()
 
-                #Find matching ids for the matches to highlight
+                if search_context.search_type == settings.EXACT_SEARCH:
+                    mirror_setting = False
+                    count_match_for_exact_search+=1
+                    occurrences = msummary.find_exact_matches(pattern_sequence, search_context.search_type)
+
+                if search_context.search_type == settings.CHROMATIC_SEARCH or search_context.search_type == settings.DIATONIC_SEARCH or search_context.search_type == settings.RHYTHMIC_SEARCH:
+                    #return the sequences that match and the distances
+                    mirror_setting = search_context.is_mirror_search()
+
+                    """
+                        Find the occurrences of matches within the opus, 
+                        and measure the melodic or rhythmic distance depending on context.
+                        If there is more than one match in an opus,
+                        we only take the distance between the best match(with least distance with the query)
+                        "best_occurrence" here should be a pattern sequence.
+                    """
+                    best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
+                    logger.info ("Found best occurrence : " + str(best_occurrence) + " with distance " + str(distance))
+
+                # Locate ids of all the matching patterns to highlight
                 matching_ids = msummary.find_matching_ids(pattern_sequence, search_context.search_type, search_context.mirror_search)
 
             #elif search_context.is_keyword_search():
@@ -138,7 +164,8 @@ class IndexWrapper:
                 If not how do we do it? from the stored lyrics in ES?
                 Originally, we get IDs of matching M21 objects from the scores.
                 '''
-            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids)})
+            #opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids)})
+            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "distance": distance, "best_occurrence": str(best_occurrence)})
 
         return opera
 

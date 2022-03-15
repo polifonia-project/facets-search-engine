@@ -67,7 +67,8 @@ class MusicSummary:
             Find the position of a pattern in the voices
             
             The pattern parameter is a Sequence object
-            If 'rhythm' is True, the pattern will be decoded as a rhythm, otherwise, as a melody
+            If 'rhythm' is True, the pattern will be decoded as a rhythm, otherwise, as a melody.
+
             Called by views.py
         """
         occurrences = dict()
@@ -79,7 +80,6 @@ class MusicSummary:
         return occurrences
 
     def find_matching_ids(self, pattern, search_type, mirror_setting = False):
-
         ids = list()
         for part_id, part in self.parts.items():
             for voice_id, voice in part.items():
@@ -92,7 +92,6 @@ class MusicSummary:
         return ids
 
     def find_sequences(self, pattern, search_type, mirror_setting = False):
-
         sequences = list()
         for part_id, part in self.parts.items():
             #Iterate over parts in MusicSummary
@@ -111,3 +110,57 @@ class MusicSummary:
                         s.add_item(voice.items[ir])
                     sequences.append(s)
         return sequences
+
+    def find_exact_matches(self, pattern, search_type):
+        # Find sequences that match
+        occurrences = self.find_sequences(pattern, search_type, False)
+
+        # If there is a match in the opus
+        if occurrences != None:
+        # TODO TIANGE: it should be if len(occurrences) > 0 but occurrences is empty []
+            print("#######################################")
+            print("Found exact match in opus_id:  ", self.opus_id)
+
+        return occurrences
+
+    def get_best_occurrence(self, pattern, search_type, mirror_setting = False):
+        """
+          Get the best matching occurrence (wrt its distance from pattern)
+          When it is a pattern search: which are chromatic search, diatonic search, rhythmic search
+        """
+
+        occurrences = self.find_sequences(pattern, search_type, mirror_setting)
+        distances = list()
+
+        # If there is a match in the opus
+        if len(occurrences) > 0 :
+            print("#######################################")
+            print("Found occurrence in musicdoc:  " + self.doc_id)
+
+        # Iterate over all the matches in an opus
+        for o in occurrences:
+            print ("Check occurrence " + str(o))
+            try:
+                #Get rhythmic distance for melodic type of search for the current match
+                if search_type == settings.CHROMATIC_SEARCH or search_type == settings.DIATONIC_SEARCH:
+                    d = (o, o.get_rhythmic_distance(o, pattern))
+
+                #Otherwise, get melodic distance for rhythmic search for the current match
+                elif search_type == settings.RHYTHMIC_SEARCH:
+                    d = (o, o.get_melodic_distance(o, pattern))
+
+                distances.append(d)
+
+            except ValueError as e:
+                logger.error ("Doc " + self.doc_id + " and pattern " + str([pattern]) + ": " + str(e))
+                #print("Error during distance computation: " + str(e))
+        #
+        # We can do better by counting the number of occurrences wit the minimal distance
+        #
+        if len(distances) > 0:
+            best_occurrence, distance = min(distances, key=itemgetter(1))
+            return best_occurrence, distance
+        else:
+            #logger.error ("Opus " + self.opus_id + " and pattern " + str([pattern]) + ": no occurrence found?")
+            return "", 1000000
+ 
