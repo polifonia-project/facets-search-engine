@@ -40,4 +40,9 @@ urlpatterns = [
 	# Music document management
 	path('<str:index_name>/<str:doc_id>/', views.document, name='document'),
 	path('admin/', admin.site.urls),
+	path('__debug__/', include('debug_toolbar.urls')),
 ]
+
+if settings.DEBUG:
+	import debug_toolbar
+	urlpatterns = [path('__debug__/', include(debug_toolbar.urls)),] + urlpatterns

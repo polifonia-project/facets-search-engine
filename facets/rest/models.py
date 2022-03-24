@@ -23,12 +23,18 @@ class MusicDoc(models.Model):
 
 	def upload_path(self, filename):
 		'''Set the path where files must be stored'''
+		#TODO
 		return 'musicdoc/'+filename
 
 	def save_file(self, filename):
+		#TODO
 		return
+
+	# Save the original score in database?
 	#musicxml = models.FileField(upload_to=upload_path,null=True,storage=OverwriteStorage())
 	#mei = models.FileField(upload_to=upload_path,null=True,storage=OverwriteStorage())
+
+	# DO we also save the m21 score here?
 
 	def __str__(self):
 		return self.doc_id
