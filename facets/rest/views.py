@@ -32,7 +32,6 @@ from lib.search.IndexWrapper import IndexWrapper
 from lib.search.SearchContext import *
 
 from lib.music.MusicSummary import *
-from music21 import converter, mei
 
 
 # Get an instance of a logger
@@ -198,12 +197,54 @@ def document(request, index_name, doc_id):
 		'''
 		# Read the document
 		try:
-			if request.content_type == "application/mei":
-				# Apply the MEI -> Music21 converter
-				conv = mei.MeiToM21Converter(request.body)
+			if request.content_type == "application/zip":
+				"""
+				Bulk indexing given a zip file.
+				in the case of loading a zip, "doc_id" from the curl command is just the name of the zip
+				the name of each file in the zip would be saved as doc_id.
+				
+				Only MEI format is supported for now...
+				"""
 
-				# Get M21 object of the score
-				m21_score = conv.run()
+				files = ScoreProcessing.load_zip(request.body)
+				for document_id in files:
+					# Get m21 score
+					m21_score = files[document_id]["mei"]
+					# Process the current score, produce descriptors from MusicSummary
+					musicdoc, descr_dict, encodedMS = ScoreProcessing.score_process(m21_score, document_id)
+				
+					# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
+					index_wrapper = IndexWrapper(index_name) 
+					index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
+				
+					print("Successfully indexed the current MEI document " + document_id)
+
+				return JSONResponse({"message": "Successfully bulk indexed all documents in ZIP" + doc_id})
+			else:
+				body_unicode = request.body.decode('utf-8')
+				if request.content_type == "application/mei":
+					# Apply MEI -> Music21 converter
+					m21_score = ScoreProcessing.load_score(body_unicode, "mei")
+				elif request.content_type == "application/xml":
+					m21_score = ScoreProcessing.load_score(body_unicode, "xml")
+				elif request.content_type == "application/musicxml":
+					# To be tested
+					m21_score = ScoreProcessing.load_score(body_unicode, "musicxml")
+				elif request.content_type == "application/krn":
+					# To be fixed:
+					# list index out of range
+					print(body_unicode)
+					m21_score = ScoreProcessing.load_score(body_unicode, "krn")
+				elif request.content_type == "application/abc":
+					# To be fixed:
+					# invalid literal for int() with base 10: for test2.abc
+					# Cannot set partition by 4 (4/42222222224222222222222222222224) for test.abc
+					m21_score = ScoreProcessing.load_score(body_unicode, "abc")
+				#elif request.content_type == "application/mid":
+				#	m21_score = ScoreProcessing.load_score(request.body, "mid")
+				else:
+					# Otherwise, the format is currently not supported.
+					return JSONResponse({"error": "Unknown content type : " + request.content_type})
 
 				# Process the current score, produce descriptors from MusicSummary
 				musicdoc, descr_dict, encodedMS = ScoreProcessing.score_process(m21_score, doc_id)
@@ -212,12 +253,7 @@ def document(request, index_name, doc_id):
 				index_wrapper = IndexWrapper(index_name) 
 				index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
 				
-				return JSONResponse({"message": "Successfully indexed MEI document " + doc_id})
-			else:
-				# TODO: bulk indexing given a zip file
-
-				return JSONResponse({"error": "Unknown content type : " + request.content_type})
-
+				return JSONResponse({"message": "Successfully indexed document " + doc_id})
 		except Exception as ex:
 			return JSONResponse({"error": str(ex)})
 

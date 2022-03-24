@@ -79,7 +79,6 @@ class SearchContext:
     def decode_pattern_context(self):
         # This function process abc format patterns -> a m21 stream -> a list of Items.
 
-        # To be checked: does it need to be an abc format file stored?
         # assume self.pattern is abc format
         
         abcStr = self.pattern

@@ -47,6 +47,10 @@ class Score:
         default_voice_id = 1
         default_part_id = 1
         
+        if m21stream == None:
+            print("Error while loading from score, the m21 stream is empty.")
+            return
+
         # Extract the voices
         if m21stream.hasVoices():
             for m21voice in m21stream.voices:

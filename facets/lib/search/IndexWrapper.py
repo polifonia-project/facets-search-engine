@@ -160,9 +160,8 @@ class IndexWrapper:
 
             #elif search_context.is_keyword_search():
                 '''
-                TO-DO: do we store scores? 
-                If not how do we do it? from the stored lyrics in ES?
-                Originally, we get IDs of matching M21 objects from the scores.
+                Wait for scores to be saved...
+                TODO: Get IDs of matching M21 objects from the scores.
                 '''
             #opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids)})
             opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "distance": distance, "best_occurrence": str(best_occurrence)})
