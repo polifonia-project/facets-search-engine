@@ -7,6 +7,7 @@ from django.urls import path, re_path
 
 from .views import *
 
+from home import views as homeviews
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -40,6 +41,7 @@ urlpatterns = [
 	# Music document management
 	path('<str:index_name>/<str:doc_id>/', views.document, name='document'),
 	path('admin/', admin.site.urls),
+	# path('ui/', homeviews.urls),
 	path('__debug__/', include('debug_toolbar.urls')),
 ]
 
