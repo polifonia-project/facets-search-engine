@@ -17,11 +17,11 @@ image:
 logo:
 demo: 
 links: 
-	- http://neuma.huma-num.fr
+  - http://neuma.huma-num.fr
 running-instance:
 credits: CNAM vertigo Team
 related-components:
-bibliography: 
+bibliography: n/a
 ---
 
 # Facets Music Search Engine
