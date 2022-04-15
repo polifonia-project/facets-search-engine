@@ -17,14 +17,29 @@ curl -X POST http://localhost:8000/index_name/_search -d @json_path
 curl -X DELETE http://localhost:9200/index_name/_doc/doc_id_that_you_want_delete
 
 
+-----------------------------------------------------------------------------------------
+Tutorial for indexing scores for pattern search with samples:
 
-Example for new user to initiate a search:
-
-1. First create an index called index:
+1. First create an index called "index":
 curl -X PUT  http://localhost:8000/index/
 
-2. Then import the first music score "001.mei" in the folder "data":
-curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/newfile001/ -d @data/001.mei 
+2.1 Import the first music score "001.mei" in the folder "data":
+curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/friuli001/ -d @data/friuli001.mei 
 
-3. Use a defined query(type:diatonic) in the folder "queries":
+2.2(optional) Import more score samples in the folder "data":
+curl -X PUT -H "Content-type:application/xml" http://localhost:8000/index/couperin/ -d @data/couperin.xml
+
+curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/terpsichore026/ -d @data/terpsichore026.mei
+
+3. Use a defined query(search type: diatonic) in the folder "queries":
 curl -X POST http://localhost:8000/index/_search -d @queries/test_dia1.json
+
+3.2(optional) More samples for pattern search
+Test the search engine with a mirror query
+curl -X POST http://localhost:8000/index/_search -d @queries/test_mir1.json
+
+Test chromatic search
+curl -X POST http://localhost:8000/index/_search -d @queries/test_chr1.json
+
+Test rhythmic search
+curl -X POST http://localhost:8000/index/_search -d @queries/test_rhy2.json
