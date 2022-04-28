@@ -11,7 +11,38 @@ from music21 import converter, mei
 import zipfile
 import json
 import io
+import os
 from binascii import unhexlify
+#from django.core.files.base import ContentFile
+from django.core.files import File
+
+def save_data(index_name, m21_score, doc_id):
+
+		# TO-DO: SAVE METADATA AND SCORE(Original file? music21? both?) IN DATABASE
+
+		try:
+			index = Index.objects.get(name = index_name)
+		except:
+			index = Index()
+			index.name = index_name
+			index.save()
+
+		# If it already exists, delete
+		MusicDoc.objects.filter(doc_id=doc_id).delete()
+
+	 	# Create a musicdoc object
+		musicdoc = MusicDoc()
+		musicdoc.doc_id = doc_id
+		musicdoc.index = index
+		musicdoc.m21score = m21_score
+
+		# To do: save the original score file
+		# musicdoc.musicfile = score
+		# To do 2: also save metadata
+		#musicdoc.doc_type = 
+		#musicdoc.save()
+
+		return musicdoc
 
 def extract_features(score, music_summary, musicdoc):
 
@@ -99,8 +130,7 @@ def extract_features(score, music_summary, musicdoc):
 				"""
 					Extract lyrics feature
 					Attention: this may only work for musicXML files!!
-					To be checked...				
-
+					To be checked...
 				"""
 
 				#  Get a list of Voice objects from the current Score object
@@ -122,192 +152,120 @@ def extract_features(score, music_summary, musicdoc):
 						# Save to descriptor dictionary for indexing
 						descr_dict["lyrics"][str(voice_id)] = descriptor.to_dict()
 
-
-		except  Exception as ex:
+		except Exception as ex:
 			print ("Exception when trying to write descriptor" + music_summary.doc_id + " Message:" + str(ex))
 
 		return descr_dict
 
+def decompose_zip_name(fname):
+
+	dirname = os.path.dirname(fname)
+	dircomp = dirname.split(os.sep)
+	basename = os.path.basename(fname)
+	components = os.path.splitext(basename) 
+	extension = components[len(components)-1]
+	opus_ref = ""
+	sep = ""
+	for i in range(len(components)-1):
+		if i > 0:
+			sep = "-"
+		opus_ref += components[i] + sep
+	return (opus_ref, extension)
+
 def load_zip(byte_str):
 		#zipfile should contain at least one music scores in the format recognized(mei, musicxml etc.)
-		print(type(byte_str))
-		#print("bytestr:", byte_str)
+		
+		#strfile for testing
 		strfile = open("teststr.txt", "wb")
 		strfile.write(byte_str)
 		strfile.close()
 
-		zfile = zipfile.ZipFile(io.BytesIO(byte_str), "r")
+		b = io.BytesIO(byte_str)
 
-		print("made it here!")
+		zfile = zipfile.ZipFile(b, "r")
+
+		valid_namelist = []
+		m21scores = {}
+		"""
+		files = {}
+		found_corpus_data = False
+		found_cover = False
+		corpus_dict = {}
+		cover_data = ""
+		"""
+
 		for fname in zfile.namelist():
 			# Skip files with weird names
 			base, extension = decompose_zip_name(fname)
+			# base is file name, will be used as doc_id, extension is the file format
 			if base == "" or base.startswith('_') or  base.startswith('.'):
 				continue
+
+			"""
+			# Look for the data file in json format
+			if extension == ".json":
+				# not in use now since we do not support json metadata yet
+				found_corpus_data = True 
+				corpus_dict = json.loads(zfile.open(fname).read().decode('utf-8'))
+			elif base == "cover" and extension == ".jpg":
+				# not in use now since we do not support cover yet
+				found_cover = True 
+				cover_data = zfile.open(fname).read()
+			# Codes of import zip are migrated from neuma/manager/models.py
+			"""
 			if (extension ==".json" or extension == ".mei" or extension == ".xml"
-				or extension == '.mxl' or extension == '.krn' or extension == '.mid'):
+				or extension == '.mxl' or extension=='.krn' or extension=='.abc' or extension == '.musicxml'):
+				"""
 				files[base] = {"mei": "", 
 						"musicxml": "",
-						"compressed_xml": "",
+						"xml": "",
 						"json": "",
-						"kern": ""}
+						"kern": "",
+						"abc": ""}
+				"""
+				valid_namelist.append(fname)
 			else:
 				print ("Ignoring file %s.%s" % (base, extension))
 
-		for fname in zfile.namelist():
-			ref, extension = decompose_zip_name(fname)
-			if ref in files:
-				if extension == '.mei':
-					files[ref]["mei"] = load_score(fname, "mei")
+		for valid_name in valid_namelist:
+			base, extension = decompose_zip_name(valid_name)
+			cur_file = zfile.read(valid_name)
+			m21_score = load_score(cur_file, extension[1:], base)
+			print("Successfully loaded the score:", valid_name)
+			m21scores[base] = m21_score
 
-		#save_zip_data(zfile)
+		return m21scores
 
-		return files
-
-def save_zip_data(zfile):
-		#TODO, save the scores in database
+def load_score(score, s_format, docid):
 		"""
-		# This part for later when we allow multiple formats... for saving them in the database
-		# Second scan: we note the files present for each opus
-		for fname in zfile.namelist():
-			(ref, extension) = decompose_zip_name(fname)
-			if ref in files:
-				if extension == '.mxl':
-					files[ref]["compressed_xml"] = fname
-				elif (extension == '.xml' or extension == '.musicxml'):
-					files[ref]["musicxml"] = fname
-				elif extension == '.mei':
-					files[ref]["mei"] = fname
-				elif extension == '.json':
-					files[ref]["json"] = fname
-				elif extension == '.mid':
-					files[ref]["midi"] = fname
-				elif extension == '.krn':
-					files[ref]["kern"] = fname
-
-		# Now in files, we know whether we have the MusicXML, MEI or any other file format
-		list_imported = []
-		for ref, files_desc in files.items():
-				print ("Import music doc with doc_id " + ref)
-				# Check if it already exists:
-				try:
-					musicdoc = MusicDoc.objects.get(doc_id=ref)
-				except MusicDoc.DoesNotExist as e:
-					musicdoc = MusicDoc(doc_id=ref)
-				list_imported.append(musicdoc)
-
-				#Not for now since we do not have metadata yet
-				# If a json exists, then it should contain the relevant metadata
-				if files_desc["json"] != "":
-					logger.info ("Found JSON metadata file %s" % files_desc["json"])
-					json_file = zfile.open(files_desc["json"])
-					json_doc = json_file.read()
-					musicdoc.load_from_dict (corpus, json.loads(json_doc.decode('utf-8')))
-				musicdoc.save()
-
-				#Not for now since we don't use format other than MEI yet...
-				#Save the doc in database
-				if files_desc["compressed_xml"] != "":
-					logger.info ("Found compressed MusicXML content")
-					# Compressed XML
-					container = io.BytesIO(zfile.read(opus_files_desc["compressed_xml"]))
-					xmlzip = zipfile.ZipFile(container)
-					# Keep the file in the container with the same basename
-					for name2 in xmlzip.namelist():
-						basename2 = os.path.basename(name2)
-						ref2 = os.path.splitext(basename2)[0]
-						if files_desc["opus_ref"]  == ref2:
-							xml_content = xmlzip.read(name2)
-					musicdoc.musicxml.save("score.xml", ContentFile(xml_content))
-				if files_desc["musicxml"] != "":
-					logger.info ("Found MusicXML content")
-					xml_content = zfile.read(files_desc["musicxml"])
-					musicdoc.musicxml.save("score.xml", ContentFile(xml_content))
-				if files_desc["kern"] != "":
-					logger.info ("Found KERN content")
-					kern_content = zfile.read(files_desc["kern"])
-					# We need to write in a tmp file, probably 
-					tmp_file = "/tmp/tmp_kern.txt"
-					f = open(tmp_file, "w")
-					lines = kern_content.splitlines()
-					for line in lines:
-						if not (line.startswith(b"!!!ARE: ") 
-							or line.startswith(b"!!!AGN: ")
-							or line.startswith(b"!!!OTL: ")
-							or line.startswith(b"!!!YOR: ")
-							or line.startswith(b"!!!SCA: ")
-							or line.startswith(b"!!!OCY: ")
-							or line.startswith(b"!! ")
-							):
-							f.write (line.decode()  + os.linesep)
-					f.close()
-					try:
-						tk = verovio.toolkit()
-						tk.loadFile(tmp_file)
-						mei_content = tk.getMEI()
-						musicdoc.mei.save("mei.xml", ContentFile(mei_content))
-						doc = minidom.parseString(mei_content)
-					except Exception as e:
-						print ("Exception while loading Kern: " + str(e))
-						return
-
-				#For saving MEI file in database
-				if bool(musicdoc.mei) == False:
-					if files_desc["mei"] != "":
-						logger.info ("Load MEI content")
-						# Add the MEI file
-						try:
-							mei_file = zfile.open(files_desc["mei"])
-							mei_raw  = mei_file.read()
-							encoding = "utf-8"
-							try:
-								logger.info("Attempt to read in UTF 8")
-								mei_raw.decode(encoding)
-							except Exception as ex:
-								logger.info("Read in UTF 16")
-								encoding = "utf-16"
-								mei_raw.decode(encoding)
-							logger.info("Correct encoding: " + encoding)
-							mei_content = mei_raw.decode(encoding)
-							logger.info ("Save the MEI file in database.")
-							musicdoc.mei.save("mei.xml", ContentFile(mei_content))
-						except Exception as ex:
-							logger.error ("Error processing MEI  " + str(ex))
-					else:
-						# Produce the MEI from the MusicXML
-						if files_desc["musicxml"] != "":
-							logger.info ("Produce the MEI from MusicXML")
-							try:
-								tk = verovio.toolkit()
-								tk.loadFile(musicdoc.musicxml.path)
-								mei_content = tk.getMEI()
-								musicdoc.mei.save("mei.xml", ContentFile(mei_content))
-							except Exception as e:
-								print ("Exception : " + str(e))
-						else:
-							logger.warning ("No MEI, no MusicXML: content %s is incomplete" % musicdoc.doc_id)
+		Load a music score
 		"""
-		return
-
-def load_score(score, s_format):
-
+		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc": #and and s_format != "mid" and s_format != "musicxml":
+			print("Document format not supported for loading the current score.")
+			return
+		
 		if s_format == "mei":
 			conv = mei.MeiToM21Converter(score)
 			# Get M21 object of the score
 			m21_score = conv.run()
 			return m21_score
-		elif s_format == "xml" or s_format == "krn" or s_format == 'mid' or s_format == "musicxml":
+
+		elif s_format == "xml" or s_format == "krn":# or s_format == 'mid' or s_format == "musicxml":
 			m21_score = converter.parse(score)
 			return m21_score
+
 		elif s_format == "abc":
 			print(score)
 			handler = abcFormat.ABCHandler()
 			handler.process(score)
 			m21_score = m21.abcFormat.translate.abcToStreamScore(handler)
 			return m21_score
-
 		
-def score_process(m21_score, doc_id):
+def score_process(index_name, m21_score, doc_id):
+		"""
+		From original score file to Score object, to MS object then extract features
+		return musicdoc object, extracted features and MS, for indexing
+		"""
 
 		try:
 			# Create a Score object
@@ -324,11 +282,8 @@ def score_process(m21_score, doc_id):
 			encodedMS = MS.encode()
 		except Exception as ex:
 			print("Error while encoding the score", str(ex))
-	 	
-	 	# Create a musicdoc object
-		musicdoc = MusicDoc()
-		musicdoc.doc_id = doc_id
-		# TO- DO: SAVE METADATA AND SCORE(Original file? music21? both?) IN DATABASE
+
+		musicdoc = save_data(index_name, m21_score, doc_id)
 
 		try:
 			# Feature extraction

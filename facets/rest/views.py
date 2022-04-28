@@ -87,7 +87,10 @@ def index(request, index_name):
 		  Example:
 		      curl -X PUT  http://localhost:8000/index/
 		'''
+		index = Index()
+		index.name = index_name
 		index_wrapper = IndexWrapper(index_name)
+		index.save()
 
 		return JSONResponse({"Message": "Request to create index " + index_name})
 	
@@ -182,10 +185,14 @@ def document(request, index_name, doc_id):
 
 		# Return MusicSummary of the given doc_id which is indexed in ES.
 
-		MS = index_wrapper.get_MS_from_doc(index_name, doc_id)
+		try:
+			MS = index_wrapper.get_MS_from_doc(index_name, doc_id)
+		except Exception as ex:
+			return JSONResponse({"Error when getting the score model": str(ex)})
 
-		print("MusicSummary of ", doc_id, "is", MS)
+		#print("MusicSummary of ", doc_id, "is", MS)
 
+		# return the corresponding MusicSummary(score model)
 		return JSONResponse({"Message": "Request to read MusicSummary of " + doc_id + ":" + MS})
 
 	elif request.method == "PUT":
@@ -200,18 +207,16 @@ def document(request, index_name, doc_id):
 			if request.content_type == "application/zip":
 				"""
 				Bulk indexing given a zip file.
-				in the case of loading a zip, "doc_id" from the curl command is just the name of the zip
-				the name of each file in the zip would be saved as doc_id.
+				in the case of loading a zip, "doc_id" from the curl command is just the name of zip file.
+				The name of each file in the zip would be saved as doc_id.
 				
 				Only MEI format is supported for now...
 				"""
+				m21scores = ScoreProcessing.load_zip(request.body)
 
-				files = ScoreProcessing.load_zip(request.body)
-				for document_id in files:
-					# Get m21 score
-					m21_score = files[document_id]["mei"]
+				for document_id in m21scores:
 					# Process the current score, produce descriptors from MusicSummary
-					musicdoc, descr_dict, encodedMS = ScoreProcessing.score_process(m21_score, document_id)
+					musicdoc, descr_dict, encodedMS = ScoreProcessing.score_process(index_name, m21scores[document_id], document_id)
 				
 					# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
 					index_wrapper = IndexWrapper(index_name) 
@@ -219,27 +224,27 @@ def document(request, index_name, doc_id):
 				
 					print("Successfully indexed the current MEI document " + document_id)
 
-				return JSONResponse({"message": "Successfully bulk indexed all documents in ZIP" + doc_id})
+				return JSONResponse({"message": "Successfully bulk indexed all documents in ZIP: " + doc_id})
 			else:
 				body_unicode = request.body.decode('utf-8')
 				if request.content_type == "application/mei":
 					# Apply MEI -> Music21 converter
-					m21_score = ScoreProcessing.load_score(body_unicode, "mei")
+					m21_score = ScoreProcessing.load_score(body_unicode, "mei", doc_id)
 				elif request.content_type == "application/xml":
-					m21_score = ScoreProcessing.load_score(body_unicode, "xml")
+					m21_score = ScoreProcessing.load_score(body_unicode, "xml", doc_id)
 				elif request.content_type == "application/musicxml":
 					# To be tested
-					m21_score = ScoreProcessing.load_score(body_unicode, "musicxml")
+					m21_score = ScoreProcessing.load_score(body_unicode, "musicxml", doc_id)
 				elif request.content_type == "application/krn":
 					# To be fixed:
-					# list index out of range
+					# list index out of range(accessing an none existent item?)
 					print(body_unicode)
-					m21_score = ScoreProcessing.load_score(body_unicode, "krn")
+					m21_score = ScoreProcessing.load_score(body_unicode, "krn", doc_id)
 				elif request.content_type == "application/abc":
 					# To be fixed:
 					# invalid literal for int() with base 10: for test2.abc
 					# Cannot set partition by 4 (4/42222222224222222222222222222224) for test.abc
-					m21_score = ScoreProcessing.load_score(body_unicode, "abc")
+					m21_score = ScoreProcessing.load_score(body_unicode, "abc", doc_id)
 				#elif request.content_type == "application/mid":
 				#	m21_score = ScoreProcessing.load_score(request.body, "mid")
 				else:
@@ -247,7 +252,7 @@ def document(request, index_name, doc_id):
 					return JSONResponse({"error": "Unknown content type : " + request.content_type})
 
 				# Process the current score, produce descriptors from MusicSummary
-				musicdoc, descr_dict, encodedMS = ScoreProcessing.score_process(m21_score, doc_id)
+				musicdoc, descr_dict, encodedMS = ScoreProcessing.score_process(index_name, m21_score, doc_id)
 				
 				# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
 				index_wrapper = IndexWrapper(index_name) 

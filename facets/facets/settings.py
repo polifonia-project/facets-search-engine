@@ -16,6 +16,11 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+#From Neuma:
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+
+NEUMA_ID_SEPARATOR = ":"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
