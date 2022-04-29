@@ -1,6 +1,9 @@
 """
-	Transform a Music21 object into MusicSummary,
-	Then extract features from MS.
+	Processing scores or zip of scores.
+
+	Transform score to music21 object to MusicSummary,
+	Then extract features.
+
 """
 
 from lib.search.IndexWrapper import IndexWrapper
@@ -14,9 +17,12 @@ import json
 import io
 import os
 from binascii import unhexlify
-#from django.core.files.base import ContentFile
 from django.core.files import File
 from django.core.files.base import ContentFile
+
+def get_metadata_from_score(score, m21_score):
+	# To do
+	return
 
 def save_data(index_name, docid, doctype, score, m21_score):
 
@@ -27,7 +33,7 @@ def save_data(index_name, docid, doctype, score, m21_score):
 			index.name = index_name
 			index.save()
 
-		# If it already exists, delete
+		# If the musicdoc object of this doc_id already exists, delete:
 		MusicDoc.objects.filter(doc_id=docid).delete()
 
 	 	# Create a musicdoc object
@@ -38,7 +44,7 @@ def save_data(index_name, docid, doctype, score, m21_score):
 		musicdoc.m21score = m21_score
 		file = ContentFile(score)
 		musicdoc.musicfile = file
-		# TODO: also save metadata
+		# TODO: get and save metadata
 		
 		musicdoc.save()
 
@@ -52,8 +58,8 @@ def extract_features(score, music_summary, musicdoc):
 				for atype in types:
 					descr_dict[atype] = {}
 
-				# Clean the current descriptors (TO-DO)
-				##Descriptor.objects.filter(doc_id=musicdoc.doc_id).delete()
+				# First clean the current descriptors
+				Descriptor.objects.filter(doc_id=musicdoc.doc_id).delete()
 				
 				#Iterate over all the parts of MusicSummary
 				for part_id, curr_part in music_summary.parts.items():
@@ -275,11 +281,11 @@ def load_score(index_name, score, s_format, docid):
 
 		elif s_format == "xml" or s_format == "krn":# or s_format == 'mid' or s_format == "musicxml":
 			# Debugging kern...
-			if s_Format == "krn":
+			if s_format == "krn":
 				print(score)
 			m21_score = converter.parse(score)
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
-			
+
 			return m21_score, musicdoc
 
 		elif s_format == "abc":

@@ -25,6 +25,8 @@ from rest_framework.schemas import AutoSchema, ManualSchema
 from django.conf.global_settings import LOGGING
 import logging
 
+from rest.models import *
+
 from lib.process import ScoreProcessing
 
 from lib.search.IndexWrapper import IndexWrapper
@@ -205,6 +207,11 @@ def document(request, index_name, doc_id):
 		       
 		       In which "index" refers to index_name, and "lklk" refers to doc_id.
 		'''
+		if MusicDoc.objects.filter(doc_id=doc_id).exists():
+			# Need to debug: right now it doesn't work
+			print("Document ID already exists in the database:", doc_id)
+			#return JSONResponse({"message": "Document ID already exists in the database: " + doc_id})
+
 		# Read the document
 		try:
 			if request.content_type == "application/zip":

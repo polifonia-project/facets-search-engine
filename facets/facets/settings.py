@@ -173,3 +173,6 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.logging.LoggingPanel',
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
+
+#Maximum 500MB data for a single bulk loading request
+DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000
