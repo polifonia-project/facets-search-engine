@@ -12,7 +12,7 @@ class Index(models.Model):
 	name = models.CharField(max_length=255, unique = True)
 
 	def __str__(self):
-		return self.index_name
+		return self.name
 
 class MusicDoc(models.Model):
 	'''
@@ -21,7 +21,6 @@ class MusicDoc(models.Model):
 	
 	index = models.ForeignKey(Index, on_delete=models.CASCADE)
 	doc_id = models.CharField(max_length=255, unique=True)
-
 	doc_type = models.CharField(max_length=255, null=True, blank=True)
 	
 	def upload_path(self, filename):

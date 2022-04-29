@@ -112,8 +112,6 @@ def search(request, index_name):
 	'''
 	if request.method == "POST":
 		"""
-		TODO: Check if index_name exists. 
-		
 		Request body should be a SearchContext object,
 		which has info including: 
 		search type(mandatory), search pattern(mandatory when pattern search),
@@ -150,6 +148,11 @@ def search(request, index_name):
 		  search in ES
 		"""
 		# ES returns a "response" object with all the documents that matches query
+		
+		# Check if index of index_name exists. 
+		if Index.objects.filter(name=index_name).exists():
+			print("An index with the same name already exists in the database.")
+
 		matching_docs = index_wrapper.search(searchcontext)
 
 		# Get a list of doc_id
@@ -172,12 +175,12 @@ def document(request, index_name, doc_id):
 	"""
 		Document management.
 
-		GET a musicdoc refers to MusicSummary retrieval of the musicdoc, given its doc_id.
+		GET a musicdoc refers to MusicSummary retrieval of the musicdoc.
 
 		PUT a musicdoc refers to index an music document in ElasticSearch index, 
-		given the index_name, doc_id and music document.
+		given index_name, doc_id and music document.
 
-		The indexed information of a musicdoc are its id, json encoded MusicSummary, and descriptors.
+		Specifically: id, json encoded MusicSummary, and descriptors of the musicdoc are indexed.
 
 	"""
 
@@ -189,15 +192,12 @@ def document(request, index_name, doc_id):
 		index_wrapper = IndexWrapper(index_name)
 
 		# Return MusicSummary of the given doc_id which is indexed in ES.
-
 		try:
 			MS = index_wrapper.get_MS_from_doc(index_name, doc_id)
 		except Exception as ex:
 			return JSONResponse({"Error when getting the score model": str(ex)})
 
-		#print("MusicSummary of ", doc_id, "is", MS)
-
-		# return the corresponding MusicSummary(score model)
+		# Return the corresponding MusicSummary(score model)
 		return JSONResponse({"Message": "Request to read MusicSummary of " + doc_id + ":" + MS})
 
 	elif request.method == "PUT":
@@ -207,12 +207,8 @@ def document(request, index_name, doc_id):
 		       
 		       In which "index" refers to index_name, and "lklk" refers to doc_id.
 		'''
-		if MusicDoc.objects.filter(doc_id=doc_id).exists():
-			# Need to debug: right now it doesn't work
-			print("Document ID already exists in the database:", doc_id)
-			#return JSONResponse({"message": "Document ID already exists in the database: " + doc_id})
 
-		# Read the document
+		# Loading the document
 		try:
 			if request.content_type == "application/zip":
 				"""
@@ -233,29 +229,40 @@ def document(request, index_name, doc_id):
 
 			else:
 
-				body_unicode = request.body.decode('utf-8')
+				body_unicode = request.body.decode('utf')
+				
 				if request.content_type == "application/mei":
+					"""
+					Example:
+		       		curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei
+		       		"""
 					# Apply MEI -> Music21 converter
-					m21_score, musicdoc = ScoreProcessing.load_score(body_unicode, "mei", doc_id)
+					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "mei", doc_id)
 				
 				elif request.content_type == "application/xml":
-					m21_score, musicdoc = ScoreProcessing.load_score(body_unicode, "xml", doc_id)
+					"""
+					Example:
+					curl -X PUT -H "Content-type:application/xml" http://localhost:8000/index/couperin/ -d @data/couperin.xml
+					"""
+					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "xml", doc_id)
 				
 				elif request.content_type == "application/musicxml":
 					# To be tested
-					m21_score, musicdoc = ScoreProcessing.load_score(body_unicode, "musicxml", doc_id)
+					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "musicxml", doc_id)
 
 				elif request.content_type == "application/krn":
-					# To be fixed:
-					# list index out of range(accessing an none existent item?)
-					print(body_unicode)
-					m21_score, musicdoc = ScoreProcessing.load_score(body_unicode, "krn", doc_id)
+					"""
+					Example:
+					curl -X PUT -H "Content-type:application/krn" http://localhost:8000/index/danmark/ --data-binary @data/danmark1.krn
+					"""
+					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "krn", doc_id)
 
 				elif request.content_type == "application/abc":
-					# To be fixed:
-					# invalid literal for int() with base 10: for test2.abc
-					# Cannot set partition by 4 (4/42222222224222222222222222222224) for test.abc
-					m21_score, musicdoc = ScoreProcessing.load_score(body_unicode, "abc", doc_id)
+					"""
+					Example:
+					curl -X PUT -H "Content-type:application/abc" http://localhost:8000/index/abctest/ --data-binary @data/test.abc
+					"""
+					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
 				#elif request.content_type == "application/mid":
 				#	m21_score = ScoreProcessing.load_score(request.body, "mid")
 				else:

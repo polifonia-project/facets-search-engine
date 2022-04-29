@@ -18,21 +18,28 @@ class Score:
         self.components = list()
         self.m21_score = None
         return
-    
-    def load_from_xml(self, xml_path, format):
-        """Get the score representation from a MEI or MusicXML document"""
+    """
+    # not needed!
+    def load_from_xml(self, xml_path, score_format):
+        #Get the score representation from a MEI or MusicXML document
 
         try:        
             #If the score is in MEI format, convert it to Music21 stream
-            if format == "mei":
+            if score_format == "mei":
                 with open (xml_path, "r") as meifile:
                     meiString = meifile.read()
                 #print ("MEI file: " + meiString[0:40])
                 conv = mei.MeiToM21Converter(meiString)
                 self.m21_score = conv.run()
-            else:
+            elif score_format == "xml":
                 #If the score is in XML format
                 self.m21_score = m21.converter.parseFile(xml_path,format=format)
+            elif score_format == "abc":
+                handler = abcFormat.ABCHandler()
+                handler.process(score)
+                m21_score = m21.abcFormat.translate.abcToStreamScore(handler)
+            else:
+                print("The score format is not supported in music/Voice.py")
         
             self.load_component(self.m21_score)
 
@@ -40,9 +47,10 @@ class Score:
             self.m21_score = None
             print ("Error while loading from xml:" + str(ex))
             print ("Some error raised while attempting to transform MEI to XML.")
-                
+    """
+
     def load_component(self, m21stream):
-        '''Load the components from a M21 stream'''
+        #Load the components from a M21 stream
 
         default_voice_id = 1
         default_part_id = 1
@@ -118,6 +126,7 @@ class Score:
 
         # Adds a single part, for historical reasons: we do not care about parts
         # for search operations
+        # question: is part_id really necessary? Here all the part_id = "All parts"
         part_id = settings.ALL_PARTS
         music_summary.add_part(part_id)
 

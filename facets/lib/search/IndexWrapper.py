@@ -78,17 +78,17 @@ class IndexWrapper:
 
         return encodedMS
         
-    def index_musicdoc(self, index_name, MusicDoc, descr_dict, encodedMS):
+    def index_musicdoc(self, index_name, musicdoc, descr_dict, encodedMS):
         """ 
         Add or replace a MusicDoc in the ElasticSearch index
         """
         
-        print ("Index MusicDoc " + MusicDoc.doc_id + "in Index: " + index_name)
+        print ("Indexing MusicDoc " + musicdoc.doc_id + " in ES index: " + index_name)
 
         try:
 
             musicdoc_index = MusicDocIndex(
-                meta={'id': MusicDoc.doc_id, 'index': index_name},
+                meta={'id': musicdoc.doc_id, 'index': index_name},
                 summary = encodedMS
             )
 
@@ -107,10 +107,10 @@ class IndexWrapper:
             musicdoc_index.add_descriptor(descr_dict)
 
             # Save the updated index
-            musicdoc_index.save(using=self.elastic_search, id=MusicDoc.doc_id)
+            musicdoc_index.save(using=self.elastic_search, id=musicdoc.doc_id)
 
         except Exception as ex:
-            print ("Error met when trying to index: " + str(ex))
+            print ("Error occurred while trying to index: " + str(ex))
         
         return
 
@@ -127,7 +127,7 @@ class IndexWrapper:
             best_occurrence = None
 
             if search_context.is_pattern_search():
-                # Get encoded MusicSummary of the given doc_id.
+                # Get encoded MusicSummary of the current doc
                 encodedMS = self.get_MS_from_doc(index_name, doc_id)
 
                 # Decode MusicSummary
@@ -155,7 +155,7 @@ class IndexWrapper:
                     best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
                     logger.info ("Found best occurrence : " + str(best_occurrence) + " with distance " + str(distance))
 
-                # Locate ids of all the matching patterns to highlight
+                # Locate ids of all matching patterns to highlight
                 matching_ids = msummary.find_matching_ids(pattern_sequence, search_context.search_type, search_context.mirror_search)
 
             #elif search_context.is_keyword_search():

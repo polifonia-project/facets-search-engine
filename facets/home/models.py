@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 
 from django.db import models
+"""
 
 class Index(models.Model):
 	index_name = models.CharField(max_length=255)
@@ -21,3 +22,4 @@ class MusicDoc(models.Model):
 
 	def __str__(self):
 		return self.doc_id
+"""
