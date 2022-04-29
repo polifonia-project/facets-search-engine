@@ -3,6 +3,7 @@
 	Then extract features from MS.
 """
 
+from lib.search.IndexWrapper import IndexWrapper
 from lib.music.Score import *
 from lib.music.MusicSummary import *
 from rest.models import *
@@ -15,10 +16,9 @@ import os
 from binascii import unhexlify
 #from django.core.files.base import ContentFile
 from django.core.files import File
+from django.core.files.base import ContentFile
 
-def save_data(index_name, m21_score, doc_id):
-
-		# TO-DO: SAVE METADATA AND SCORE(Original file? music21? both?) IN DATABASE
+def save_data(index_name, docid, doctype, score, m21_score):
 
 		try:
 			index = Index.objects.get(name = index_name)
@@ -28,19 +28,19 @@ def save_data(index_name, m21_score, doc_id):
 			index.save()
 
 		# If it already exists, delete
-		MusicDoc.objects.filter(doc_id=doc_id).delete()
+		MusicDoc.objects.filter(doc_id=docid).delete()
 
 	 	# Create a musicdoc object
 		musicdoc = MusicDoc()
-		musicdoc.doc_id = doc_id
 		musicdoc.index = index
+		musicdoc.doc_id = docid
+		musicdoc.doc_type = doctype
 		musicdoc.m21score = m21_score
-
-		# To do: save the original score file
-		# musicdoc.musicfile = score
-		# To do 2: also save metadata
-		#musicdoc.doc_type = 
-		#musicdoc.save()
+		file = ContentFile(score)
+		musicdoc.musicfile = file
+		# TODO: also save metadata
+		
+		musicdoc.save()
 
 		return musicdoc
 
@@ -172,7 +172,7 @@ def decompose_zip_name(fname):
 		opus_ref += components[i] + sep
 	return (opus_ref, extension)
 
-def load_zip(byte_str):
+def load_zip(index_name, byte_str):
 		#zipfile should contain at least one music scores in the format recognized(mei, musicxml etc.)
 		
 		#strfile for testing
@@ -186,6 +186,7 @@ def load_zip(byte_str):
 
 		valid_namelist = []
 		m21scores = {}
+		musicdocs = {}
 		"""
 		files = {}
 		found_corpus_data = False
@@ -230,15 +231,36 @@ def load_zip(byte_str):
 		for valid_name in valid_namelist:
 			base, extension = decompose_zip_name(valid_name)
 			cur_file = zfile.read(valid_name)
-			m21_score = load_score(cur_file, extension[1:], base)
-			print("Successfully loaded the score:", valid_name)
+			m21_score, musicdoc = load_score(index_name, cur_file, extension[1:], base)
+			print("Successfully loaded and saved the score:", valid_name)
 			m21scores[base] = m21_score
+			musicdocs[base] = musicdoc
 
-		return m21scores
+		return m21scores, musicdocs
 
-def load_score(score, s_format, docid):
+def zip_process(index_name, byte_str):
+
+		# Load zip, then load scores from the zip, and save in database
+		m21scores, musicdocs = load_zip(index_name, byte_str)
+
+		# Process the current score, produce descriptors from MusicSummary
+		
+		for score_id in m21scores:
+
+			# Get MusicSummary and extracted descriptors
+			descr_dict, encodedMS = score_process(musicdocs[score_id], m21scores[score_id], score_id)
+			
+			# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
+			index_wrapper = IndexWrapper(index_name) 
+			index_wrapper.index_musicdoc(index_name, musicdocs[score_id], descr_dict, encodedMS)
+			
+			print("Successfully indexed the current document: " + score_id)
+
+		return
+
+def load_score(index_name, score, s_format, docid):
 		"""
-		Load a music score
+		Load a music score and save in database
 		"""
 		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc": #and and s_format != "mid" and s_format != "musicxml":
 			print("Document format not supported for loading the current score.")
@@ -246,22 +268,31 @@ def load_score(score, s_format, docid):
 		
 		if s_format == "mei":
 			conv = mei.MeiToM21Converter(score)
-			# Get M21 object of the score
+			# The original score -> M21 score
 			m21_score = conv.run()
-			return m21_score
+			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
+			return m21_score, musicdoc
 
 		elif s_format == "xml" or s_format == "krn":# or s_format == 'mid' or s_format == "musicxml":
+			# Debugging kern...
+			if s_Format == "krn":
+				print(score)
 			m21_score = converter.parse(score)
-			return m21_score
+			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
+			
+			return m21_score, musicdoc
 
 		elif s_format == "abc":
+			# Debugging
 			print(score)
 			handler = abcFormat.ABCHandler()
 			handler.process(score)
 			m21_score = m21.abcFormat.translate.abcToStreamScore(handler)
-			return m21_score
+			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
+			
+			return m21_score, musicdoc
 		
-def score_process(index_name, m21_score, doc_id):
+def score_process(musicdoc, m21_score, doc_id):
 		"""
 		From original score file to Score object, to MS object then extract features
 		return musicdoc object, extracted features and MS, for indexing
@@ -273,22 +304,21 @@ def score_process(index_name, m21_score, doc_id):
 			# Get a Score object from M21 object of the score. 
 			score.load_component(m21_score)
 		except Exception as ex:
-			print("Error while loading the score using music21", str(ex))
+			print("Error while loading the score using music21: ", str(ex))
 	 	
 		try:
 	 		# Get MusicSummary from the Score object
 			MS = score.get_music_summary()
 			MS.doc_id = doc_id
 			encodedMS = MS.encode()
-		except Exception as ex:
-			print("Error while encoding the score", str(ex))
 
-		musicdoc = save_data(index_name, m21_score, doc_id)
+		except Exception as ex:
+			print("Error while encoding the score: ", str(ex))
 
 		try:
 			# Feature extraction
 			descr_dict = extract_features(score, MS, musicdoc)
 		except Exception as ex:
-			print("Error while extracting features", str(ex))
+			print("Error while extracting features: ", str(ex))
 
-		return musicdoc, descr_dict, encodedMS
+		return descr_dict, encodedMS
