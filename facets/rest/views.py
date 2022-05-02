@@ -33,8 +33,6 @@ from lib.search.IndexWrapper import IndexWrapper
 
 from lib.search.SearchContext import *
 
-#from lib.music.MusicSummary import *
-
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -248,6 +246,17 @@ def document(request, index_name, doc_id):
 				
 				elif request.content_type == "application/musicxml":
 					# To be tested
+					"""
+					MusicXML has registered media types available \
+					for both compressed .mxl and uncompressed .musicxml files. 
+
+					The recommended media type for a compressed MusicXML file(.mxl) is:
+					application/vnd.recordare.musicxml
+
+					The recommended media type for an uncompressed MusicXML file is:
+					application/vnd.recordare.musicxml+xml
+					"""
+
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "musicxml", doc_id)
 
 				elif request.content_type == "application/krn":
@@ -265,6 +274,7 @@ def document(request, index_name, doc_id):
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
 				#elif request.content_type == "application/mid":
 				#	m21_score = ScoreProcessing.load_score(request.body, "mid")
+				#   Humdrum format to be supported.
 				else:
 					# Otherwise, the format is currently not supported.
 					return JSONResponse({"Error": "Unknown content type : " + request.content_type})

@@ -28,6 +28,46 @@ def get_metadata_from_score(m21_score):
 		self.pattern = search_input["pattern"]
 	if "title" in search_input:
 		self.text = search_input["text"]
+
+	From MEI scores:
+	 <meiHead>
+      <fileDesc>
+      <title label="work">I, 1. Bransle simple. Bis</title>
+       <name role="composer">Franc. Caroubel.</name>
+
+    From XML scores:
+	<work>
+		<work-title>Les Baricades Misterieuses</work-title>
+	</work>
+	<identification>
+	<creator type="composer">Francois Couperin</creator>
+	
+
+	From ABC scores:
+	!!!OTL: SYV SPRING
+	!!!ARE: Europa, Mitteleuropa, Daenemark, Vendsyssel
+	The title field (T:) and the index field (X:)
+	Nearly every tune has a title, and one should always be included for identification purposes in tune lists, even if the exact title is not known. The title is indicated by the T: field eg
+
+	T:Ballydesmond polka
+	More (optional) fields : composer, source, origin, notes
+	The composer of a tune is recorded in the C: field, eg
+
+	T:Paddy O'Rafferty
+	C: Mozart.
+
+	For MusicXML:
+	<work>
+    	<work-number>D. 911</work-number>
+    	<work-title>Winterreise</work-title>
+    </work>
+  	<identification>
+    	<creator type="composer">Franz Schubert</creator>
+  	</identification>
+	
+	- How about multiple composers?
+	- Allow this information to be blank
+
 	"""
 	return
 
@@ -281,7 +321,7 @@ def load_score(index_name, score, s_format, docid):
 		"""
 			Load a music score and save in database
 		"""
-		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc": #and s_format != "mid" and s_format != "musicxml":
+		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc" and s_format != "musicxml":
 			print("Document format not supported for loading the current score.")
 			return
 		
@@ -292,7 +332,7 @@ def load_score(index_name, score, s_format, docid):
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 			return m21_score, musicdoc
 
-		elif s_format == "xml" or s_format == "krn":# or s_format == 'mid' or s_format == "musicxml":
+		elif s_format == "xml" or s_format == "krn" or s_format == "musicxml":
 			m21_score = converter.parse(score)
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 			return m21_score, musicdoc
