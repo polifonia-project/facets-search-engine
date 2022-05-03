@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.template import loader
 
 from django.http import HttpResponse
 
@@ -11,11 +12,11 @@ def index(request):
 # def LoadDataView(request):
     # return HttpResponse("Load a single music score or zip, with instruction displayed")
 
-# def OverviewDataView(request):
-    # return HttpResponse("Overview of data currently available for search")
+def OverviewDataView(request):
+    return HttpResponse("Overview of data currently available for search")
 
-# def MusicDocView(request):
-    # return HttpResponse("Display music doc without search result")
+def MusicDocView(request):
+    return HttpResponse("Display music doc without search result")
 
 # def SearchView(request):
     # return HttpResponse("Search with keyboard, abc text etc")
