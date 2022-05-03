@@ -9,7 +9,16 @@ def index(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
-def post_new(request):
-    # form = PostForm()
-    # return render(request, 'search/index.html', {'form': form})
-    return render(request, 'search/index.html', {})
+def results(request):
+    print("result view called")
+    if request.method == 'POST':
+        try:
+            pattern = request.POST['pattern']
+        except TypeError:
+            print("wrong input")
+        print(pattern)
+    if pattern:
+        result = DummyPattern(pattern=pattern)
+    template = loader.get_template('search/results.html')
+    context = {"pattern": pattern, "result": result}
+    return HttpResponse(template.render(context, request))

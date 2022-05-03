@@ -37,7 +37,7 @@ urlpatterns = [
 	# Index management
 	path('<str:index_name>/', views.index, name='index'),
 	# Search in an index
-	path('<str:index_name>/_search', views.search, name='search'),
+	path('<str:index_name>/_search', views.search, name='restsearch'),
 	# Music document management
 	path('<str:index_name>/<str:doc_id>/', views.document, name='document'),
 	path('admin/', admin.site.urls),
