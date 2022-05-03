@@ -21,13 +21,11 @@ from django.core.files import File
 from django.core.files.base import ContentFile
 
 def get_metadata_from_score(m21_score):
-	# To do
+	# To do, not urgent
 	"""
-    # Get info from the text
+    # Get info from the text, something like below, or find a better solution
 	if "composer" in search_input:
 		self.pattern = search_input["pattern"]
-	if "title" in search_input:
-		self.text = search_input["text"]
 
 	From MEI scores:
 	 <meiHead>
@@ -64,7 +62,31 @@ def get_metadata_from_score(m21_score):
   	<identification>
     	<creator type="composer">Franz Schubert</creator>
   	</identification>
-	
+
+<!-- INFO key="COM" value="Gaspar van Weerbeke" -->
+<!-- INFO key="CDT" value="~1450-~1517" -->
+<!-- INFO key="OPR" value="Motet cycle Ave mundi domina" -->
+<!-- INFO key="OTL" value="Quem terra, ponthus, aethera" -->
+<!-- INFO key="OMV" value="6" -->
+<!-- INFO key="AGN" value="Motet; Motet cycle" -->
+<!-- INFO key="SCT" value="Gas0301f" -->
+<!-- INFO key="SCA" value="Gas0301f" -->
+<!-- INFO key="voices" value="4" -->
+
+	For kern scores:
+
+!!!AGN: Tanz - Lied, Reigen, Siebensprung
+!!!ONB: ESAC (Essen Associative Code) Database: ERK2
+!!!AMT: simple duple
+!!!AIN: vox
+!!!EED: Helmut Schaffrath
+!!!EEV: 1.0
+!!!OTL: SYV SPRING
+!!!ARE: Europa, Mitteleuropa, Daenemark, Vendsyssel
+!!!SCT: E0992C
+!!!YEM: Copyright 1995, estate of Helmut Schaffrath.
+
+	- some has their own part id in xml, what do we do about it here
 	- How about multiple composers?
 	- Allow this information to be blank
 
@@ -225,7 +247,7 @@ def decompose_zip_name(fname):
 		opus_ref += components[i] + sep
 	return (opus_ref, extension)
 
-def load_zip(index_name, byte_str):
+def read_zip(index_name, byte_str):
 		"""
 			Load all scores in zip file, check name and formats.
 			Create and save a set of musicdoc objects for all supported scores.
@@ -289,16 +311,16 @@ def load_zip(index_name, byte_str):
 
 		return m21scores, musicdocs
 
-def zip_process(index_name, byte_str):
+def load_and_process_zip(index_name, byte_str):
 
 		"""
-		Check validity by calling load_zip(), 
-		which includes getting m21 streams and musicdoc objects saved in database by calling load_score()
-		then extract features and get MusicSummary,
+		Check validity and get content by calling read_zip(), 
+		which includes getting m21 streams and musicdoc objects saved in database by calling load_score().
+		Then extract features and get MusicSummary,
 		and finally index them in ES.
 		"""
 		try:
-			m21scores, musicdocs = load_zip(index_name, byte_str)
+			m21scores, musicdocs = read_zip(index_name, byte_str)
 		except Exception as ex:
 			print ("Exception when trying to call load_zip()" + " Message:" + str(ex))
 
@@ -306,7 +328,7 @@ def zip_process(index_name, byte_str):
 		for score_id in m21scores:
 			try:
 				# Get MusicSummary and extracted descriptors
-				descr_dict, encodedMS = score_process(musicdocs[score_id], m21scores[score_id], score_id)
+				descr_dict, encodedMS = process_score(musicdocs[score_id], m21scores[score_id], score_id)
 
 				# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
 				index_wrapper = IndexWrapper(index_name) 
@@ -345,7 +367,7 @@ def load_score(index_name, score, s_format, docid):
 			
 			return m21_score, musicdoc
 		
-def score_process(musicdoc, m21_score, doc_id):
+def process_score(musicdoc, m21_score, doc_id):
 		"""
 			From original score file to Score object, to MS object then extract features
 			return musicdoc object, extracted features and MS, for indexing

@@ -3,6 +3,7 @@ import json
 
 from django.db import models
 """
+Do we directly import from rest/?
 
 class Index(models.Model):
 	index_name = models.CharField(max_length=255)

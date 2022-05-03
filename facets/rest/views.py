@@ -199,31 +199,25 @@ def document(request, index_name, doc_id):
 		return JSONResponse({"Message": "Request to read MusicSummary of " + doc_id + ":" + MS})
 
 	elif request.method == "PUT":
-		'''
-		    Example:
-		       curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei 
-		       
-		       In which "index" refers to index_name, and "lklk" refers to doc_id.
-		'''
 
-		# Loading the document
+		# Load, process and index the music document
 		try:
 			if request.content_type == "application/zip":
 				"""
-				Bulk indexing given a zip file.
+				Bulk process and index all music documents from a zip file.
 				in the case of loading a zip, "doc_id" from the curl command is just the name of zip file.
-				The name of each file in the zip would be saved as MusicDoc.doc_id
+				It would not be saved on ES as id, but the name of each file would be considered as id of it.
 
 				Example:
 				curl -X PUT -H "Content-type:application/zip" http://localhost:8000/index/testzip/ --data-binary @data/test_zip.zip
 
 				"""
 				try:
-					ScoreProcessing.zip_process(index_name, request.body)
+					ScoreProcessing.load_and_process_zip(index_name, request.body)
 				except Exception as ex:
 					return JSONResponse({"Error while loading zip": str(ex)})
 
-				return JSONResponse({"message": "Successfully bulk indexed all documents in ZIP: " + doc_id})
+				return JSONResponse({"message": "Successfully bulk indexed all documents in zip: " + doc_id})
 
 			else:
 
@@ -233,6 +227,7 @@ def document(request, index_name, doc_id):
 					"""
 					Example:
 		       		curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei
+		       		In which "index" refers to index_name, and "lklk" refers to doc_id.
 		       		"""
 					# Apply MEI -> Music21 converter
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "mei", doc_id)
@@ -240,27 +235,34 @@ def document(request, index_name, doc_id):
 				elif request.content_type == "application/xml":
 					"""
 					Example:
-					curl -X PUT -H "Content-type:application/xml" http://localhost:8000/index/couperin/ -d @data/couperin.xml
+					curl -X PUT -H "Content-type:application/xml"
+					http://localhost:8000/index/couperin/ -d @data/couperin.xml
 					"""
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "xml", doc_id)
 				
-				elif request.content_type == "application/musicxml":
-					# To be tested
+				elif request.content_type == "application/musicxml" or request.content_type == "application/vnd.recordare.musicxml+xml":
 					"""
-					MusicXML has registered media types available \
-					for both compressed .mxl and uncompressed .musicxml files. 
+					Example 1:
+					curl -X PUT -H "Content-type:application/musicxml" 
+					http://localhost:8000/index/testmxml/ --data-binary @data/Gas0301f.musicxml 
 
-					The recommended media type for a compressed MusicXML file(.mxl) is:
-					application/vnd.recordare.musicxml
+					Example 2: 
+					curl -X PUT -H "Content-type:application/vnd.recordare.musicxml+xml" 
+					http://localhost:8000/index/testmxml/ -d @data/Gas0301f.musicxml
 
-					The recommended media type for an uncompressed MusicXML file is:
-					application/vnd.recordare.musicxml+xml
 					"""
-
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "musicxml", doc_id)
 
+					"""
+				elif request.content_type == "application/vnd.recordare.musicxml":
+				
+					#The recommended media type for a compressed MusicXML file(.mxl) is: application/vnd.recordare.musicxml
+					
+					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "mxl", doc_id)
+					"""
 				elif request.content_type == "application/krn":
 					"""
+					Kern is not registered as a content type, thus use --data-binary!
 					Example:
 					curl -X PUT -H "Content-type:application/krn" http://localhost:8000/index/danmark/ --data-binary @data/danmark1.krn
 					"""
@@ -272,15 +274,15 @@ def document(request, index_name, doc_id):
 					curl -X PUT -H "Content-type:application/abc" http://localhost:8000/index/abctest/ --data-binary @data/test.abc
 					"""
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
-				#elif request.content_type == "application/mid":
-				#	m21_score = ScoreProcessing.load_score(request.body, "mid")
-				#   Humdrum format to be supported.
+				#elif request.content_type == "application/rtp-midi":
+				#	m21_score, musicdoc  = ScoreProcessing.load_score(index_name, body_unicode, "midi", doc_id)
+				#   Humdrum for later?
 				else:
-					# Otherwise, the format is currently not supported.
-					return JSONResponse({"Error": "Unknown content type : " + request.content_type})
+					# Otherwise, the format is not supported.
+					return JSONResponse({"Error": "Not supported content type: " + request.content_type})
 
 				# Process the current score, produce descriptors from MusicSummary
-				descr_dict, encodedMS = ScoreProcessing.score_process(musicdoc, m21_score, doc_id)
+				descr_dict, encodedMS = ScoreProcessing.process_score(musicdoc, m21_score, doc_id)
 				
 				# Index the current musicdoc, including id, MusicSummary and descriptors
 				index_wrapper = IndexWrapper(index_name) 
