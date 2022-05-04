@@ -19,8 +19,8 @@ from django.conf import settings
 
 urlpatterns = [
 	path('', include('rest.urls')),
-	path('home', include('home.urls')),
-	path('search', include('search.urls')),
+	path('home/', include('home.urls')),
+	path('search/', include('search.urls')),
 	path('loaddata', include('loaddata.urls')),
     path('admin/', admin.site.urls),
 ]

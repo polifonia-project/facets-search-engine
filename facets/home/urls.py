@@ -3,10 +3,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('/', views.index, name='index'),
+    path('', views.index, name='index'),
     # path('search/', views.SearchView, name='SearchView'),
     # path('load_data/', views.LoadDataView, name='LoadDataView'),
-    path('overview_data/', views.OverviewDataView, name='OverviewDataView'),
+    path('dashboard/', views.OverviewDataView, name='OverviewDataView'),
     path('<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView'),
     #SearchResultView
     #HighlightMusicDocView

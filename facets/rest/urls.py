@@ -31,7 +31,7 @@ schema_view = get_schema_view(
 urlpatterns = [
 	#url -> re_path because django 4 no longer support
 	path('', views.welcome, name='welcome'),
-	   #### Swagger documentation
+    #### Swagger documentation
 	re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 	path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 	# Index management
