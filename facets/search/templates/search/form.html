@@ -2,30 +2,50 @@
   <!-- Custom rounded search bars with input group -->
   <form action="/search/results/" method="post">
 	{% csrf_token %}
-	<div class="p-1 bg-light rounded rounded-pill shadow-sm">
-	  <div class="input-group">
-		<input name="pattern" type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">
+    <div class="p-3 bg-light rounded rounded-pill shadow-sm">
+        <div class="input-group px-4">
+            <!--<label for="exampleFormControlTextarea1">Example textarea</label>-->
+            <textarea name="pattern" placeholder="Type your abc pattern here"
+                class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+        <!--</div>-->
+		<!--<input name="pattern" type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">-->
 		<div class="input-group-append">
 		  <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
 		</div>
 	  </div>
 	</div>
 <br/>
-<div>
+
 <div class="d-flex align-middle">
-<select name="searchtype" class="px-4 custom-select custom-select-sm"  style="width: 10rem;">
+
+<select name="indexname" class="px-4 mr-2 custom-select custom-select-sm"
+    style="width: 10rem;">
+{% if searchinput.index_name %}
+<option selected>{{ searchinput.index_name | title }}</option>
+{% else %}
+<option selected>Index name</option>
+{% endif %}
+{% for index in indices_names %}
+<option value="{{ index }}">{{ index | title }}</option>
+{% endfor %}
+</select>
+
+<select name="searchtype" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 10rem;">
+    {% if searchinput.type %}
+    <option selected>{{ searchinput.type | title }}</option>
+  {% else %}
   <option selected>Search type</option>
+  {% endif %}
   <option value="chromatic">Chromatic</option>
   <option value="diatonic">Diatonic</option>
   <option value="lyrics">Lyrics</option>
 </select>
 
-	<div class="px-5 form-group form-check">
-<input type="checkbox" class="form-check-input" name="mirror" id="MirrorSearch">
+	<div class="px-4 form-group form-check">
+<input type="checkbox" class="form-check-input" name="mirror" id="MirrorSearch" {% if searchinput.mirror %}checked{% endif %} >
 <label class="form-check-label" for="MirrorSearch">Mirror search</label>
 	</div>
 
-	</div>
 	</div>
 
   </form>

@@ -1,11 +1,19 @@
 <div class="alert alert-info rounded shadow" role="alert">
   <h4 class="alert-heading">Your search</h4>
-  <p>{{ pattern }}</p>
+<ul class="list-group ">
+<li class="list-group-item d-flex justify-content-between align-items-center ">Pattern: {{ searchinput.pattern }} </li>
+<li class="list-group-item d-flex justify-content-between align-items-center
+    ">Search type: {{ searchinput.type }} </li>
+<li class="list-group-item d-flex justify-content-between align-items-center
+    ">Index: {{ searchinput.index_name }} </li>
+<li class="list-group-item d-flex justify-content-between align-items-center
+    ">Mirror: {{ searchinput.mirror }} </li>
+</ul>
 </div>
 
 <div class="card">
   <div class="card-header">
-  <h4>Your results</h4>
+  <h4>Documents matching the pattern</h4>
   </div>
 {% for i,result in results.items %}
   <li class="list-group-item">{{ i }} - {{ result | title }}</li>
