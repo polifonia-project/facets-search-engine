@@ -1,17 +1,34 @@
-<div class="bg-white p-5 rounded shadow">
-    <!-- Custom rounded search bars with input group -->
-    <form action="/search/results/" method="post">
-        {% csrf_token %}
-        <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4">
-            <div class="input-group">
-                <input name="pattern" type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">
-                <div class="input-group-append">
-                    <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
-                </div>
-            </div>
-        </div>
+<div class="bg-white p-3 rounded shadow">
+  <!-- Custom rounded search bars with input group -->
+  <form action="/search/results/" method="post">
+	{% csrf_token %}
+	<div class="p-1 bg-light rounded rounded-pill shadow-sm">
+	  <div class="input-group">
+		<input name="pattern" type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">
+		<div class="input-group-append">
+		  <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
+		</div>
+	  </div>
+	</div>
+<br/>
+<div>
+<div class="d-flex align-middle">
+<select name="searchtype" class="px-4 custom-select custom-select-sm"  style="width: 10rem;">
+  <option selected>Search type</option>
+  <option value="chromatic">Chromatic</option>
+  <option value="diatonic">Diatonic</option>
+  <option value="lyrics">Lyrics</option>
+</select>
 
-    </form>
-    <!-- End -->
+	<div class="px-5 form-group form-check">
+<input type="checkbox" class="form-check-input" name="mirror" id="MirrorSearch">
+<label class="form-check-label" for="MirrorSearch">Mirror search</label>
+	</div>
+
+	</div>
+	</div>
+
+  </form>
+  <!-- End -->
 </div>
 
