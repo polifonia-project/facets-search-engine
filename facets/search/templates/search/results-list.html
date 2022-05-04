@@ -1,12 +1,15 @@
 <div class="alert alert-info rounded shadow" role="alert">
   <h4 class="alert-heading">Your search</h4>
-<ul class="list-group ">
-<li class="list-group-item d-flex justify-content-between align-items-center ">Pattern: {{ searchinput.pattern }} </li>
-<li class="list-group-item d-flex justify-content-between align-items-center
+  <a class="btn btn-light" data-toggle="collapse" href="#collapseExample"
+      role="button" aria-expanded="false"
+      aria-controls="collapseExample">Toggle</a>
+<ul class="list-group collapse" id="collapseExample">
+<li class="list-group-item py-1 d-flex justify-content-between align-items-center ">Pattern: {{ searchinput.pattern }} </li>
+<li class="list-group-item py-1 d-flex justify-content-between align-items-center
     ">Search type: {{ searchinput.type }} </li>
-<li class="list-group-item d-flex justify-content-between align-items-center
+<li class="list-group-item py-1 d-flex justify-content-between align-items-center
     ">Index: {{ searchinput.index_name }} </li>
-<li class="list-group-item d-flex justify-content-between align-items-center
+<li class="list-group-item py-1 d-flex justify-content-between align-items-center
     ">Mirror: {{ searchinput.mirror }} </li>
 </ul>
 </div>

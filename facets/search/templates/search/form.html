@@ -6,7 +6,8 @@
         <div class="input-group px-4">
             <!--<label for="exampleFormControlTextarea1">Example textarea</label>-->
             <textarea name="pattern" placeholder="Type your abc pattern here"
-                class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+                class="form-control" id="exampleFormControlTextarea1"
+                rows="2">{% if searchinput.pattern %}{{ searchinput.pattern }}{% endif %}</textarea>
         <!--</div>-->
 		<!--<input name="pattern" type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">-->
 		<div class="input-group-append">
@@ -38,6 +39,7 @@
   {% endif %}
   <option value="chromatic">Chromatic</option>
   <option value="diatonic">Diatonic</option>
+  <option value="rhythmic">Rhythmic</option>
   <option value="lyrics">Lyrics</option>
 </select>
 
