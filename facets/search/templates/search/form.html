@@ -1,0 +1,17 @@
+<div class="bg-white p-5 rounded shadow">
+    <!-- Custom rounded search bars with input group -->
+    <form action="/search/results/" method="post">
+        {% csrf_token %}
+        <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4">
+            <div class="input-group">
+                <input name="pattern" type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">
+                <div class="input-group-append">
+                    <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+    <!-- End -->
+</div>
+

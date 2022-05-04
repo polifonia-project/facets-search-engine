@@ -5,8 +5,6 @@ from django.http import HttpResponse
 
 from elasticsearch import Elasticsearch
 
-from lib.search.SearchContext import *
-
 def index(request):
     template = loader.get_template('home/index.html')
     context = {}

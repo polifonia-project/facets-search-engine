@@ -4,32 +4,13 @@
 {% include 'navbar.html' %}
 
 <div class="container">
-  
+
   <div class="row mb-5">
     <div class="col-lg-8 mx-auto">
-                <h1>Search music data</h1>
-      <div class="bg-white p-5 rounded shadow">
 
-        <div class="alert alert-success" role="alert">
-            Welcome! There are XX scores to be searched here!
-        </div>
+      <h1>Search music data</h1>
+      {% include 'search/form.html' %}
 
-        <!-- Custom rounded search bars with input group -->
-				<form action="search/results/" method="post">
-				{% csrf_token %}
-          <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4">
-            <div class="input-group">
-              <input type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">
-              <div class="input-group-append">
-                <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
-              </div>
-            </div>
-          </div>
-          
-        </form>
-        <!-- End -->
-
-      </div>
     </div>
   </div>
 

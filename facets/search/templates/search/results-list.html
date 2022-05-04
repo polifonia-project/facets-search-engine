@@ -1,0 +1,14 @@
+<div class="alert alert-info rounded shadow" role="alert">
+  <h4 class="alert-heading">Your search</h4>
+  <p>{{ pattern }}</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+  <h4>Your results</h4>
+  </div>
+{% for i,result in results.items %}
+  <li class="list-group-item">{{ i }} - {{ result | title }}</li>
+</ul> 
+{% endfor %}
+</div>
