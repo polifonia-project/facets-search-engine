@@ -84,7 +84,7 @@ def index(request, index_name):
 		'''
 		  Create the index if it does not exist
 		  Example:
-		      curl -X PUT  http://localhost:8000/index/
+		      curl -X PUT  http://localhost:8000/index/index_name/
 		'''
 		try:
 			index = Index.objects.get(name = index_name)

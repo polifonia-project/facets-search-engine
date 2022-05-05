@@ -10,6 +10,11 @@ def index(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
+def docs(request):
+    template = loader.get_template('home/docs.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
 
 # def LoadDataView(request):
     # return HttpResponse("Load a single music score or zip, with instruction displayed")

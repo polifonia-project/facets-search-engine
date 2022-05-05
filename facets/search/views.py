@@ -10,7 +10,6 @@ from lib.process import ScoreProcessing
 from lib.search.IndexWrapper import IndexWrapper
 from lib.search.SearchContext import *
 
-
 from elasticsearch import Elasticsearch
 
 # Create your views here.
@@ -61,7 +60,8 @@ def results(request):
                 # Get a list of doc_id
                 matching_doc_ids = {}
                 for hit in matching_docs.hits.hits:
-                    matching_doc_ids[hit['_id']] = 1
+                    doc_name = hit['_id']
+                    matching_doc_ids[doc_name] = "dummy"
 
                 print("Matching documents are:", matching_doc_ids)
         except:
