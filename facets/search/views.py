@@ -13,8 +13,8 @@ from lib.search.SearchContext import *
 from elasticsearch import Elasticsearch
 
 # Create your views here.
-# es = Elasticsearch()
-es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
+host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
+es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
 
 def index(request):
     indices = es.indices.get_alias().keys()

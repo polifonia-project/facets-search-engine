@@ -1,15 +1,17 @@
 from django.shortcuts import render
 from django.template import loader
+from django.conf import settings
 
 from django.http import HttpResponse
 
 from elasticsearch import Elasticsearch
 
 try:
-    es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
-    # es = Elasticsearch()
+    host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
+    es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
 except:
     print("error connecting to ES")
+    # es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
 
 def index(request):
     template = loader.get_template('home/index.html')
