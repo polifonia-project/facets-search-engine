@@ -5,6 +5,12 @@ from django.http import HttpResponse
 
 from elasticsearch import Elasticsearch
 
+try:
+    es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
+    # es = Elasticsearch()
+except:
+    print("error connecting to ES")
+
 def index(request):
     template = loader.get_template('home/index.html')
     context = {}
@@ -19,9 +25,9 @@ def docs(request):
 # def LoadDataView(request):
     # return HttpResponse("Load a single music score or zip, with instruction displayed")
 
+# dashboard
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')
-    es = Elasticsearch()
     indices = es.indices.get_alias()
     indices_stats = {}
     for key in indices.keys():

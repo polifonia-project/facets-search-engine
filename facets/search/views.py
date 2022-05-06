@@ -13,9 +13,10 @@ from lib.search.SearchContext import *
 from elasticsearch import Elasticsearch
 
 # Create your views here.
+# es = Elasticsearch()
+es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
 
 def index(request):
-    es = Elasticsearch()
     indices = es.indices.get_alias().keys()
     context = {"indices_names": indices}
 
@@ -26,7 +27,6 @@ def index(request):
 def results(request):
     # print("result view called")
     matching_doc_ids = {}
-    es = Elasticsearch()
     indices = es.indices.get_alias().keys()
 
     if request.method == 'POST':
