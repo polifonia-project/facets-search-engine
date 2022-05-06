@@ -18,8 +18,9 @@
   <div class="card-header">
   <h4>Documents matching the pattern</h4>
   </div>
+  <ul>
 {% for i,result in results.items %}
   <li class="list-group-item">{{ i }} - {{ result | title }}</li>
-</ul> 
 {% endfor %}
+</ul> 
 </div>

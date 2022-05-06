@@ -7,6 +7,7 @@ urlpatterns = [
     # path('search/', views.SearchView, name='SearchView'),
     # path('load_data/', views.LoadDataView, name='LoadDataView'),
     path('dashboard/', views.OverviewDataView, name='OverviewDataView'),
+    path('docs/', views.docs, name='docs'),
     path('<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView'),
     #SearchResultView
     #HighlightMusicDocView

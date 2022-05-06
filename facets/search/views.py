@@ -10,7 +10,6 @@ from lib.process import ScoreProcessing
 from lib.search.IndexWrapper import IndexWrapper
 from lib.search.SearchContext import *
 
-
 from elasticsearch import Elasticsearch
 
 # Create your views here.
@@ -61,12 +60,17 @@ def results(request):
                 # Get a list of doc_id
                 matching_doc_ids = {}
                 for hit in matching_docs.hits.hits:
+<<<<<<< HEAD
                     matching_doc_ids[hit['_id']] = "dummy"
 
                 #HIGHLIGHTING TODO
                 # Get matching ids(positions) of patterns in MusicSummary for highlighting
                 #matching_locations = index_wrapper.locate_matching_patterns(index_name, matching_doc_ids, searchcontext)
                 ###matching_locations["num_occu"]
+=======
+                    doc_name = hit['_id']
+                    matching_doc_ids[doc_name] = "dummy"
+>>>>>>> d1f5c953404e8fc761718c75a0acbdd9cbe20c63
 
                 print("Matching documents are:", matching_doc_ids)
         except:
