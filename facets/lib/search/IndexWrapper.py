@@ -139,7 +139,7 @@ class IndexWrapper:
                 if search_context.search_type == settings.EXACT_SEARCH:
                     mirror_setting = False
                     count_match_for_exact_search+=1
-                    occurrences = msummary.find_exact_matches(pattern_sequence, search_context.search_type)
+                    all_occurrences = msummary.find_exact_matches(pattern_sequence, search_context.search_type)
 
                 if search_context.search_type == settings.CHROMATIC_SEARCH or search_context.search_type == settings.DIATONIC_SEARCH or search_context.search_type == settings.RHYTHMIC_SEARCH:
                     #return the sequences that match and the distances
@@ -152,7 +152,7 @@ class IndexWrapper:
                         we only take the distance between the best match(with least distance with the query)
                         "best_occurrence" here should be a pattern sequence.
                     """
-                    best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
+                    all_occurrence, best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
                     logger.info ("Found best occurrence : " + str(best_occurrence) + " with distance " + str(distance))
 
                 # Locate ids of all matching patterns to highlight
@@ -164,7 +164,7 @@ class IndexWrapper:
                 TODO: Get IDs of matching M21 objects from the scores.
                 '''
             #opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids)})
-            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "distance": distance, "best_occurrence": str(best_occurrence)})
+            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "num_occu": len(all_occurrences), "distance": distance, "best_occurrence": str(best_occurrence)})
 
         return opera
 

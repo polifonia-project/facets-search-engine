@@ -61,11 +61,17 @@ def results(request):
                 # Get a list of doc_id
                 matching_doc_ids = {}
                 for hit in matching_docs.hits.hits:
-                    matching_doc_ids[hit['_id']] = 1
+                    matching_doc_ids[hit['_id']] = "dummy"
+
+                #HIGHLIGHTING TODO
+                # Get matching ids(positions) of patterns in MusicSummary for highlighting
+                #matching_locations = index_wrapper.locate_matching_patterns(index_name, matching_doc_ids, searchcontext)
+                ###matching_locations["num_occu"]
 
                 print("Matching documents are:", matching_doc_ids)
         except:
-            print("error")
+            print("Error occurred while searching on ES index")
+
     template = loader.get_template('search/results.html')
     context = {
         "searchinput": searchinput,
