@@ -69,7 +69,7 @@ def index(request, index_name):
 		  Return info about the index.
 
 		  Example:
-		      curl -X GET  http://localhost:8000/index/
+		      curl -X GET  http://localhost:8000/index/index_name/
 		      In which "index" is the "index_name".
 		'''
 		index_wrapper = IndexWrapper(index_name)
@@ -106,7 +106,7 @@ def index(request, index_name):
 def search(request, index_name):
 	result = []
 	'''
-	       curl -X POST http://localhost:8000/index/_search -d @queries/...
+	       curl -X POST http://localhost:8000/index/index_name/_search -d @queries/...
 	'''
 	if request.method == "POST":
 		"""
@@ -209,7 +209,7 @@ def document(request, index_name, doc_id):
 				It would not be saved on ES as id, but the name of each file would be considered as id of it.
 
 				Example:
-				curl -X PUT -H "Content-type:application/zip" http://localhost:8000/index/testzip/ --data-binary @data/test_zip.zip
+				curl -X PUT -H "Content-type:application/zip" http://localhost:8000/index/index_name/testzip/ --data-binary @data/test_zip.zip
 
 				"""
 				try:
@@ -226,7 +226,7 @@ def document(request, index_name, doc_id):
 				if request.content_type == "application/mei":
 					"""
 					Example:
-		       		curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/lklk/ -d @data/friuli001.mei
+		       		curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/index_name/lklk/ -d @data/friuli001.mei
 		       		In which "index" refers to index_name, and "lklk" refers to doc_id.
 		       		"""
 					# Apply MEI -> Music21 converter
@@ -236,7 +236,7 @@ def document(request, index_name, doc_id):
 					"""
 					Example:
 					curl -X PUT -H "Content-type:application/xml"
-					http://localhost:8000/index/couperin/ -d @data/couperin.xml
+					http://localhost:8000/index/index_name/couperin/ -d @data/couperin.xml
 					"""
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "xml", doc_id)
 				
@@ -244,11 +244,11 @@ def document(request, index_name, doc_id):
 					"""
 					Example 1:
 					curl -X PUT -H "Content-type:application/musicxml" 
-					http://localhost:8000/index/testmxml/ --data-binary @data/Gas0301f.musicxml 
+					http://localhost:8000/index/index_name/testmxml/ --data-binary @data/Gas0301f.musicxml 
 
 					Example 2: 
 					curl -X PUT -H "Content-type:application/vnd.recordare.musicxml+xml" 
-					http://localhost:8000/index/testmxml/ -d @data/Gas0301f.musicxml
+					http://localhost:8000/index/index_name/testmxml/ -d @data/Gas0301f.musicxml
 
 					"""
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "musicxml", doc_id)
@@ -264,19 +264,19 @@ def document(request, index_name, doc_id):
 					"""
 					Kern is not registered as a content type, thus use --data-binary!
 					Example:
-					curl -X PUT -H "Content-type:application/krn" http://localhost:8000/index/danmark/ --data-binary @data/danmark1.krn
+					curl -X PUT -H "Content-type:application/krn" http://localhost:8000/index/index_name/danmark/ --data-binary @data/danmark1.krn
 					"""
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "krn", doc_id)
 
 				elif request.content_type == "application/abc":
 					"""
 					Example:
-					curl -X PUT -H "Content-type:application/abc" http://localhost:8000/index/abctest/ --data-binary @data/test.abc
+					curl -X PUT -H "Content-type:application/abc" http://localhost:8000/index/index_name/abctest/ --data-binary @data/test.abc
 					"""
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
+				# MIDI format for later
 				#elif request.content_type == "application/rtp-midi":
 				#	m21_score, musicdoc  = ScoreProcessing.load_score(index_name, body_unicode, "midi", doc_id)
-				#   Humdrum for later?
 				else:
 					# Otherwise, the format is not supported.
 					return JSONResponse({"Error": "Not supported content type: " + request.content_type})

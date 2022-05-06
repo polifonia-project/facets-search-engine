@@ -159,7 +159,8 @@ class MusicSummary:
         #
         if len(distances) > 0:
             best_occurrence, distance = min(distances, key=itemgetter(1))
-            return best_occurrence, distance
+            # return: all occurrences, best occurrence, and distance
+            return occurrences, best_occurrence, distance
         else:
             #logger.error ("Opus " + self.opus_id + " and pattern " + str([pattern]) + ": no occurrence found?")
             return "", 1000000
