@@ -152,7 +152,7 @@ class IndexWrapper:
                         we only take the distance between the best match(with least distance with the query)
                         "best_occurrence" here should be a pattern sequence.
                     """
-                    all_occurrence, best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
+                    all_occurrences, best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
                     logger.info ("Found best occurrence : " + str(best_occurrence) + " with distance " + str(distance))
 
                 # Locate ids of all matching patterns to highlight
