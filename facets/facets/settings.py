@@ -48,7 +48,9 @@ INSTALLED_APPS = [
     'drf_yasg',
     'search',
     'loaddata',
-    'debug_toolbar'
+    'debug_toolbar',
+    # 'django_elasticsearch_dsl',
+    # 'django_elasticsearch_dsl_drf',
 ]
 
 MIDDLEWARE = [
@@ -157,11 +159,14 @@ LYRICS_SEARCH = "lyrics"
 
 ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
 
-ELASTIC_SEARCH = {"host": "localhost", "port": 9200}
+ELASTIC_SEARCH = {"host": "MuSEEK-ES", "port": 9200}
+# ELASTIC_SEARCH = {
+    # "hosts": [{'host': "MuSEEK-ES", 'port': 9200}]
+# }
 
 MAX_ITEMS_IN_RESULT = 1000
 
-INTERNAL_IPS = ['127.0.0.1', 'localhost',]
+INTERNAL_IPS = ['127.0.0.1', 'localhost', ]
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.versions.VersionsPanel',

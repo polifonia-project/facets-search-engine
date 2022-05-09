@@ -1,9 +1,17 @@
 from django.shortcuts import render
 from django.template import loader
+from django.conf import settings
 
 from django.http import HttpResponse
 
 from elasticsearch import Elasticsearch
+
+try:
+    host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
+    es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
+except:
+    print("error connecting to ES")
+    # es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
 
 def index(request):
     template = loader.get_template('home/index.html')
@@ -19,9 +27,9 @@ def docs(request):
 # def LoadDataView(request):
     # return HttpResponse("Load a single music score or zip, with instruction displayed")
 
+# dashboard
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')
-    es = Elasticsearch()
     indices = es.indices.get_alias()
     indices_stats = {}
     for key in indices.keys():

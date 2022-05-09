@@ -13,9 +13,10 @@ from lib.search.SearchContext import *
 from elasticsearch import Elasticsearch
 
 # Create your views here.
+host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
+es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
 
 def index(request):
-    es = Elasticsearch()
     indices = es.indices.get_alias().keys()
     context = {"indices_names": indices}
 
@@ -25,7 +26,7 @@ def index(request):
 @csrf_exempt
 def results(request):
     # print("result view called")
-    matching_doc_ids = []
+
     es = Elasticsearch()
     indices = es.indices.get_alias().keys()
 
@@ -64,6 +65,7 @@ def results(request):
                 matching_docs = index_wrapper.search(searchcontext)
 
                 # Get a list of doc_id
+                matching_doc_ids = []
                 for hit in matching_docs.hits.hits:
                     matching_doc_ids.append(hit['_id'])
                 print("Matching documents are:", matching_doc_ids)
