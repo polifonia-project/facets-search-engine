@@ -120,7 +120,7 @@ def search(request, index_name):
 		body_unicode = request.body.decode('utf-8')
 		body = json.loads(body_unicode)
 
-		print(body)
+		#print(body)
 		
 		searchcontext = SearchContext()
 		# json -> searchcontext
@@ -221,7 +221,9 @@ def document(request, index_name, doc_id):
 
 			else:
 
-				body_unicode = request.body.decode('utf')
+				if request.content_type != "application/midi":
+					# Avoid using utf to decode midi, it causes error
+					body_unicode = request.body.decode('utf')
 				
 				if request.content_type == "application/mei":
 					"""
@@ -274,9 +276,14 @@ def document(request, index_name, doc_id):
 					curl -X PUT -H "Content-type:application/abc" http://localhost:8000/index/index_name/abctest/ --data-binary @data/test.abc
 					"""
 					m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
-				# MIDI format for later
-				#elif request.content_type == "application/rtp-midi":
-				#	m21_score, musicdoc  = ScoreProcessing.load_score(index_name, body_unicode, "midi", doc_id)
+				elif request.content_type == "application/midi":
+					"""
+					Attention: MIDI format reader to be fixed: why the intervals are 20D etc.?
+				
+					Example:
+					curl -X PUT -H "Content-type:application/midi" http://localhost:8000/index/index_name/miditest/ --data-binary @data/mazurka06-1.mid
+					"""
+					m21_score, musicdoc  = ScoreProcessing.load_score(index_name, request.body, "mid", doc_id)
 				else:
 					# Otherwise, the format is not supported.
 					return JSONResponse({"Error": "Not supported content type: " + request.content_type})

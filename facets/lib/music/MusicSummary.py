@@ -152,8 +152,7 @@ class MusicSummary:
                 distances.append(d)
 
             except ValueError as e:
-                logger.error ("Doc " + self.doc_id + " and pattern " + str([pattern]) + ": " + str(e))
-                #print("Error during distance computation: " + str(e))
+                print("Error during distance computation: " + str(e))
         #
         # We can do better by counting the number of occurrences wit the minimal distance
         #
@@ -162,6 +161,6 @@ class MusicSummary:
             # return: all occurrences, best occurrence, and distance
             return occurrences, best_occurrence, distance
         else:
-            #logger.error ("Opus " + self.opus_id + " and pattern " + str([pattern]) + ": no occurrence found?")
-            return "", 1000000
+            print("Doc " + self.doc_id + " and pattern " + str([pattern]) + ": no occurrence found?")
+            return [], "", 1000000
  

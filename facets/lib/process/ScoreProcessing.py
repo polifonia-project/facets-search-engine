@@ -90,6 +90,7 @@ def get_metadata_from_score(m21_score):
 	- How about multiple composers?
 	- Allow this information to be blank
 
+	For MIDI: how?
 	"""
 	return
 
@@ -343,7 +344,7 @@ def load_score(index_name, score, s_format, docid):
 		"""
 			Load a music score and save in database
 		"""
-		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc" and s_format != "musicxml":
+		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc" and s_format != "musicxml" and s_format != "mid":
 			print("Document format not supported for loading the current score.")
 			return
 		
@@ -354,7 +355,7 @@ def load_score(index_name, score, s_format, docid):
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 			return m21_score, musicdoc
 
-		elif s_format == "xml" or s_format == "krn" or s_format == "musicxml":
+		elif s_format == "xml" or s_format == "krn" or s_format == "musicxml" or s_format == "mid":
 			m21_score = converter.parse(score)
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 			return m21_score, musicdoc
@@ -392,6 +393,7 @@ def process_score(musicdoc, m21_score, doc_id):
 		try:
 			# Feature extraction
 			descr_dict = extract_features(score, MS, musicdoc)
+			print(descr_dict)# for testing
 		except Exception as ex:
 			print("Error while extracting features from ", doc_id, ":",str(ex))
 

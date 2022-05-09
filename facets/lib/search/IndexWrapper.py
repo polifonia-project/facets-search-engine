@@ -163,7 +163,6 @@ class IndexWrapper:
                 Wait for scores to be saved...
                 TODO: Get IDs of matching M21 objects from the scores.
                 '''
-            #opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids)})
             opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "num_occu": len(all_occurrences), "distance": distance, "best_occurrence": str(best_occurrence)})
 
         return opera

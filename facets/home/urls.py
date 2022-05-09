@@ -23,9 +23,7 @@ app_name="home"
 urlpatterns = [
     url(r'^$', NeumaView.as_view(template_name="home/index.html"), name='index'),
    url(r'wildwebmidi.data', views.wildwebdata, name='wildwebdata'),
-#
-#   Philippe: what is this ???
-#   url (r'(.+\.data)$', views.wildwebdata, name='coco'),
+
 
     url(r'^presentation$', NeumaView.as_view(template_name="home/presentation.html"), name='presentation'),
     url(r'^services$', NeumaView.as_view(template_name="home/services.html"), name='services'),
