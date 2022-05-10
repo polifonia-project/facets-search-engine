@@ -10,9 +10,6 @@ from lib.process import ScoreProcessing
 from lib.search.IndexWrapper import IndexWrapper
 from lib.search.SearchContext import *
 
-from elasticsearch import Elasticsearch
-
-# Create your views here.
 host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
 es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
 
@@ -39,10 +36,12 @@ def results(request):
             else:
                 searchinput["mirror"] = False
             searchinput["type"] = request.POST.get('searchtype', False)
+            # The search type names for ES should be all in lower case
             searchinput["type"] = searchinput["type"].lower()
 
             searchinput["index_name"] = request.POST.get('indexname', False)
-            # Maybe there is a better fix than forcing the input to be lower case?
+            # TODO: Forcing index_name to be all lower case might cause error.
+            # Find a better fix: do not put the first letter as captial letter when displaying/send through request
             searchinput["index_name"] = searchinput["index_name"].lower()
 
             if searchinput["pattern"]:
@@ -70,6 +69,7 @@ def results(request):
                     matching_doc_ids.append(hit['_id'])
                 print("Matching documents are:", matching_doc_ids)
 
+                # TODO: is it necessary here to locate matching patterns? Maybe only when highlighting?
                 # Get matching ids(positions) of patterns in MusicSummary for highlighting
                 matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
 
@@ -88,3 +88,28 @@ def results(request):
         "results": match_dict_display,
         "indices_names": indices}
     return HttpResponse(template.render(context, request))
+
+@csrf_exempt
+def HighlightMusicDocView(request):
+    # Highlight patterns while viewing a music document
+
+    #TODO: get search context from def results
+    if request.method == 'GET': # or POST, since it is searching?
+        try:
+            # get index name, todo: where is indexname&doc_id?
+            index_name = request.GET.get('indexname', False)
+            # get doc_id
+            doc_id = request.GET.get('doc_id', False)
+            # get it from search??
+            # highlight_ids = matching_locations[doc_id]["matching_ids"]
+        except Exception as ex:
+            print("Error occurred while highlighting matching patterns:", str(ex))
+
+    template = loader.get_template('search/highlight_musicdoc.html')
+    # TODO: this highlight_musicdoc.html needs to be written
+    context = {
+        "index_name": index_name, 
+        "doc_id": doc_id}
+
+    return HttpResponse(template.render(context, request))
+

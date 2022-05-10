@@ -1,5 +1,4 @@
 from django.urls import path
-
 from . import views
 
 urlpatterns = [
@@ -8,22 +7,17 @@ urlpatterns = [
     # path('load_data/', views.LoadDataView, name='LoadDataView'),
     path('dashboard/', views.OverviewDataView, name='OverviewDataView'),
     path('docs/', views.docs, name='docs'),
-    path('<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView'),
-    #SearchResultView
-    #HighlightMusicDocView
+    path('dashboard/<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView')
 ]
 
 
 """
-from django.conf.urls import url
 from django.views.generic import TemplateView
 from neumautils.views import NeumaView
 
 app_name="home"
 urlpatterns = [
     url(r'^$', NeumaView.as_view(template_name="home/index.html"), name='index'),
-   url(r'wildwebmidi.data', views.wildwebdata, name='wildwebdata'),
-
 
     url(r'^presentation$', NeumaView.as_view(template_name="home/presentation.html"), name='presentation'),
     url(r'^services$', NeumaView.as_view(template_name="home/services.html"), name='services'),
@@ -40,7 +34,6 @@ urlpatterns = [
     url(r'^corpus/(?P<corpus_ref>.+)/_create_child/$', CorpusEditView.as_view(template_name="home/corpus_edit.html"), name='create_corpus_child'),
     url(r'^corpus/(?P<corpus_ref>.+)/$', CorpusView.as_view(template_name="home/corpus.html"), name='corpus'),
     url(r'^opus/(?P<opus_ref>.+)/_export_zip/$', views.export_opus_as_zip , name='opus_export_zip'),
-    url(r'^opus/(?P<opus_ref>.+)/_upload_audio/$', views.upload_opus_audio , name='upload_opus_audio'),
     url(r'^opus/(?P<opus_ref>.+)/(?P<pattern>.*)/$', OpusView.as_view(template_name="home/opus.html"), name='opus'),
     url(r'^opus/(?P<opus_ref>.+)/$', OpusView.as_view(template_name="home/opus.html"), name='opus'),
     url(r'^zoom/(?P<score_url>.+)/$', NeumaView.as_view(template_name="home/zoom.html"), name='zoom'),

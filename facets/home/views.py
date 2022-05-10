@@ -10,7 +10,7 @@ try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
     es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
 except:
-    print("error connecting to ES")
+    print("Error connecting to ES")
     # es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
 
 def index(request):
@@ -22,7 +22,6 @@ def docs(request):
     template = loader.get_template('home/docs.html')
     context = {}
     return HttpResponse(template.render(context, request))
-
 
 # def LoadDataView(request):
     # return HttpResponse("Load a single music score or zip, with instruction displayed")
@@ -40,7 +39,14 @@ def OverviewDataView(request):
     return HttpResponse(template.render(context, request))
 
 def MusicDocView(request):
-    return HttpResponse("Display music doc without search result")
+    template = loader.get_template('home/musicdocview.html')
+    context = {} #doc_id and index?
+    return HttpResponse(template.render(context, request))
+
+    #return HttpResponse("Display music doc without search result")
+
+# def HighlightMusicDocView(request):
+    # return HttpResponse("Display music doc with highlighted search result")
 
 # def SearchView(request):
     # return HttpResponse("Search with keyboard, abc text etc")
@@ -50,7 +56,7 @@ def MusicDocView(request):
     # return HttpResponse("A combo of SearchView and LoadDataView?")
 # """
 # def SearchResultView(request):
+    # TODO: maybe this should be only in search/views.py
     # return HttpResponse("Display search result and perhaps kibana analysis")
 
-# def HighlightMusicDocView(request):
-    # return HttpResponse("Display music doc with highlighted search result")
+
