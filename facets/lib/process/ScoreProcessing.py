@@ -96,6 +96,7 @@ def get_metadata_from_score(m21_score):
 
 def save_data(index_name, docid, doctype, score, m21_score):
 
+		# TODO: get and save metadata
 		get_metadata_from_score(m21_score)
 
 		if Index.objects.filter(name=index_name).exists():
@@ -114,10 +115,18 @@ def save_data(index_name, docid, doctype, score, m21_score):
 		musicdoc.doc_type = doctype
 		musicdoc.m21score = m21_score
 
+		# Save file
 		filename = docid+"."+doctype
-		musicdoc.musicfile.save(filename, ContentFile(score))
-
-		# TODO: get and save metadata
+		if doctype == 'krn':
+			musicdoc.krnfile.save(filename, ContentFile(score))
+		elif doctype == 'musicxml':
+			musicdoc.musicxmlfile.save(filename, ContentFile(score))
+		elif doctype == 'mei':
+			musicdoc.meifile.save(filename, ContentFile(score))
+		elif doctype == 'xml':
+			musicdoc.xmlfile.save(filename, ContentFile(score))
+		elif doctype == 'abc':
+			musicdoc.abcfile.save(filename, ContentFile(score))
 		
 		musicdoc.save()
 
@@ -345,7 +354,7 @@ def load_score(index_name, score, s_format, docid):
 		"""
 			Load a music score and save in database
 		"""
-		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc" and s_format != "musicxml" and s_format != "mid":
+		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc" and s_format != "musicxml": #and s_format != "mid": #need to work on midi
 			print("Document format not supported for loading the current score.")
 			return
 		

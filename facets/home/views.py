@@ -42,15 +42,31 @@ def OverviewDataView(request):
 
 def MusicDocView(request, index_name, doc_id):
     template = loader.get_template('home/musicdocview.html')
-    musicdoc = MusicDoc.objects.get(doc_id = doc_id)
-    print(musicdoc.doc_id)
-    print(musicdoc.musicfile)
+    try:
+        musicdoc = MusicDoc.objects.get(doc_id = doc_id)
+    except Exception as ex:
+        return HttpResponse("No music document found in database.")
+    try:
+        if musicdoc.doc_type == 'krn':
+            doc_url = musicdoc.krnfile.path
+            # But verovio does not support kern?
+        elif musicdoc.doc_type == 'musicxml':
+            doc_url = musicdoc.musicxmlfile.path
+        elif musicdoc.doc_type == 'mei':
+            doc_url = musicdoc.meifile.path
+        elif musicdoc.doc_type == 'xml':
+            # does verovio support xml? if not music21->musicxml->mei
+            doc_url = musicdoc.xmlfile.path
+        elif musicdoc.doc_type == 'abc':
+            # does verovio support abc? if not music21->musicxml->mei
+            doc_url = musicdoc.abcfile.path
+    except Exception as ex:
+        return HttpResponse("Error while retrieving file from database to display: "+ str(ex))
 
-    #doc_url = musicdoc.musicfile.path
-    #print(doc_url)
+    if doc_url == None:
+        return HttpResponse("No path found for document display.")
     context = {"index_name": index_name, "doc_id": doc_id, "doc_url": doc_url}
     return HttpResponse(template.render(context, request))
-
 
 
 # def HighlightMusicDocView(request):

@@ -27,8 +27,12 @@ class MusicDoc(models.Model):
 		# File will be uploaded to MEDIA_ROOT/<doc_id>/<filename>
 		return '%s/%s' % (self.doc_id, filename)
 
-	musicfile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
-	
+	musicxmlfile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
+	xmlfile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
+	krnfile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
+	meifile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
+	abcfile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
+
 	m21score = models.TextField(null=True, blank=True)
 
 	# Metadata:
@@ -42,7 +46,7 @@ class Descriptor(models.Model):
 	'''
 	A descriptor is a textual representation for some musical feature, used for full text indexing
 	'''
-
+	
 	doc = models.ForeignKey(MusicDoc,on_delete=models.CASCADE)
 	part = models.CharField(max_length=30)
 	voice = models.CharField(max_length=30)
