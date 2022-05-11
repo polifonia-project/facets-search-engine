@@ -29,6 +29,7 @@ class Distance:
 
         # Sanity check
         if len(s1.items) == 0 or len(s2.items) == 0:
+            print("Skip measurement of rhythmic distance between the current match and search pattern: one of the sequence is empty.")
             return 1000000 # Find sth cleaner
         
         # Compute blocks ranges
@@ -37,13 +38,22 @@ class Distance:
 
         # Check if the number of block are the same, if not raises an error
         if len(blocks1) != len(blocks2):
-            raise ValueError("Distance computation between the pattern and an occurrence: the number of intervals is inconsistent")
-        
+            print("note: this occurrence has different numbers of blocks")
+
         blocks1  = Distance.normalize_block_duration(blocks1)
         blocks2  = Distance.normalize_block_duration(blocks2)
         
         cost_alignment = 0
-        for iblock in range(len(blocks1)):
+        if len(blocks1) > len(blocks2):
+            shorter = len(blocks2)
+            for iblock in range(shorter, len(blocks1)):
+                cost_alignment += blocks1[iblock]["duration"]
+        else:
+            shorter = len(blocks1)
+            for iblock in range(shorter, len(blocks2)):
+                cost_alignment += blocks2[iblock]["duration"]
+
+        for iblock in range(shorter):
             block1 = blocks1[iblock]
             block2 = blocks2[iblock]
             
@@ -65,7 +75,7 @@ class Distance:
             #    ratio1 = block1["duration"] /  blocks1[iblock+1]["duration"]
             #    ratio2 = block2["duration"] /  blocks2[iblock+1]["duration"]
             #    # print ("Ratio 1 " + str(ratio1) + " ratio 2 " + str(ratio2))
-                
+        
         return cost_alignment
 
     @staticmethod
@@ -84,22 +94,27 @@ class Distance:
 
         # Check if the query pattern and the matched pattern has same amount of blocks
         if len(blocks1) != len(blocks2):
-            raise ValueError("Distance computation between the pattern and an occurrence: the number of intervals is inconsistent")
+            print("note: this occurrence has different number of blocks compared to the search pattern")
         
         intervals_blocks1 = []
         intervals_blocks2 = []
 
-        for iblock in range(len(blocks1)):
-            
+        # In case the current two sequences don't have same numbers of blocks 
+
+        for iblock in range(len(blocks1)):            
             block1 = blocks1[iblock]
-            block2 = blocks2[iblock]
             
+            """
+            # change of code, no longer needed
             logger.info("Block " + str(iblock) + ". Seq1: [" + str(block1["start_pos"]) + "," + str(block1["end_pos"]) + 
                 "] diatonic interval " + str(block1["value"])
                                     + " Seq2 [" + str(block2["start_pos"]) + "," + str(block2["end_pos"]) + 
                 "] diatonic interval " + str(block2["value"]))
-            
+            """
             intervals_blocks1.append(block1["value"])
+
+        for iblock in range(len(blocks2)):
+            block2 = blocks2[iblock]
             intervals_blocks2.append(block2["value"])
 
         # Measure the levenshtein distance between the match and the query
@@ -153,6 +168,7 @@ class Distance:
             current_pos = current_pos+1
             block_duration += item.duration
         block_ranges.append({"start_pos": start_current_block, "end_pos": len(s.items), "duration": block_duration})
+
         return block_ranges
 
     @staticmethod
@@ -172,20 +188,32 @@ class Distance:
     @staticmethod
     def distance_levenshtein_for_blocks(s1, s2):
         #   Compute Levenshtein distance between two sequences
+        #   s1 is the occurrence, s2 is the pattern in search
 
         m = len(s1)
         n = len(s2)
         
-        # check if 2 sequences have difference numbers of blocks
-        # find something cleaner...
+        # Check if 2 sequences have difference numbers of blocks:
+        # if yes, cost of deletion is the length difference
         if m != n:
-            return 1000000
+            #print("s1 and s2 has different numbers of blocks:")
+            #print("s1:", s1, "   / s2: ", s2)
+            if m > n:
+                shorter = n
+            else:
+                shorter = m 
+            distance_lev = abs(m-n)
+            # cost of substitution could be improved:
+            # currently delete the last blocks of the longer sequence
+            for i in range(shorter):
+                if s1[i] != s2[i]:
+                    distance_lev += 1
+            distance = distance_lev/n
+            return distance
 
         distance_substitution = 0
-
         for i in range(m):
-            print("at position", i, "  s1:", s1[i], "  s2:", s2[i])
-
+            #print("at position", i, "  s1:", s1[i], "  s2:", s2[i])
             if s1[i] != s2[i]:
                 distance_substitution += 1
         """
@@ -195,6 +223,6 @@ class Distance:
         """
 
         # normalize the distance into [0,1] range
-        distance = distance_substitution/len(s1)
+        distance = distance_substitution/n
 
         return distance

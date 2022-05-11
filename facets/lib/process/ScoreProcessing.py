@@ -113,8 +113,9 @@ def save_data(index_name, docid, doctype, score, m21_score):
 		musicdoc.doc_id = docid
 		musicdoc.doc_type = doctype
 		musicdoc.m21score = m21_score
-		mfile = ContentFile(score)
-		musicdoc.musicfile = mfile
+
+		filename = docid+"."+doctype
+		musicdoc.musicfile.save(filename, ContentFile(score))
 
 		# TODO: get and save metadata
 		

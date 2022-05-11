@@ -6,6 +6,8 @@ from django.http import HttpResponse
 
 from elasticsearch import Elasticsearch
 
+from rest.models import *
+
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
     es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
@@ -38,12 +40,18 @@ def OverviewDataView(request):
     context = {"indices_number": len(indices_stats), "indices_stats": indices_stats}
     return HttpResponse(template.render(context, request))
 
-def MusicDocView(request):
+def MusicDocView(request, index_name, doc_id):
     template = loader.get_template('home/musicdocview.html')
-    context = {} #doc_id and index?
+    musicdoc = MusicDoc.objects.get(doc_id = doc_id)
+    print(musicdoc.doc_id)
+    print(musicdoc.musicfile)
+
+    #doc_url = musicdoc.musicfile.path
+    #print(doc_url)
+    context = {"index_name": index_name, "doc_id": doc_id, "doc_url": doc_url}
     return HttpResponse(template.render(context, request))
 
-    #return HttpResponse("Display music doc without search result")
+
 
 # def HighlightMusicDocView(request):
     # return HttpResponse("Display music doc with highlighted search result")

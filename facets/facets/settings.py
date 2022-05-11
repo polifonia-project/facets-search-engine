@@ -159,7 +159,7 @@ LYRICS_SEARCH = "lyrics"
 
 ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
 
-ELASTIC_SEARCH = {"host": "MuSEEK-ES", "port": 9200}
+ELASTIC_SEARCH = {"host": "localhost", "port": 9200}
 # ELASTIC_SEARCH = {
     # "hosts": [{'host': "MuSEEK-ES", 'port': 9200}]
 # }

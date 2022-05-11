@@ -10,8 +10,8 @@ from lib.process import ScoreProcessing
 from lib.search.IndexWrapper import IndexWrapper
 from lib.search.SearchContext import *
 
-host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
-es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
+es = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
+     port=settings.ELASTIC_SEARCH["port"])
 
 def index(request):
     indices = es.indices.get_alias().keys()
@@ -90,26 +90,23 @@ def results(request):
     return HttpResponse(template.render(context, request))
 
 @csrf_exempt
-def HighlightMusicDocView(request):
+def HighlightMusicDocView(request, index_name, doc_id):
     # Highlight patterns while viewing a music document
 
     #TODO: get search context from def results
+    """
     if request.method == 'GET': # or POST, since it is searching?
         try:
-            # get index name, todo: where is indexname&doc_id?
-            index_name = request.GET.get('indexname', False)
-            # get doc_id
-            doc_id = request.GET.get('doc_id', False)
             # get it from search??
             # highlight_ids = matching_locations[doc_id]["matching_ids"]
         except Exception as ex:
-            print("Error occurred while highlighting matching patterns:", str(ex))
-
+            print("Error occurred while getting ids to highlight:", str(ex))
+    """
     template = loader.get_template('search/highlight_musicdoc.html')
     # TODO: this highlight_musicdoc.html needs to be written
     context = {
         "index_name": index_name, 
-        "doc_id": doc_id}
+        "doc_id": doc_id,
+        "highlight_ids": highlight_ids}
 
     return HttpResponse(template.render(context, request))
-

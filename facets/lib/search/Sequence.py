@@ -486,7 +486,7 @@ class Sequence:
         r1 = s1.get_rhythms()
         r2 = s2.get_rhythms()
         if not r1 or not r2:
-            return 100
+            return 1000000
         
         score = Distance.rhythmic_distance(s1, s2)
         print ("Rhythmic distance between the pattern and occurrence " + str(s1) + " : " + str(round(score, 4)))
@@ -498,7 +498,7 @@ class Sequence:
         m1 = s1.get_intervals(settings.DIATONIC_DESCR)
         m2 = s2.get_intervals(settings.DIATONIC_DESCR)
         if not m1 or not m2:
-            return 100
+            return 1000000
 
         #Use modified edit distance to represent the melodic distance between two sequences
         m_distance = Distance.melodic_distance(s1, s2)

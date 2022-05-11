@@ -113,13 +113,14 @@ class MusicSummary:
 
     def find_exact_matches(self, pattern, search_type):
         # Find sequences that match
+        # currently not in use
         occurrences = self.find_sequences(pattern, search_type, False)
 
         # If there is a match in the opus
         if occurrences != None:
         # TODO TIANGE: it should be if len(occurrences) > 0 but occurrences is empty []
             print("#######################################")
-            print("Found exact match in opus_id:  ", self.opus_id)
+            print("Found exact match in musicdoc:  ", self.opus_id)
 
         return occurrences
 
@@ -132,14 +133,17 @@ class MusicSummary:
         occurrences = self.find_sequences(pattern, search_type, mirror_setting)
         distances = list()
 
-        # If there is a match in the opus
+        # If there is a match in the musicdoc
         if len(occurrences) > 0 :
             print("#######################################")
             print("Found occurrence in musicdoc:  " + self.doc_id)
+        else:
+            print("Error: no occurrence of pattern" + str([pattern]) +" is found in " + self.doc_id)
+            return occurrences, "", 1000000
 
         # Iterate over all the matches in an opus
         for o in occurrences:
-            print ("Check occurrence " + str(o))
+            #print ("Check occurrence " + str(o))
             try:
                 #Get rhythmic distance for melodic type of search for the current match
                 if search_type == settings.CHROMATIC_SEARCH or search_type == settings.DIATONIC_SEARCH:
