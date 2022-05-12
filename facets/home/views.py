@@ -6,14 +6,19 @@ from django.http import HttpResponse
 
 from elasticsearch import Elasticsearch
 
+from lib.search.IndexWrapper import IndexWrapper
+
 from rest.models import *
 
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
-    es = Elasticsearch(hosts=[{'host': host, 'port': 9200}],)
+    es = Elasticsearch(hosts=[{'host': host, 'port': settings.ELASTIC_SEARCH["port"]}],)
 except:
-    print("Error connecting to ES")
-    # es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
+    try:
+        print("Re-attempt to connect with different attributes. Host: MuSEEK-ES / Port: 9200\n")
+        es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
+    except:
+        print("Error connecting to Elasticsearch, please check your if it is running.")
 
 def index(request):
     template = loader.get_template('home/index.html')
@@ -40,8 +45,25 @@ def OverviewDataView(request):
     context = {"indices_number": len(indices_stats), "indices_stats": indices_stats}
     return HttpResponse(template.render(context, request))
 
+def IndexView(request, index_name):
+    if request.method == "GET":
+        # Return the info of ES index "index_name".
+        template = loader.get_template('home/indexview.html')
+
+        indices = es.indices.get_alias()
+        if index_name in indices:
+            # TODO: info should be a list of documents under this index!! Not just document number.
+            info = es.indices.stats(index_name).get('_all').get('primaries').get('docs').get('count')
+            context = {"index_name": index_name, "information": info}
+        else:
+            return HttpResponse("This index does not exist on ES.")
+    
+    return HttpResponse(template.render(context, request))
+
 def MusicDocView(request, index_name, doc_id):
-    template = loader.get_template('home/musicdocview.html')
+    #template = loader.get_template('home/musicdocview.html')
+    # this "verovio_test.html" template is for testing only!!
+    template = loader.get_template('home/verovio_test.html')
     try:
         musicdoc = MusicDoc.objects.get(doc_id = doc_id)
     except Exception as ex:
@@ -49,16 +71,16 @@ def MusicDocView(request, index_name, doc_id):
     try:
         if musicdoc.doc_type == 'krn':
             doc_url = musicdoc.krnfile.path
-            # But verovio does not support kern?
+            # Use verovio-humdrum kit
         elif musicdoc.doc_type == 'musicxml':
             doc_url = musicdoc.musicxmlfile.path
         elif musicdoc.doc_type == 'mei':
             doc_url = musicdoc.meifile.path
         elif musicdoc.doc_type == 'xml':
-            # does verovio support xml? if not music21->musicxml->mei
+            # does verovio support xml? 
             doc_url = musicdoc.xmlfile.path
         elif musicdoc.doc_type == 'abc':
-            # does verovio support abc? if not music21->musicxml->mei
+            # does verovio support abc? 
             doc_url = musicdoc.abcfile.path
     except Exception as ex:
         return HttpResponse("Error while retrieving file from database to display: "+ str(ex))
@@ -67,20 +89,4 @@ def MusicDocView(request, index_name, doc_id):
         return HttpResponse("No path found for document display.")
     context = {"index_name": index_name, "doc_id": doc_id, "doc_url": doc_url}
     return HttpResponse(template.render(context, request))
-
-
-# def HighlightMusicDocView(request):
-    # return HttpResponse("Display music doc with highlighted search result")
-
-# def SearchView(request):
-    # return HttpResponse("Search with keyboard, abc text etc")
-
-# """
-# def MainView(request):
-    # return HttpResponse("A combo of SearchView and LoadDataView?")
-# """
-# def SearchResultView(request):
-    # TODO: maybe this should be only in search/views.py
-    # return HttpResponse("Display search result and perhaps kibana analysis")
-
 

@@ -7,12 +7,40 @@
   
   <div class="row mb-5">
     <div class="col-lg-8 mx-auto">
-                <h1>This is Load Data</h1>
+                <h1>Load documents</h1>
         <div class="alert alert-warning" role="alert">
-            we need to add some loading UI here
+            We need to adjust the loading UI here:
+            1. currently lack of index creation function 2. musicdoc upload not finished
+            </br>
+            MuSEEK currently support XML, MusicXML, MEI, ABC and Humdrum formats.
+            (should we keep a dropdown menu for formats or just get the format info from filename?)
+            </br></br>
+          <form action="/action_page.php">
+          <input type="file" id="myFile" name="filename">
+          </br></br>
+
+          <select name="indexname" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
+          <option selected>Index name</option>
+          {% for index in indices_names %}
+          <option value="{{ index }}">{{ index | title }}</option>
+          {% endfor %}
+          </select>
+
+          <div class="d-flex align-middle">
+          <select name="file format" class="px-4 mr-2 custom-select custom-select-sm"
+          style="width: 10rem;">
+          <option selected>File format</option>
+          <option value="mei">MEI</option>
+          <option value="musicxml">MusicXML</option>
+          <option value="xml">XML</option>
+          <option value="krn">Humdrum</option>
+          <option value="abc">ABC</option>
+          </select>
+
+          <input type="submit">
         </div>
-
-
+        
+        </form>
       </div>
     </div>
   </div>

@@ -32,6 +32,7 @@ from lib.process import ScoreProcessing
 from lib.search.IndexWrapper import IndexWrapper
 
 from lib.search.SearchContext import *
+from elasticsearch import Elasticsearch
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -72,13 +73,19 @@ def index(request, index_name):
 		      curl -X GET  http://localhost:8000/index/index_name/
 		      In which "index" is the "index_name".
 		'''
-		index_wrapper = IndexWrapper(index_name)
+		try:
+			es = Elasticsearch(hosts=[{'host': settings.ELASTIC_SEARCH["host"], 'port': settings.ELASTIC_SEARCH["port"]}],)
+		except:
+			print("Error connecting to Elasticsearch, please check your connection.")
 
-		# Return the info of ES index "index_name"
-		info = index_wrapper.get_index_info()
-		
-		#return JSONResponse({"Message": "Request to read index " + index_name})
-		return JSONResponse(info[index_name]['mappings'])
+		indices = es.indices.get_alias()
+		if index_name in indices:
+			index_wrapper = IndexWrapper(index_name)
+			# Read the info on ES index "index_name"
+			info = index_wrapper.get_index_info()
+			return JSONResponse(info[index_name]['mappings'])
+		else:
+			return JSONResponse("This index does not exist on ES.")
 	
 	elif request.method == "PUT":
 		'''
@@ -187,16 +194,27 @@ def document(request, index_name, doc_id):
 			Example:
 			    curl -X GET  http://localhost:8000/index/lklk/
 		'''
-		index_wrapper = IndexWrapper(index_name)
-
-		# Return MusicSummary of the given doc_id which is indexed in ES.
 		try:
-			MS = index_wrapper.get_MS_from_doc(index_name, doc_id)
-		except Exception as ex:
-			return JSONResponse({"Error when getting the score model": str(ex)})
+			es = Elasticsearch(hosts=[{'host': settings.ELASTIC_SEARCH["host"], 'port': settings.ELASTIC_SEARCH["port"]}],)
+		except:
+			print("Error connecting to Elasticsearch, please check your connection.")
+    	
+		indices = es.indices.get_alias()
+        
+        # First check if the index exists on ES
+		if index_name in indices:
+			index_wrapper = IndexWrapper(index_name)
+			# Then return MusicSummary of the given doc_id which is indexed in ES.
+			try:
+				# TODO: should we check if this musicdoc exists in this index?
+				MS = index_wrapper.get_MS_from_doc(index_name, doc_id)
+			except Exception as ex:
+				return JSONResponse({"Error when getting the score information from ES.": str(ex)})
+		else:
+			return JSONResponse("The required index does not exist on ES, please create a new index or query an existing index.")
 
 		# Return the corresponding MusicSummary(score model)
-		return JSONResponse({"Message": "Request to read MusicSummary of " + doc_id + ":" + MS})
+		return JSONResponse({"Message": "Read MusicSummary of " + doc_id + ":" + MS})
 
 	elif request.method == "PUT":
 

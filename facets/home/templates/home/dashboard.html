@@ -2,6 +2,20 @@
 
 {% block content %}
 {% include 'navbar.html' %}
+<head>
+<style>
+	a:link {
+  	color: white;
+  	background-color: transparent;
+    }
+
+    a:visited {
+    color: yellow;
+    background-color: transparent;
+    text-decoration: none;
+    }
+</style>
+</head>
 
 <div class="container">
 	<div class="row mb-8">
@@ -19,8 +33,8 @@
 				<ul class="list-group ">
 					{% for k, v in indices_stats.items %}
 					<li class="list-group-item d-flex justify-content-between align-items-center ">
-						{{ k }} 
-						<span class="badge badge-primary badge-pill">{{ v }} docs</span>
+						{{ k }}
+						<span class="badge badge-primary badge-pill"><a href="should_be_k_here_but_how/">{{ v }} docs</a></span>
 					</li>
 					{% endfor %}
 				</ul>
@@ -32,4 +46,7 @@
 
 	</div> <!-- row -->
 </div> <!-- container -->
+
+
+
 {% endblock %}

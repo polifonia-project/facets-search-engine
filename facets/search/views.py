@@ -9,6 +9,8 @@ from elasticsearch import Elasticsearch
 from lib.process import ScoreProcessing
 from lib.search.IndexWrapper import IndexWrapper
 from lib.search.SearchContext import *
+from django.conf import settings
+
 
 es = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
      port=settings.ELASTIC_SEARCH["port"])
@@ -40,7 +42,7 @@ def results(request):
             searchinput["type"] = searchinput["type"].lower()
 
             searchinput["index_name"] = request.POST.get('indexname', False)
-            # TODO: Forcing index_name to be all lower case might cause error.
+            # TO-DO: Forcing index_name to be all lower case might cause error.
             # Find a better fix: do not put the first letter as captial letter when displaying/send through request
             searchinput["index_name"] = searchinput["index_name"].lower()
 
@@ -69,12 +71,13 @@ def results(request):
                     matching_doc_ids.append(hit['_id'])
                 print("Matching documents are:", matching_doc_ids)
 
-                # TODO: is it necessary here to locate matching patterns? Maybe only when highlighting?
                 # Get matching ids(positions) of patterns in MusicSummary for highlighting
                 matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
 
                 match_dict_display = {}
+                num_matching_patterns = 0
                 for mat_doc in matching_locations:
+                    num_matching_patterns += mat_doc["num_occu"]
                     print("There are", mat_doc["num_occu"]," matching patterns in doc id:", mat_doc["doc"])
                     print("ids of all matching notes are:", mat_doc["matching_ids"], "\n")
                     match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
@@ -86,7 +89,13 @@ def results(request):
     context = {
         "searchinput": searchinput,
         "results": match_dict_display,
-        "indices_names": indices}
+        "indices_names": indices,
+        "searchcontext": searchcontext,
+        "num_matching_docs": len(matching_doc_ids),
+        "num_matching_patterns": num_matching_patterns,
+        "matching_doc_ids": matching_doc_ids,
+        "matching_locations": matching_locations
+    }
     return HttpResponse(template.render(context, request))
 
 @csrf_exempt
@@ -110,3 +119,114 @@ def HighlightMusicDocView(request, index_name, doc_id):
         "highlight_ids": highlight_ids}
 
     return HttpResponse(template.render(context, request))
+
+
+# The following are from Neuma for MusicDocView
+#class OpusView(NeumaView):
+    
+    def get_context_data(self, **kwargs):
+        # Get the opus
+        opus_ref = self.kwargs['opus_ref']
+
+        opus = Opus.objects.get(ref=opus_ref)
+
+        # Initialize context v    
+        context = super(OpusView, self).get_context_data(**kwargs)
+
+        # Record the opus as the contextual one
+        self.request.session["search_context"].ref = opus.ref
+        self.request.session["search_context"].type = settings.OPUS_TYPE
+
+        # By default, the tab shown is the first one (with the score)
+        context['tab'] = 0
+        #initialize ?
+        context["matching_ids"] = ""
+
+        # The pattern: it comes either from the search form (and takes priority)
+        # or from the session
+
+        #NOT necessary because the keyword is already saved in self.request.session["search_context"].keywords
+        #self.request.GET and self.request.POST are empty
+        """
+        #lyrics search are not available yet
+        if self.request.session["search_context"].keywords != "":
+            #There is a keyword to search
+            matching_ids = []
+            keyword_in_search = self.request.session["search_context"].keywords
+            score = opus.get_score()
+            for voice in score.get_all_voices():
+                #get lyrics of the current voice
+                curr_lyrics = voice.get_lyrics()
+                if curr_lyrics != None:
+                    #There is a match within the current lyrics
+                    if keyword_in_search in curr_lyrics:
+                        occurrences, curr_matching_ids = voice.search_in_lyrics(keyword_in_search)
+                        if occurrences > 0:
+                            for m_id in curr_matching_ids:
+                                matching_ids.append(m_id)
+            context["msummary"] = ""
+            context["pattern"] = ""
+            #Could be improved if necessary: context["occurrences"] in the same format as what it is for pattern search,
+            #speicifying the voices and occurrences in each voices instead of a total number of occurrences
+            context["occurrences"] = len(matching_ids)
+            context["matching_ids"] = mark_safe(json.dumps(matching_ids))
+        """
+        # Looking for the pattern if any
+        if self.request.session["search_context"].pattern != "":
+            pattern_sequence = Sequence()
+            pattern_sequence.set_from_pattern(self.request.session["search_context"].pattern)
+
+            msummary = MusicSummary()
+            if opus.summary:
+                with open(opus.summary.path, "r") as summary_file:
+                    msummary_content = summary_file.read()
+                msummary.decode(msummary_content)
+            else:
+                logger.warning ("No summary for Opus " + opus.ref)
+
+            search_type = self.request.session["search_context"].search_type
+            mirror_setting = self.request.session["search_context"].mirror_search
+
+            occurrences = msummary.find_positions(pattern_sequence, search_type, mirror_setting)
+            matching_ids = msummary.find_matching_ids(pattern_sequence, search_type, mirror_setting)
+            
+            context["msummary"] = msummary
+            context["pattern"] = self.request.session["search_context"].pattern
+            context["occurrences"] = occurrences
+            context["matching_ids"] = mark_safe(json.dumps(matching_ids))
+        
+        # Analyze the score
+        score = opus.get_score()
+        context["opus"] = opus
+        context["score"] = score
+        """
+        # get meta values 
+        context["meta_values"] = opus.get_metas()
+        
+        # Get the measure for which neighbors must be shown
+        if 'sim_measure' in self.request.GET:
+            context['measure'] = self.request.GET['sim_measure']
+            # We show the second tab
+            context['tab'] = 2
+        else:
+            # Default
+            context['measure'] = 'pitches'
+        # We need all the measures eto choose
+        context['measures'] = SimMeasure.objects.all()
+        
+        measure = SimMeasure.objects.get(code=context['measure'])
+        
+        context['neighbors'] = []
+        context['neighbor_voices'] = list()
+        
+        """
+        # Show detail on the sequence and matching
+        if "explain" in self.request.GET:
+            context["explain"] = True
+        else:
+            context["explain"] = False
+
+        return context
+        #return render(request, "home/musicdoc.html", context) ???
+    #return HttpResponse("Display music doc without search result")
+    
