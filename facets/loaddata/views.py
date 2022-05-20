@@ -9,10 +9,19 @@ from lib.search.IndexWrapper import IndexWrapper
 from elasticsearch import Elasticsearch
 from django.conf import settings
 
+try:
+    host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
+    es = Elasticsearch(hosts=[
+        {'host': host, 'port': settings.ELASTIC_SEARCH["port"]},
+        {'host': "FACETS-ES", 'port': 9200},
+        {'host': "0.0.0.0", 'port': 9200}
+    ])
+except:
+    print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
+
 
 def loaddataIndex(request):
     template = loader.get_template('loaddata/index.html')
-    es = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], port=settings.ELASTIC_SEARCH["port"])
     indices = es.indices.get_alias().keys()
     context = {"indices_names": indices}
     return HttpResponse(template.render(context, request))
