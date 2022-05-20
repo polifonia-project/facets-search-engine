@@ -12,13 +12,13 @@ from rest.models import *
 
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
-    es = Elasticsearch(hosts=[{'host': host, 'port': settings.ELASTIC_SEARCH["port"]}],)
+    es = Elasticsearch(hosts=[
+        {'host': host, 'port': settings.ELASTIC_SEARCH["port"]},
+        {'host': "FACETS-ES", 'port': 9200},
+        {'host': "0.0.0.0", 'port': 9200}
+    ])
 except:
-    try:
-        print("Re-attempt to connect with different attributes. Host: MuSEEK-ES / Port: 9200\n")
-        es = Elasticsearch(hosts=[{'host': "MuSEEK-ES", 'port': 9200}],)
-    except:
-        print("Error connecting to Elasticsearch, please check your if it is running.")
+    print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
 
 def index(request):
     template = loader.get_template('home/index.html')

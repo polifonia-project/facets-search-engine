@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    container_name: "MuSEEK-web"
+    container_name: "FACETS-web"
     image: python:3.10
     command: bash -c "cd /facets && pip install -r requirements-versions.txt && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -12,7 +12,7 @@ services:
     depends_on:
       - elasticsearch
   elasticsearch:
-    container_name: "MuSEEK-ES"
+    container_name: "FACETS-ES"
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     volumes:
       - ./data/elastic:/var/lib/elasticsearch/data
@@ -29,7 +29,7 @@ services:
       - 9200:9200
   kibana:
     image: docker.elastic.co/kibana/kibana:6.3.2
-    container_name: "MuSEEK-KI"
+    container_name: "FACETS-KI"
     environment:
       - "ELASTICSEARCH_HOSTS=http://es01-test:9200"
     ports:
