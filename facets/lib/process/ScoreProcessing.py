@@ -19,40 +19,178 @@ import os
 from binascii import unhexlify
 from django.core.files import File
 from django.core.files.base import ContentFile
-
-def get_metadata_from_score(m21_score):
-	# To do, not urgent
-	"""
-    # Get info from the text, something like below, or find a better solution
-	if "composer" in search_input:
-		self.pattern = search_input["pattern"]
-
-	From MEI scores:
-	 <meiHead>
-      <fileDesc>
-      <title label="work">I, 1. Bransle simple. Bis</title>
-       <name role="composer">Franc. Caroubel.</name>
-
-    From XML scores:
-	<work>
-		<work-title>Les Baricades Misterieuses</work-title>
-	</work>
-	<identification>
-	<creator type="composer">Francois Couperin</creator>
+import xml.etree.ElementTree as ET
+def get_metadata_from_score(doctype, score, m21_score):
 	
+	metainfo = {"title":"", "composer":""}
+	
+	if doctype == "xml":
+		root = ET.fromstring(score)
+		# First, try to get title from music21 stream
+		if m21_score.metadata.title != None and m21_score.metadata.title != "":
+			metainfo["title"] = m21_score.metadata.title
+		# If not from m21 stream, find title of the composition from XML score
+		elif root.find('work/work-title') != None:
+			metainfo["title"] = root.find('work/work-title').text
+		elif root.find('work/title') != None:
+			metainfo["title"] = root.find('work/title').text
+		
+		# Find composer info from m21 score
+		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
+			metainfo["composer"] = m21_score.metadata.composer 
+		# from xml file
+		elif root.find('identification/creator') != None:
+			# TODO: make sure it is composer not lyricist
+			# what if there is more than one?
+			metainfo["composer"] = root.find('identification/creator').text
+		elif root.find('identification/composer') != None:
+			metainfo["composer"] = root.find('identification/composer').text
+		
+	elif doctype == "musicxml":
 
-	From ABC scores:
-	!!!OTL: SYV SPRING
-	!!!ARE: Europa, Mitteleuropa, Daenemark, Vendsyssel
-	The title field (T:) and the index field (X:)
-	Nearly every tune has a title, and one should always be included for identification purposes in tune lists, even if the exact title is not known. The title is indicated by the T: field eg
+		# Element Tree does not work for MusicXML, so find it in m21 stream first
+		if m21_score.metadata.title != None and m21_score.metadata.title != "":
+			metainfo["title"] = m21_score.metadata.title
+		else:
+			# If not found in m21, try find it in musicxml file
+			tempstart = score.find('work-title')
+			if tempstart != -1:
+				# Found: <work-title>TITLE</work-title>
+				startpos = score.find('>', tempstart)
+				endpos = score.find('<', startpos)
+				if startpos != -1 and endpos != -1 and startpos < endpos:
+					metainfo["title"] = score[startpos:endpos]
+			elif score.find('key="OTL"') != -1:
+				# work-title not found, but found title in comments
+				tempstart = score.find('key="OTL"')
+				# Found: <!-- INFO key="OTL" value="TITLENAME" -->
+				startpos = score.find('value="', tempstart)
+				endpos = score.find('"', startpos+7)
+				if startpos != -1 and endpos != -1 and startpos+7 < endpos:
+					# Get value as the title
+					metainfo["title"] = score[startpos+7:endpos]
 
-	T:Ballydesmond polka
-	More (optional) fields : composer, source, origin, notes
-	The composer of a tune is recorded in the C: field, eg
+		# Find composer info in m21 stream
+		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
+			metainfo["composer"] = m21_score.metadata.composer
+		else:
+			tempstart = score.find('composer')
+			# If tempstart != -1: found <creator type="composer">NAME</creator>
+			if tempstart == -1:
+				# if not found: try find type="creator" instead
+				tempstart = score.find('type="creator"')
+			if tempstart != -1:
+				startpos = score.find('>', tempstart)
+				endpos = score.find('<', startpos)
+				if startpos != -1 and endpos != -1 and startpos+1 < endpos:
+					metainfo["composer"] = score[startpos+1:endpos]
+			elif score.find('key="COM"') != -1:
+				# Found in comments
+				tempstart = score.find('key="COM"')
+				startpos = score.find('value="', tempstart)
+				endpos = score.find('"', startpos+7)
+				if startpos != -1 and endpos != -1 and startpos+7 < endpos:
+					metainfo["composer"] = score[startpos+7:endpos]
 
-	T:Paddy O'Rafferty
-	C: Mozart.
+	elif doctype == "mei":
+		# Note: there might be more than one title, currently we get the first one
+
+		if m21_score.metadata.title != None and m21_score.metadata.title != "":
+			metainfo["title"] = m21_score.metadata.title
+		else:
+			tempstart0 = score.find('title')
+			# continue if "title" keyword exist in score:
+			if tempstart0 != -1:
+				tempstart1 = score.find('label="work"', tempstart0)
+				if tempstart1 != -1:
+					# Found: <title label="work">NAME</title>
+					startpos = score.find('>', tempstart1)
+					endpos = score.find('<', startpos)
+					if startpos != -1 and endpos != -1 and startpos+1 < endpos:
+						metainfo["title"] = score[startpos+1:endpos]
+				else:
+					# find the real startpos as tempstart0 could be startpos of <titleStmt>
+					startpos = score.find('title>', tempstart0)
+					endpos = score.find('</title>', startpos)
+					# Found: <title>NAME</title>
+					if startpos != -1 and endpos != -1 and startpos+6 < endpos:
+						# make sure it's not empty
+						metainfo["title"] = score[startpos+6:endpos]
+					
+		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
+			metainfo["composer"] = m21_score.metadata.composer
+		else:
+			tempstart = score.find('role="composer"')
+			if tempstart != -1:
+				# <name role="composer">SOMEONE</name> or <persName role="composer">SOMEONE</persName>
+				startpos = score.find('>', tempstart)
+				endpos = score.find('<', startpos)
+				if startpos != -1 and endpos != -1 and startpos < endpos:
+					metainfo["composer"] = score[startpos+1:endpos]	
+			elif score.find('role="creator"') != -1:
+				# When it is named creator instead of composer.
+				# <persName role="creator" codedval="12345">SOMEONE</persName>
+				tempstart = score.find('role="creator"')
+				startpos = score.find('>', tempstart)
+				endpos = score.find('<', startpos)
+				if startpos != -1 and endpos != -1 and startpos+1 < endpos:
+					metainfo["composer"] = score[startpos+1:endpos]
+
+		"""
+		# Element Tree does not work for MEI! Otherwise title could be found this way:
+		if root.find('meiHead/fileDesc/titleStmt/title') != None:
+			metainfo["title"] = root.find('meiHead/fileDesc/titleStmt/title').text
+		elif root.find('meiHead/fileDesc/sourceDesc/source/titleStmt/title') != None:
+			metainfo["title"] = root.find('meiHead/fileDesc/sourceDesc/source/titleStmt/title').text
+		"""
+
+	elif doctype == "krn":
+		if m21_score.metadata.title != None and m21_score.metadata.title != "":
+			metainfo["title"] = m21_score.metadata.title
+		elif score.find('!!!OTL:') != -1:
+			startpos = score.find('!!!OTL:')
+			endpos = score.find('\n', startpos+7)
+			if startpos != -1 and endpos != -1 and startpos+7 < endpos:
+				metainfo["title"] = score[startpos+7:endpos]
+
+		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
+			metainfo["composer"] = m21_score.metadata.composer
+		elif score.find('!!!COM:') != -1:
+			# found composer information
+			startpos = score.find('!!!COM:')
+			endpos = score.find('\n', startpos+7)
+			if startpos != -1 and endpos != -1 and startpos+7 < endpos:
+				metainfo["composer"] = score[startpos+7:endpos]
+
+	elif doctype == "abc":
+		# First, get all the positions of ':'' in ABC formatted string
+		if m21_score.metadata.title != None and m21_score.metadata.title != "":
+			metainfo["title"] = m21_score.metadata.title
+		else:
+			titlestart = score.find('T:')
+			if titlestart != -1:
+				# find title directly in ABC score
+				end_pos = score.find('\n', titlestart)
+				metainfo["title"] = score[titlestart+2:end_pos]
+		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
+			metainfo["composer"] = m21_score.metadata.composer
+		else:
+			compstart = score.find('C:')
+			if compstart != -1:
+				# found composer in ABC score
+				end_pos = score.find('\n', compstart)
+				metainfo["composer"] = score[compstart+2:end_pos]
+
+	if metainfo["title"] != "":
+		print("Musicdoc title: ", metainfo["title"])
+	else:
+		print("couldn't find title information.")
+	if metainfo["composer"] != "":
+		print("Musicdoc composer: ", metainfo["composer"])
+	else:
+		print("couldn't find composer information.")
+
+	"""
 
 	For MusicXML:
 	<work>
@@ -86,18 +224,11 @@ def get_metadata_from_score(m21_score):
 !!!SCT: E0992C
 !!!YEM: Copyright 1995, estate of Helmut Schaffrath.
 
-	- some has their own part id in xml, what do we do about it here
-	- How about multiple composers?
-	- Allow this information to be blank
 
-	For MIDI: how?
 	"""
-	return
+	return metainfo
 
 def save_data(index_name, docid, doctype, score, m21_score):
-
-		# TODO: get and save metadata
-		get_metadata_from_score(m21_score)
 
 		if Index.objects.filter(name=index_name).exists():
 			index = Index.objects.get(name = index_name)
@@ -108,12 +239,20 @@ def save_data(index_name, docid, doctype, score, m21_score):
 
 		# Delete musicdoc object saved in database of the same id if exists
 		MusicDoc.objects.filter(doc_id=docid).delete()
+
 	 	# Create a musicdoc object
 		musicdoc = MusicDoc()
 		musicdoc.index = index
 		musicdoc.doc_id = docid
 		musicdoc.doc_type = doctype
 		musicdoc.m21score = m21_score
+
+		# Get and save metadata
+		metainfo = get_metadata_from_score(doctype, score, m21_score)
+		if metainfo["title"] != '':
+			musicdoc.title = metainfo["title"]
+		if metainfo["composer"] != '':
+			musicdoc.composer = metainfo["composer"]
 
 		# Save file
 		filename = docid+"."+doctype
@@ -403,7 +542,6 @@ def process_score(musicdoc, m21_score, doc_id):
 		try:
 			# Feature extraction
 			descr_dict = extract_features(score, MS, musicdoc)
-			print(descr_dict)# for testing
 		except Exception as ex:
 			print("Error while extracting features from ", doc_id, ":",str(ex))
 

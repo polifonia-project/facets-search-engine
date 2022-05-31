@@ -36,8 +36,8 @@ class MusicDoc(models.Model):
 	m21score = models.TextField(null=True, blank=True)
 
 	# Metadata:
-	#title = models.CharField(max_length=255, null=True, blank=True)
-	#composer = models.CharField(max_length=255, null=True, blank=True)
+	title = models.CharField(max_length=255, null=True, blank=True)
+	composer = models.CharField(max_length=255, null=True, blank=True)
 
 	def __str__(self):
 		return self.doc_id
