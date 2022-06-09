@@ -25,6 +25,7 @@ def get_metadata_from_score(doctype, score, m21_score):
 	metainfo = {"title":"", "composer":""}
 	
 	if doctype == "xml":
+
 		root = ET.fromstring(score)
 		# First, try to get title from music21 stream
 		if m21_score.metadata.title != None and m21_score.metadata.title != "":
@@ -38,14 +39,21 @@ def get_metadata_from_score(doctype, score, m21_score):
 		# Find composer info from m21 score
 		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
 			metainfo["composer"] = m21_score.metadata.composer 
-		# from xml file
 		elif root.find('identification/creator') != None:
-			# TODO: make sure it is composer not lyricist
-			# what if there is more than one?
-			metainfo["composer"] = root.find('identification/creator').text
+			allcreators = root.findall('identification/creator')
+			for item in allcreators:
+				# First find the item with attrib as composer
+				# if there is more than one marked as composer, we take the first one.
+				if item.attrib == {'type': 'composer'} and metainfo["composer"] == "":
+					metainfo["composer"] = item.text
+				#if item.attrib == {'type': 'lyricist'}:
+					# lyricist could be save in metadata in the future
+			# If there is only one creator and there is no attrib, we consider this creator as the composer.
+			if len(allcreators) == 1 and allcreators[0].attrib == {} and metainfo["composer"] == "":
+				metainfo["composer"] = allcreators[0].text
 		elif root.find('identification/composer') != None:
 			metainfo["composer"] = root.find('identification/composer').text
-		
+
 	elif doctype == "musicxml":
 
 		# Element Tree does not work for MusicXML, so find it in m21 stream first
@@ -163,15 +171,17 @@ def get_metadata_from_score(doctype, score, m21_score):
 				metainfo["composer"] = score[startpos+7:endpos]
 
 	elif doctype == "abc":
-		# First, get all the positions of ':'' in ABC formatted string
+		# Get title from m21 stream first
 		if m21_score.metadata.title != None and m21_score.metadata.title != "":
 			metainfo["title"] = m21_score.metadata.title
 		else:
 			titlestart = score.find('T:')
 			if titlestart != -1:
-				# find title directly in ABC score
+				# found title in ABC score
 				end_pos = score.find('\n', titlestart)
 				metainfo["title"] = score[titlestart+2:end_pos]
+
+		# Get composer from m21 stream first
 		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
 			metainfo["composer"] = m21_score.metadata.composer
 		else:
@@ -190,42 +200,6 @@ def get_metadata_from_score(doctype, score, m21_score):
 	else:
 		print("couldn't find composer information.")
 
-	"""
-
-	For MusicXML:
-	<work>
-    	<work-number>D. 911</work-number>
-    	<work-title>Winterreise</work-title>
-    </work>
-  	<identification>
-    	<creator type="composer">Franz Schubert</creator>
-  	</identification>
-
-<!-- INFO key="COM" value="Gaspar van Weerbeke" -->
-<!-- INFO key="CDT" value="~1450-~1517" -->
-<!-- INFO key="OPR" value="Motet cycle Ave mundi domina" -->
-<!-- INFO key="OTL" value="Quem terra, ponthus, aethera" -->
-<!-- INFO key="OMV" value="6" -->
-<!-- INFO key="AGN" value="Motet; Motet cycle" -->
-<!-- INFO key="SCT" value="Gas0301f" -->
-<!-- INFO key="SCA" value="Gas0301f" -->
-<!-- INFO key="voices" value="4" -->
-
-	For kern scores:
-
-!!!AGN: Tanz - Lied, Reigen, Siebensprung
-!!!ONB: ESAC (Essen Associative Code) Database: ERK2
-!!!AMT: simple duple
-!!!AIN: vox
-!!!EED: Helmut Schaffrath
-!!!EEV: 1.0
-!!!OTL: SYV SPRING
-!!!ARE: Europa, Mitteleuropa, Daenemark, Vendsyssel
-!!!SCT: E0992C
-!!!YEM: Copyright 1995, estate of Helmut Schaffrath.
-
-
-	"""
 	return metainfo
 
 def save_data(index_name, docid, doctype, score, m21_score):
