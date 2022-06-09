@@ -53,8 +53,10 @@ def IndexView(request, index_name):
         indices = es.indices.get_alias()
         if index_name in indices:
             # TODO: info should be a list of documents under this index!! Not just document number.
-            info = es.indices.stats(index_name).get('_all').get('primaries').get('docs').get('count')
-            context = {"index_name": index_name, "information": info}
+            info = {}
+            info["docs_number"] = es.indices.stats(index_name).get('_all').get('primaries').get('docs').get('count')
+            print(es.indices.stats(index_name).get('_all').get('primaries').get('docs'))
+            context = {"index_name": index_name, "info": info}
         else:
             return HttpResponse("This index does not exist on ES.")
     

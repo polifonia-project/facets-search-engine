@@ -1,4 +1,38 @@
-{{index_name}}
-{% if information %}
-{{information}}
-{% endif %}
+{% extends 'base.html'%}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container">
+	<div class="row mb-8">
+
+		<div class="col-lg-2 mx-auto">
+		</div>
+
+		<div class="col-lg-8 mx-auto">
+            <h1 class="text-center">{{ index_name }} overview</h1>
+
+			<div class="card text-center">
+				<div class="card-header">
+                    Index {{ index_name }} contains {{ info.docs_number }} docs.
+				</div>
+				<ul class="list-group ">
+					{% for k, v in indices_stats.items %}
+					<li class="list-group-item d-flex justify-content-between align-items-center ">
+						{{ k }}
+						<span class="badge badge-primary badge-pill"><a href="{{ k }}/">{{ v }} docs</a></span>
+					</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="col-lg-2 mx-auto">
+		</div>
+
+	</div> <!-- row -->
+</div> <!-- container -->
+
+
+
+{% endblock %}
