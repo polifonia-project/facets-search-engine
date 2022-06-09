@@ -81,7 +81,6 @@ def index(request, index_name):
 
           Example:
               curl -X GET  http://localhost:8000/index/index_name/
-              In which "index" is the "index_name".
         '''
 
         indices = es.indices.get_alias()
@@ -95,7 +94,8 @@ def index(request, index_name):
     
     elif request.method == "PUT":
         '''
-          Create the index if it does not exist
+          Create the index if it does not exist.
+
           Example:
               curl -X PUT  http://localhost:8000/index/index_name/
         '''
@@ -120,7 +120,8 @@ def index(request, index_name):
 def search(request, index_name):
     result = []
     '''
-           curl -X POST http://localhost:8000/index/index_name/_search -d @queries/...
+        Example:
+        curl -X POST http://localhost:8000/index/index_name/_search -d @queries/...
     '''
     if request.method == "POST":
         """
@@ -133,15 +134,13 @@ def search(request, index_name):
 
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
-
-        #print(body)
         
         searchcontext = SearchContext()
         # json -> searchcontext
         searchcontext.read(body)
         
         """
-        print the content of SearchContext object
+        Print the content of SearchContext object
         """
         print("\n\nsearch type: ", searchcontext.search_type)
         if searchcontext.pattern:
@@ -253,9 +252,10 @@ def document(request, index_name, doc_id):
                 if request.content_type == "application/mei":
                     """
                     Example:
-                       curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/index_name/lklk/ -d @data/friuli001.mei
-                       In which "index" refers to index_name, and "lklk" refers to doc_id.
-                       """
+                    curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/index_name/lklk/ -d @data/friuli001.mei
+                    
+                    In which "index" refers to index_name, and "lklk" refers to doc_id.
+                    """
                     # Apply MEI -> Music21 converter
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "mei", doc_id)
                 
@@ -289,7 +289,8 @@ def document(request, index_name, doc_id):
                     """
                 elif request.content_type == "application/krn":
                     """
-                    Kern is not registered as a content type, thus use --data-binary!
+                    # Kern is not registered as a content type, thus use --data-binary!
+
                     Example:
                     curl -X PUT -H "Content-type:application/krn" http://localhost:8000/index/index_name/danmark/ --data-binary @data/danmark1.krn
                     """
@@ -303,7 +304,7 @@ def document(request, index_name, doc_id):
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
                 elif request.content_type == "application/midi":
                     """
-                    Attention: MIDI format reader to be fixed: why the intervals are 20D etc.?
+                    # To be fixed: why the intervals are 20D etc.?
                 
                     Example:
                     curl -X PUT -H "Content-type:application/midi" http://localhost:8000/index/index_name/miditest/ --data-binary @data/mazurka06-1.mid

@@ -16,8 +16,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-#From Neuma:
-#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# From Neuma:
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 
 NEUMA_ID_SEPARATOR = ":"
@@ -30,8 +30,8 @@ SECRET_KEY = 'django-insecure-twuznz#^r#ruluxbh)l9=zp%5(h%ndzuqxbju82f0w589cv-pl
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-APPEND_SLASH=True
-ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost',]
+APPEND_SLASH = True
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', ]
 
 
 # Application definition
@@ -69,7 +69,7 @@ ROOT_URLCONF = 'facets.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [(os.path.join(BASE_DIR, 'templates')),],
+        'DIRS': [(os.path.join(BASE_DIR, 'templates')), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -161,7 +161,7 @@ ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
 
 ELASTIC_SEARCH = {"host": "localhost", "port": 9200}
 # ELASTIC_SEARCH = {
-    # "hosts": [{'host': "FACETS-ES", 'port': 9200}]
+#   "hosts": [{'host': "FACETS-ES", 'port': 9200}]
 # }
 
 MAX_ITEMS_IN_RESULT = 1000
@@ -183,5 +183,5 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
 
-#Maximum 500MB data for a single bulk loading request
+# Maximum 500MB data for a single bulk loading request
 DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000
