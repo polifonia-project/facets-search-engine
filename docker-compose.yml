@@ -13,7 +13,7 @@ services:
       - elasticsearch
   elasticsearch:
     container_name: "FACETS-ES"
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
     volumes:
       - ./data/elastic:/var/lib/elasticsearch/data
     environment:
@@ -28,7 +28,7 @@ services:
     ports:
       - 9200:9200
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.3.2
+    image: docker.elastic.co/kibana/kibana:7.16.2
     container_name: "FACETS-KI"
     environment:
       - "ELASTICSEARCH_HOSTS=http://es01-test:9200"

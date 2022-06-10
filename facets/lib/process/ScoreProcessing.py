@@ -20,6 +20,8 @@ from binascii import unhexlify
 from django.core.files import File
 from django.core.files.base import ContentFile
 import xml.etree.ElementTree as ET
+import re
+
 def get_metadata_from_score(doctype, score, m21_score):
 	
 	metainfo = {"title":"", "composer":""}
@@ -61,88 +63,73 @@ def get_metadata_from_score(doctype, score, m21_score):
 			metainfo["title"] = m21_score.metadata.title
 		else:
 			# If not found in m21, try find it in musicxml file
-			tempstart = score.find('work-title')
-			if tempstart != -1:
+			worktitles = re.findall('<work-title.*>(.*)</work-title>', score)
+			if worktitles != []:
 				# Found: <work-title>TITLE</work-title>
-				startpos = score.find('>', tempstart)
-				endpos = score.find('<', startpos)
-				if startpos != -1 and endpos != -1 and startpos < endpos:
-					metainfo["title"] = score[startpos:endpos]
+				metainfo["title"] = worktitles[0]
 			elif score.find('key="OTL"') != -1:
 				# work-title not found, but found title in comments
-				tempstart = score.find('key="OTL"')
-				# Found: <!-- INFO key="OTL" value="TITLENAME" -->
-				startpos = score.find('value="', tempstart)
-				endpos = score.find('"', startpos+7)
-				if startpos != -1 and endpos != -1 and startpos+7 < endpos:
-					# Get value as the title
-					metainfo["title"] = score[startpos+7:endpos]
+				worktitles = re.findall('key="OTL".*value="(.*)"', score)
+				if worktitles != []:
+					# found: <!-- INFO key="OTL" value="TITLENAME" -->
+					metainfo["title"] = worktitles[0]
 
-		# Find composer info in m21 stream
+		# Find composer info
 		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
+			# found composer in m21 stream
 			metainfo["composer"] = m21_score.metadata.composer
 		else:
-			tempstart = score.find('composer')
-			# If tempstart != -1: found <creator type="composer">NAME</creator>
-			if tempstart == -1:
-				# if not found: try find type="creator" instead
-				tempstart = score.find('type="creator"')
-			if tempstart != -1:
-				startpos = score.find('>', tempstart)
-				endpos = score.find('<', startpos)
-				if startpos != -1 and endpos != -1 and startpos+1 < endpos:
-					metainfo["composer"] = score[startpos+1:endpos]
-			elif score.find('key="COM"') != -1:
-				# Found in comments
-				tempstart = score.find('key="COM"')
-				startpos = score.find('value="', tempstart)
-				endpos = score.find('"', startpos+7)
-				if startpos != -1 and endpos != -1 and startpos+7 < endpos:
-					metainfo["composer"] = score[startpos+7:endpos]
-
+			composernames = re.findall('<creator.*type="composer".*>(.*)</creator>', score)
+			if composernames != []:
+				# found creator with a composer tag
+				metainfo["composer"] = composernames[0]
+			else:
+				composernames = re.findall('<creator>(.*)</creator>', score)
+				if composernames != []:
+					# found creator without any tag
+					metainfo["composer"] = composernames[0]
+				else:
+					composernames = re.findall('<creator.*type="creator".*>(.*)</creator>', score)
+					if composernames != []:
+						metainfo["composer"] = composernames[0]
+			if metainfo["composer"] == "" and score.find('key="COM"') != -1:
+				# found composer info in comments
+				composernames = re.findall('key="COM".*value="(.*)"', score)
+				if composernames != []:
+					metainfo["composer"] = composernames[0]
+	
 	elif doctype == "mei":
 		# Note: there might be more than one title, currently we get the first one
 
 		if m21_score.metadata.title != None and m21_score.metadata.title != "":
 			metainfo["title"] = m21_score.metadata.title
 		else:
-			tempstart0 = score.find('title')
-			# continue if "title" keyword exist in score:
-			if tempstart0 != -1:
-				tempstart1 = score.find('label="work"', tempstart0)
-				if tempstart1 != -1:
-					# Found: <title label="work">NAME</title>
-					startpos = score.find('>', tempstart1)
-					endpos = score.find('<', startpos)
-					if startpos != -1 and endpos != -1 and startpos+1 < endpos:
-						metainfo["title"] = score[startpos+1:endpos]
-				else:
-					# find the real startpos as tempstart0 could be startpos of <titleStmt>
-					startpos = score.find('title>', tempstart0)
-					endpos = score.find('</title>', startpos)
-					# Found: <title>NAME</title>
-					if startpos != -1 and endpos != -1 and startpos+6 < endpos:
-						# make sure it's not empty
-						metainfo["title"] = score[startpos+6:endpos]
-					
+			# First find title with label as work
+			worktitles = re.findall('<title label="work".*>(.*)<', score)
+			if worktitles == []:
+				# If not found, find title without any label
+				worktitles = re.findall('<title>(.*)</title>', score)
+				if worktitles == []:
+					# If still not found, then find title with irrelevant labels...
+					worktitles = re.findall('<title .*>(.*)</title>', score)
+			if worktitles != []:
+				# if found any, record the title info
+				metainfo["title"] = worktitles[0]
+
 		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
+			# found composer info in m21 stream
 			metainfo["composer"] = m21_score.metadata.composer
 		else:
-			tempstart = score.find('role="composer"')
-			if tempstart != -1:
-				# <name role="composer">SOMEONE</name> or <persName role="composer">SOMEONE</persName>
-				startpos = score.find('>', tempstart)
-				endpos = score.find('<', startpos)
-				if startpos != -1 and endpos != -1 and startpos < endpos:
-					metainfo["composer"] = score[startpos+1:endpos]	
-			elif score.find('role="creator"') != -1:
-				# When it is named creator instead of composer.
-				# <persName role="creator" codedval="12345">SOMEONE</persName>
-				tempstart = score.find('role="creator"')
-				startpos = score.find('>', tempstart)
-				endpos = score.find('<', startpos)
-				if startpos != -1 and endpos != -1 and startpos+1 < endpos:
-					metainfo["composer"] = score[startpos+1:endpos]
+			# try to find <name role="composer">SOMEONE</name>
+			composernames = re.findall('<name.*role="composer".*>(.*)</name>', score)
+			if composernames == []:
+				# try to find <persName role="composer">SOMEONE</persName>
+				composernames = re.findall('<persName.*role="composer".*>(.*)</persName>', score)
+				if composernames == []:
+					# <persName role="creator" codedval="12345">SOMEONE</persName>
+					composernames = re.findall('<persName.*role="creator".*>(.*)</persName>', score)
+			if composernames != []:
+				metainfo["composer"] = composernames[0]
 
 		"""
 		# Element Tree does not work for MEI! Otherwise title could be found this way:
@@ -191,14 +178,15 @@ def get_metadata_from_score(doctype, score, m21_score):
 				end_pos = score.find('\n', compstart)
 				metainfo["composer"] = score[compstart+2:end_pos]
 
+	# print for testing
 	if metainfo["title"] != "":
-		print("Musicdoc title: ", metainfo["title"])
+		print("Title of this musicdoc: ", metainfo["title"])
 	else:
-		print("couldn't find title information.")
+		print("Couldn't find title information of this musicdoc.")
 	if metainfo["composer"] != "":
-		print("Musicdoc composer: ", metainfo["composer"])
+		print("Composer of this musicdoc: ", metainfo["composer"])
 	else:
-		print("couldn't find composer information.")
+		print("Couldn't find composer information of this musicdoc.")
 
 	return metainfo
 
@@ -221,8 +209,13 @@ def save_data(index_name, docid, doctype, score, m21_score):
 		musicdoc.doc_type = doctype
 		musicdoc.m21score = m21_score
 
-		# Get and save metadata
-		metainfo = get_metadata_from_score(doctype, score, m21_score)
+		# Get and save metadata(title and composer so far)
+		try:
+			metainfo = get_metadata_from_score(doctype, score, m21_score)
+		except:
+			# in case there is an error, just skip and leave these fields empty
+			metainfo = {"title":"", "composer":""}
+
 		if metainfo["title"] != '':
 			musicdoc.title = metainfo["title"]
 		if metainfo["composer"] != '':
@@ -424,10 +417,11 @@ def read_zip(index_name, byte_str):
 				valid_namelist.append(fname)
 			else:
 				print ("Ignoring file %s.%s" % (base, extension))
-
+			
 		for valid_name in valid_namelist:
 			base, extension = decompose_zip_name(valid_name)
 			cur_file = zfile.read(valid_name)
+			cur_file = cur_file.decode('utf')
 			m21_score, musicdoc = load_score(index_name, cur_file, extension[1:], base)
 			print("Successfully loaded and saved the score:", valid_name)
 			m21scores[base] = m21_score
@@ -446,7 +440,7 @@ def load_and_process_zip(index_name, byte_str):
 		try:
 			m21scores, musicdocs = read_zip(index_name, byte_str)
 		except Exception as ex:
-			print ("Exception when trying to call load_zip()" + " Message:" + str(ex))
+			print ("Exception when trying to call read_zip()" + " Message:" + str(ex))
 
 		# Process the current score, produce descriptors from MusicSummary
 		for score_id in m21scores:
@@ -476,11 +470,13 @@ def load_score(index_name, score, s_format, docid):
 			conv = mei.MeiToM21Converter(score)
 			m21_score = conv.run()
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
+
 			return m21_score, musicdoc
 
 		elif s_format == "xml" or s_format == "krn" or s_format == "musicxml" or s_format == "mid":
 			m21_score = converter.parse(score)
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
+
 			return m21_score, musicdoc
 
 		elif s_format == "abc":

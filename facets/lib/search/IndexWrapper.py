@@ -15,7 +15,7 @@ from lib.music import *
 
 from rest import models
 from lib.search.Sequence import Sequence
-from lib.music.MusicSummary import *
+
 # import the logging library
 import logging
 
@@ -89,6 +89,8 @@ class IndexWrapper:
 
             musicdoc_index = MusicDocIndex(
                 meta={'id': musicdoc.doc_id, 'index': index_name},
+                title = musicdoc.title, 
+                composer = musicdoc.composer,
                 summary = encodedMS
             )
 
@@ -269,8 +271,8 @@ class MusicDocIndex(Document):
     id = Text()
     index = Text()
 
-    #title = Text()
-    #composer = Text()
+    title = Text()
+    composer = Text()
     
     summary = Text()
 

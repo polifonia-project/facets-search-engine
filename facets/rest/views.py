@@ -44,7 +44,8 @@ def establish_es_connection():
         es = Elasticsearch(hosts=[
             {'host': host, 'port': settings.ELASTIC_SEARCH["port"]},
             {'host': "FACETS-ES", 'port': 9200},
-            {'host': "0.0.0.0", 'port': 9200}
+            {'host': "0.0.0.0", 'port': 9200},
+            {'host': "127.0.0.1", 'port': 9200}
         ])
     except:
         print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
