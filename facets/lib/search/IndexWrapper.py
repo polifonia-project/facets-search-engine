@@ -155,17 +155,48 @@ class IndexWrapper:
                         "best_occurrence" here should be a pattern sequence.
                     """
                     all_occurrences, best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
+                    num_occu = len(all_occurrences)
                     logger.info ("Found best occurrence : " + str(best_occurrence) + " with distance " + str(distance))
 
                 # Locate ids of all matching patterns to highlight
                 matching_ids = msummary.find_matching_ids(pattern_sequence, search_context.search_type, search_context.mirror_search)
 
-            #elif search_context.is_keyword_search():
+            #elif search_context.is_text_search():
                 '''
                 Wait for scores to be saved...
                 TODO: Get IDs of matching M21 objects from the scores.
+                
+                #Instead of getting MusicSummary and locate the pattern when the search type is pattern search, 
+                #here we directly get scores from the opus that match in the search,
+                #and find if the text is in the lyrics of the opus.
+    
+                best_occurrence = ""
+                #always "" in text search mode because best occu is supposed to be a pattern sequence
+                distance = 0
+                #No distance measurement in this search mode
+                num_occu = 0
+
+                matching_ids = []
+                #IDs of matching M21 objects
+                score = opus.get_score()
+                #Find the matching id by locating searched text in the score
+                for voice in score.get_all_voices():
+                    #get lyrics of the current voice
+                    curr_lyrics = voice.get_lyrics()
+                    if curr_lyrics != None:
+                        if search_context.text in curr_lyrics:
+                            #There is a match within the current lyrics
+                            occurrences, curr_matching_ids = voice.search_in_lyrics(search_context.text)
+                            if occurrences > 0:
+                                # add to total number of occurrences
+                                num_occu += occurrences
+                                #If there is a match
+                                print("Found occurrence in opus_id:  ", opus.id)
+                                print("Appeared in voice: ", voice.id, ", occurrences: ", occurrences)
+                                for m_id in curr_matching_ids:
+                                    matching_ids.append(m_id)
                 '''
-            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "num_occu": len(all_occurrences), "distance": distance, "best_occurrence": str(best_occurrence)})
+            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "num_occu": num_occu, "distance": distance, "best_occurrence": str(best_occurrence)})
 
         return opera
 
@@ -201,13 +232,14 @@ class IndexWrapper:
 
         # If there is text content to search in lyrics
         if search_context.text != '':
-            q_title = Q("multi_match", query=search_context.text, fields=['lyrics'])#, 'composer', 'title'])
-            # Searching for the keywords in lyrics
+            # TODO: need to test if it works for both composer, title and lyrics
+            q_title = Q("multi_match", query=search_context.text, fields=['lyrics', 'composer', 'title'])
+            # Searching for the requested text in lyrics
             q_lyrics = Q("match_phrase", lyrics__value=search_context.text)
             # Combine the search
             search = search.query(q_title | q_lyrics)
 
-        # If there is pattern to search
+        # If there is a pattern to search
         if search_context.pattern != '':
             if search_context.search_type == settings.RHYTHMIC_SEARCH:
                 search = search.query("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())
@@ -248,6 +280,7 @@ class IndexWrapper:
             elif search_context.search_type == settings.EXACT_SEARCH:
                 search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
 
+
         return search
 
 
@@ -259,8 +292,8 @@ class DescriptorIndex(InnerDoc):
      of a voice in a music piece. Its structure (sequence of n-grams) is such that effective text-based search
      supported by ElasticSearch can be carried out on its content.
     '''
-    
-    part = Text()
+    # To improve: we do not need to save part info in ES if it's all "all parts", but this info could be kept in MS.
+    #part = Text()
     voice = Text()
     value = Text()
 

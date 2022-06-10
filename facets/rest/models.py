@@ -54,4 +54,4 @@ class Descriptor(models.Model):
 	value = models.TextField()
 
 	def to_dict(self):
-		return dict(part=self.part, voice=self.voice, value=self.value)
+		return dict(voice=self.voice, value=self.value)

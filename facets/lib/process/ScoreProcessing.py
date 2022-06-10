@@ -158,20 +158,22 @@ def get_metadata_from_score(doctype, score, m21_score):
 				metainfo["composer"] = score[startpos+7:endpos]
 
 	elif doctype == "abc":
-		# Get title from m21 stream first
+		# Get title info
 		if m21_score.metadata.title != None and m21_score.metadata.title != "":
 			metainfo["title"] = m21_score.metadata.title
 		else:
+			# if not in m21 stream, directly find in score
 			titlestart = score.find('T:')
 			if titlestart != -1:
 				# found title in ABC score
 				end_pos = score.find('\n', titlestart)
 				metainfo["title"] = score[titlestart+2:end_pos]
 
-		# Get composer from m21 stream first
+		# Get composer info
 		if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
 			metainfo["composer"] = m21_score.metadata.composer
 		else:
+			# if not in m21, directly find in score
 			compstart = score.find('C:')
 			if compstart != -1:
 				# found composer in ABC score
@@ -263,7 +265,7 @@ def extract_features(score, music_summary, musicdoc):
 						# Descriptor object
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						descriptor.part = part_id
+						#descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "chromatic"
 						descriptor.value = chr_descr
@@ -281,7 +283,7 @@ def extract_features(score, music_summary, musicdoc):
 						
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						descriptor.part = part_id
+						#descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "diatonic"
 						descriptor.value = dia_descr
@@ -296,7 +298,7 @@ def extract_features(score, music_summary, musicdoc):
 
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						descriptor.part = part_id
+						#descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "rhythmic"
 						descriptor.value = rhy_descr
@@ -311,7 +313,7 @@ def extract_features(score, music_summary, musicdoc):
 
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						descriptor.part = part_id
+						#descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "notes"
 						descriptor.value = notes_descr
@@ -321,8 +323,8 @@ def extract_features(score, music_summary, musicdoc):
 				
 				"""
 					Extract lyrics feature
-					Attention: this may only work for musicXML files!!
-					To be checked...
+					Attention: this works and only works for MusicXML files!
+					To be improved for other formats...
 				"""
 
 				#  Get a list of Voice objects from the current Score object
@@ -336,13 +338,12 @@ def extract_features(score, music_summary, musicdoc):
 
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						descriptor.part = part_id
-						descriptor.voice = voice_id
+						descriptor.voice = this_voice.id
 						descriptor.descr_type = "lyrics"
 						descriptor.value = lyrics_descr
 
 						# Save to descriptor dictionary for indexing
-						descr_dict["lyrics"][str(voice_id)] = descriptor.to_dict()
+						descr_dict["lyrics"][str(this_voice.id)] = descriptor.to_dict()
 
 		except Exception as ex:
 			print ("Exception when trying to write descriptor" + musicdoc.doc_id + " Message:" + str(ex))
