@@ -4,34 +4,61 @@
 {% include 'navbar.html' %}
 
 <div class="container">
-	<div class="row mb-8">
+  <div class="row mb-8">
 
-		<div class="col-lg-2 mx-auto">
-		</div>
+    <div class="col-lg-1 mx-auto">
+    </div>
 
-		<div class="col-lg-8 mx-auto">
-            <h1 class="text-center">{{ index_name }} overview</h1>
+    <div class="col-lg-10 mx-auto">
+      <h1 class="text-center">Index {{ index_name }}: overview</h1>
 
-			<div class="card text-center">
-				<div class="card-header">
-                    Index {{ index_name }} contains {{ info.docs_number }} docs.
-				</div>
-				<ul class="list-group ">
-					{% for k, v in indices_stats.items %}
-					<li class="list-group-item d-flex justify-content-between align-items-center ">
-						{{ k }}
-						<span class="badge badge-primary badge-pill"><a href="{{ k }}/">{{ v }} docs</a></span>
-					</li>
+      <div class="card text-center">
+        <div class="card-header">
+          Index {{ index_name }} contains {{ info.docs_number }} docs.
+        </div>
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Corpus_ref</th>
+						<th scope="col">Title</th>
+						<th scope="col">Composer</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for k, v in documents.items %}
+					<tr>
+						<th scope="row">{{ forloop.counter }}</th>
+						<td>{{ k }}</td>
+						<td>{{ v.title }}</td>
+						<td ><a href="#" onclick="toggle_visibility('res{{ forloop.counter }}');">
+<button type="button" class="btn btn-primary" aria-label="abstract"> Toggle doc </button> </a>
+</td>
+					</tr>
+					<tr>
+						<td colspan="4"><div id="res{{ forloop.counter }}" style="display:none;">{{ v }}</div></td>
+					</tr>
 					{% endfor %}
-				</ul>
-			</div>
-		</div>
+				</tbody>
+			</table>
+      </div>
+    </div>
 
-		<div class="col-lg-2 mx-auto">
-		</div>
+    <div class="col-lg-1 mx-auto">
+    </div>
 
-	</div> <!-- row -->
+  </div> <!-- row -->
 </div> <!-- container -->
+
+<script type="text/javascript">
+    function toggle_visibility(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+</script>
 
 
 

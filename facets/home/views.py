@@ -53,10 +53,22 @@ def IndexView(request, index_name):
         indices = es.indices.get_alias()
         if index_name in indices:
             # TODO: info should be a list of documents under this index!! Not just document number.
+            # info = {"aa" : 2, "bb": 3}
             info = {}
             info["docs_number"] = es.indices.stats(index_name).get('_all').get('primaries').get('docs').get('count')
-            print(es.indices.stats(index_name).get('_all').get('primaries').get('docs'))
-            context = {"index_name": index_name, "info": info}
+            doc_results = {}
+            # print(es.indices.stats(index_name).get('_all').get('primaries').get('docs'))
+            # here we need to run a query to retrieve some ids
+            res = es.search(index=index_name, body={"query": {"match_all": {}}},
+                            size = 30)
+            # print("----- Got %d Hits:" % res['hits']['total']['value'])
+            for hit in res['hits']['hits']:
+                doc_results[hit["_id"]] = hit["_source"]
+                # make a check here for the keys to display
+                # print("%(corpus_ref)s %(ref)s: %(composer)s - %(title)s" % hit["_source"])
+                # print(hit["_source"])
+
+            context = {"index_name": index_name, "info": info, "documents": doc_results}
         else:
             return HttpResponse("This index does not exist on ES.")
     
