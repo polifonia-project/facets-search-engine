@@ -89,6 +89,11 @@ def results(request):
                     print("ids of all matching notes are:", mat_doc["matching_ids"], "\n")
                     match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
 
+            else:
+                # TODO: lyrics?
+                match_dict_display = {}
+                num_matching_patterns = 0
+
         except Exception as ex:
             print("Error occurred while searching on ES index:", str(ex))
 

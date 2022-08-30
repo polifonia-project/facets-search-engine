@@ -127,6 +127,7 @@ class IndexWrapper:
             matching_ids = []
             distance = 0
             best_occurrence = None
+            all_occurrences = 0
 
             if search_context.is_pattern_search():
                 # Get encoded MusicSummary of the current doc
@@ -142,6 +143,7 @@ class IndexWrapper:
                     mirror_setting = False
                     count_match_for_exact_search+=1
                     all_occurrences = msummary.find_exact_matches(pattern_sequence, search_context.search_type)
+                    num_occu = len(all_occurrences)
 
                 if search_context.search_type == settings.CHROMATIC_SEARCH or search_context.search_type == settings.DIATONIC_SEARCH or search_context.search_type == settings.RHYTHMIC_SEARCH:
                     #return the sequences that match and the distances
@@ -164,35 +166,72 @@ class IndexWrapper:
             #elif search_context.is_text_search():
                 '''
                 Wait for scores to be saved...
+                TODO1: Make it work for all types of scores by adding codes to Voice.py or something else
                 TODO: Get IDs of matching M21 objects from the scores.
                 
                 #Instead of getting MusicSummary and locate the pattern when the search type is pattern search, 
                 #here we directly get scores from the opus that match in the search,
                 #and find if the text is in the lyrics of the opus.
     
+                # "" in text search mode because best occu is supposed to be a pattern sequence
                 best_occurrence = ""
-                #always "" in text search mode because best occu is supposed to be a pattern sequence
+                # No distance measurement in this search mode
                 distance = 0
-                #No distance measurement in this search mode
+                # To be calculated
                 num_occu = 0
+                
+                try:
+                # Create a Score object
+                    score = Score()
+                    # Get a Score object from m21stream of the score. 
+                    score.load_component(m21_score)
 
+                if MusicDoc.objects.filter(doc_id=doc_id).exists():
+                    curr_musicdoc = MusicDoc.objects.filter(doc_id=doc_id)
+                else:
+                    print("Couldn't find the matching musicdoc in database, thus skipping it.")
+                    continue
+
+                #GET VOICE instead of MUSICDOC
+                
+                score = Score()
+                score.load_component(m21_score)#something like this
+
+                # IDs of matching M21 objects
                 matching_ids = []
-                #IDs of matching M21 objects
                 score = opus.get_score()
-                #Find the matching id by locating searched text in the score
+                """
+                # in the original neuma code it was like this:
+                    def get_score(self):
+                    #Get a score object from an XML document
+                        score = Score()
+                        # Try to obtain the MEI document, which contains IDs
+ 
+                        if self.mei :
+                            #print ("Load from MEI")
+                            score.load_from_xml(self.mei.path, "mei")
+                            return score
+                        elif self.musicxml :
+                            #print ("Load from MusicXML")
+                            score.load_from_xml(self.musicxml.path, "musicxml")
+                            return score
+                        else:
+                            raise LookupError ("Opus " + self.ref + " doesn't have any XML file attached")
+                """
+                # Find the matching id by locating searched text in the score
                 for voice in score.get_all_voices():
                     #get lyrics of the current voice
                     curr_lyrics = voice.get_lyrics()
                     if curr_lyrics != None:
                         if search_context.text in curr_lyrics:
-                            #There is a match within the current lyrics
+                            # There is a match within the current lyrics
                             occurrences, curr_matching_ids = voice.search_in_lyrics(search_context.text)
                             if occurrences > 0:
-                                # add to total number of occurrences
+                                # Add to total number of occurrences
                                 num_occu += occurrences
-                                #If there is a match
-                                print("Found occurrence in opus_id:  ", opus.id)
-                                print("Appeared in voice: ", voice.id, ", occurrences: ", occurrences)
+                                # if there is a match, we may print:
+                                #print("Found occurrence in opus_id:  ", opus.id)
+                                #print("Appeared in voice: ", voice.id, ", occurrences: ", occurrences)
                                 for m_id in curr_matching_ids:
                                     matching_ids.append(m_id)
                 '''
