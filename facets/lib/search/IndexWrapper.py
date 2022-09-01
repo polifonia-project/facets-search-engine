@@ -12,6 +12,7 @@ import json
 from operator import itemgetter
 
 from lib.music import *
+from lib.music.MusicSummary import *
 
 from rest import models
 from lib.search.Sequence import Sequence
@@ -134,8 +135,11 @@ class IndexWrapper:
                 encodedMS = self.get_MS_from_doc(index_name, doc_id)
 
                 # Decode MusicSummary
-                msummary = MusicSummary()
+                msummary = MusicSummary.MusicSummary()
                 msummary.decode(encodedMS)
+
+                print("WORKS for", doc_id) #testing
+
 
                 pattern_sequence = search_context.get_pattern_sequence()
 

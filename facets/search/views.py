@@ -37,7 +37,7 @@ def results(request):
     indices = es.indices.get_alias().keys()
 
     if request.method == 'POST':
-        try:
+        #try:
             searchinput = {}
             searchinput["pattern"] = request.POST.get('pattern', False)
             if request.POST.get('mirror', False):
@@ -94,8 +94,8 @@ def results(request):
                 match_dict_display = {}
                 num_matching_patterns = 0
 
-        except Exception as ex:
-            print("Error occurred while searching on ES index:", str(ex))
+        #except Exception as ex:
+        #    print("Error occurred while searching on ES index:", str(ex))
 
     template = loader.get_template('search/results.html')
     context = {
