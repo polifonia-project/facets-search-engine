@@ -30,6 +30,7 @@ class MusicSummary:
         '''
            Decode a MusicSummary from its JSON representation 
         '''
+
         json_obj = json.loads(json_string)
 
         if "doc_id" in json_obj.keys():
@@ -160,6 +161,7 @@ class MusicSummary:
         #
         # We can do better by counting the number of occurrences wit the minimal distance
         #
+
         if len(distances) > 0:
             best_occurrence, distance = min(distances, key=itemgetter(1))
             # return: all occurrences, best occurrence, and distance

@@ -16,13 +16,17 @@ class SearchContext:
           - mirror search, could be enabled for chromatic, diatonic and rhythmic search. 
           
     """
-    def __init__(self) :        
+    def __init__(self) :
+        self.index = ""   
         self.search_type = settings.CHROMATIC_SEARCH
         self.pattern = ""
         self.text = ""
         # Mirror search enabled or not
         self.mirror_search = False
-        
+    
+    def where_to_search(self):
+        return self.index
+
     def is_text_search(self):
         return self.text != ""
         
@@ -43,6 +47,7 @@ class SearchContext:
     def read(self, search_input):
 
         # Read from the input and make a SearchContext out of it
+        self.index = search_input["index_name"]
         self.search_type = search_input["type"]
         if "pattern" in search_input:
             self.pattern = search_input["pattern"]

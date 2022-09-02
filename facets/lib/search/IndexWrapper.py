@@ -12,7 +12,7 @@ import json
 from operator import itemgetter
 
 from lib.music import *
-from lib.music.MusicSummary import *
+from lib.music.MusicSummary import MusicSummary
 
 from rest import models
 from lib.search.Sequence import Sequence
@@ -75,9 +75,11 @@ class IndexWrapper:
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
         search = search.query("match_phrase", _id=doc_id)
         doc_info = search.execute()
-        encodedMS = doc_info.hits.hits[0]['_source']['summary']
-
-        return encodedMS
+        if 'summary' in doc_info.hits.hits[0]['_source']:
+            encodedMS = doc_info.hits.hits[0]['_source']['summary']
+            return encodedMS
+        else:
+            return None
         
     def index_musicdoc(self, index_name, musicdoc, descr_dict, encodedMS):
         """ 
@@ -131,15 +133,20 @@ class IndexWrapper:
             all_occurrences = 0
 
             if search_context.is_pattern_search():
+                
+                #TO BE FIXED: I should index many corpus again by myself to update ES index...
+
                 # Get encoded MusicSummary of the current doc
                 encodedMS = self.get_MS_from_doc(index_name, doc_id)
 
+                # Make sure the MusicSummary of this doc is on ES index, otherwise there is no way to locate
+                if encodedMS == None:
+                    print("Can not find MusicSummary of this document on ES, please re-index:", doc_id)
+                    continue
+
                 # Decode MusicSummary
-                msummary = MusicSummary.MusicSummary()
+                msummary = MusicSummary()
                 msummary.decode(encodedMS)
-
-                print("WORKS for", doc_id) #testing
-
 
                 pattern_sequence = search_context.get_pattern_sequence()
 
@@ -161,6 +168,7 @@ class IndexWrapper:
                         "best_occurrence" here should be a pattern sequence.
                     """
                     all_occurrences, best_occurrence, distance = msummary.get_best_occurrence(pattern_sequence, search_context.search_type, mirror_setting)
+
                     num_occu = len(all_occurrences)
                     logger.info ("Found best occurrence : " + str(best_occurrence) + " with distance " + str(distance))
 
@@ -239,6 +247,7 @@ class IndexWrapper:
                                 for m_id in curr_matching_ids:
                                     matching_ids.append(m_id)
                 '''
+
             opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "num_occu": num_occu, "distance": distance, "best_occurrence": str(best_occurrence)})
 
         return opera
@@ -270,7 +279,7 @@ class IndexWrapper:
         Create the search object with ElasticSearch DSL
         """
         
-        search = Search(using=self.elastic_search)
+        search = Search(using=self.elastic_search, index=search_context.index)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
 
         # If there is text content to search in lyrics

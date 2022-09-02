@@ -151,6 +151,15 @@ def search(request, index_name):
         if searchcontext.search_type != "lyrics":
             print("mirror search: ", searchcontext.mirror_search,"\n\n")
 
+        # Check if index of index_name exists on ES.
+        #THIS NEEDS TO BE TESTED
+        indices = es.indices.get_alias()
+        if index_name not in indices:
+            return JSONResponse({"Message": "Can not execute the search, index does not exist " + index_name})
+        # The following checks the database, but not needed if checked in ES
+        #if Index.objects.filter(name=index_name).exists():
+        #    print("An index with the same name already exists in the database.")
+
         index_wrapper = IndexWrapper(index_name)
         """
           The following call includes:
@@ -160,10 +169,6 @@ def search(request, index_name):
           search in ES
         """
         # ES returns a "response" object with all the documents that matches query
-        
-        # Check if index of index_name exists. 
-        if Index.objects.filter(name=index_name).exists():
-            print("An index with the same name already exists in the database.")
 
         matching_docs = index_wrapper.search(searchcontext)
 

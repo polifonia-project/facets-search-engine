@@ -54,12 +54,12 @@ def results(request):
             searchinput["index_name"] = searchinput["index_name"].lower()
 
             if searchinput["pattern"]:
-                print(searchinput)
+                #print(searchinput)
                 searchcontext = SearchContext()
                 # json -> searchcontext
                 searchcontext.read(searchinput)
                 # print the content of SearchContext object
-                print("\n\nSearching in index: ", searchinput["index_name"])
+                print("\n\nSearching in index: ", searchcontext.index)
                 print("search type: ", searchcontext.search_type)
                 if searchcontext.pattern:
                     print("ABC encoded pattern: ", searchcontext.pattern)
