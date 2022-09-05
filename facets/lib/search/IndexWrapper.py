@@ -134,8 +134,6 @@ class IndexWrapper:
 
             if search_context.is_pattern_search():
                 
-                #TO BE FIXED: I should index many corpus again by myself to update ES index...
-
                 # Get encoded MusicSummary of the current doc
                 encodedMS = self.get_MS_from_doc(index_name, doc_id)
 

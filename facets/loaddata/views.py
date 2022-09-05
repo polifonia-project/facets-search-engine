@@ -33,17 +33,17 @@ def uploaddata(request, index_name, doc_id):
         # Load, process and index the music document
         try:
 
-            #uploadrequest["indexname"] = request.PUT.get('indexname')
-            #uploadrequest["filename"] = request.PUT.get('filename')
+            uploadrequest = {}
+            uploadrequest["indexname"] = request.PUT.get('indexname')
+            uploadrequest["fileformat"] = request.PUT.get('fileformat')
+            uploadrequest["filename"] = request.PUT.get('filename')
+            print(uploadrequest["filename"])
             
-            if request.content_type == "application/zip":
+            if  uploadrequest["fileformat"] == "zip":
                 """
                 Bulk process and index all music documents from a zip file.
                 in the case of loading a zip, "doc_id" from the curl command is just the name of zip file.
                 It would not be saved on ES as id, but the name of each file would be considered as id of it.
-
-                Example:
-                curl -X PUT -H "Content-type:application/zip" http://localhost:8000/index/index_name/testzip/ --data-binary @data/test_zip.zip
 
                 """
                 try:
@@ -57,14 +57,13 @@ def uploaddata(request, index_name, doc_id):
                 #TODO: then redirect to dashboard/upload page?
                 #return HttpResponseRedirect('dashboard/')
             else:
-
-                if request.content_type != "application/midi":
+                if uploadrequest["fileformat"] != "midi":
                     # Avoid using utf to decode midi, it causes error
                     body_unicode = request.body.decode('utf')
                 else:
                     return HTTPResponse("MIDI format is not supported yet, coming soon!")
                 
-                if request.content_type == "application/mei":
+                if uploadrequest["fileformat"] == "mei":
                     """
                     Example:
                     curl -X PUT -H "Content-type:application/mei" http://localhost:8000/index/index_name/lklk/ -d @data/friuli001.mei
@@ -73,7 +72,7 @@ def uploaddata(request, index_name, doc_id):
                     # Apply MEI -> Music21 converter
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "mei", doc_id)
                 
-                elif request.content_type == "application/xml":
+                elif uploadrequest["fileformat"] == "xml":
                     """
                     Example:
                     curl -X PUT -H "Content-type:application/xml"
@@ -81,7 +80,7 @@ def uploaddata(request, index_name, doc_id):
                     """
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "xml", doc_id)
                 
-                elif request.content_type == "application/musicxml" or request.content_type == "application/vnd.recordare.musicxml+xml":
+                elif uploadrequest["fileformat"]  == "musicxml":
                     """
                     Example 1:
                     curl -X PUT -H "Content-type:application/musicxml" 
@@ -101,7 +100,7 @@ def uploaddata(request, index_name, doc_id):
                     
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "mxl", doc_id)
                     """
-                elif request.content_type == "application/krn":
+                elif uploadrequest["fileformat"] == "krn":
                     """
                     Kern is not registered as a content type, thus use --data-binary!
                     Example:
@@ -109,7 +108,7 @@ def uploaddata(request, index_name, doc_id):
                     """
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "krn", doc_id)
 
-                elif request.content_type == "application/abc":
+                elif uploadrequest["fileformat"] == "abc":
                     """
                     Example:
                     curl -X PUT -H "Content-type:application/abc" http://localhost:8000/index/index_name/abctest/ --data-binary @data/test.abc

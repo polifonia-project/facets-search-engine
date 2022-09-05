@@ -383,50 +383,55 @@ def read_zip(index_name, byte_str):
 		valid_namelist = []
 		m21scores = {}
 		musicdocs = {}
-		"""
+
 		# May improve later: work with json metadata, cover pictures.
 		files = {}
-		found_corpus_data = False
+		found_metadata = False
 		found_cover = False
-		corpus_dict = {}
+		meta_dict = {}
 		cover_data = ""
-		"""
 
 		for fname in zfile.namelist():
 			# Skip files with weird names
 			base, extension = decompose_zip_name(fname)
+
 			# base is file name, will be used as doc_id, extension is the file format
-			if base == "" or base.startswith('_') or  base.startswith('.'):
+			if base == "" or base.startswith('_') or base.startswith('.'):
 				continue
 
 			# TODO: if there is a folder within zip, work with it
 
+			# Read json of the corpus data, COULD BE USED LATER
 			"""
-			# Look for the data file in json format
 			if extension == ".json":
-				# not in use now since we do not support json metadata yet
-				found_corpus_data = True 
-				corpus_dict = json.loads(zfile.open(fname).read().decode('utf-8'))
+				found_metadata = True 
+				meta_dict = json.loads(zfile.open(fname).read().decode('utf-8'))
 			elif base == "cover" and extension == ".jpg":
-				# not in use now since we do not support cover yet
 				found_cover = True 
 				cover_data = zfile.open(fname).read()
-			
 			"""
-			if (extension ==".json" or extension == ".mei" or extension == ".xml"
-				or extension == '.mxl' or extension=='.krn' or extension=='.abc' or extension == '.musicxml'):
+			if (extension == ".mei" or extension == ".xml"
+				or extension=='.krn' or extension=='.abc' or extension == '.musicxml'): #or extension == '.mxl' 
 				valid_namelist.append(fname)
 			else:
 				print ("Ignoring file %s.%s" % (base, extension))
-			
+
+
 		for valid_name in valid_namelist:
+
 			base, extension = decompose_zip_name(valid_name)
 			cur_file = zfile.read(valid_name)
 			cur_file = cur_file.decode('utf')
+
 			m21_score, musicdoc = load_score(index_name, cur_file, extension[1:], base)
-			print("Successfully loaded and saved the score:", valid_name)
-			m21scores[base] = m21_score
-			musicdocs[base] = musicdoc
+
+			if m21_score == "" and musicdoc == None:
+				# In case there are broken scores in zip, skip the score instead of raising error
+				print("Error when loading the current score:", extension[1:], base)
+			else:
+				print("Successfully loaded and saved the score:", valid_name)
+				m21scores[base] = m21_score
+				musicdocs[base] = musicdoc
 
 		return m21scores, musicdocs
 
@@ -438,25 +443,32 @@ def load_and_process_zip(index_name, byte_str):
 		Then extract features and get MusicSummary,
 		and finally index them in ES.
 		"""
+		m21scores = {}
+		musicdocs = {}
+
 		try:
 			m21scores, musicdocs = read_zip(index_name, byte_str)
 		except Exception as ex:
 			print ("Exception when trying to call read_zip()" + " Message:" + str(ex))
 
-		# Process the current score, produce descriptors from MusicSummary
-		for score_id in m21scores:
-			try:
-				# Get MusicSummary and extracted descriptors
-				descr_dict, encodedMS = process_score(musicdocs[score_id], m21scores[score_id], score_id)
+		if m21scores == {}:
+			# there is a problem: no score was successfully loaded.
+			return True
+		else:
+			# Process the current score, produce descriptors from MusicSummary
+			for score_id in m21scores:
+				try:
+					# Get MusicSummary and extracted descriptors
+					descr_dict, encodedMS = process_score(musicdocs[score_id], m21scores[score_id], score_id)
 
-				# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
-				index_wrapper = IndexWrapper(index_name) 
-				index_wrapper.index_musicdoc(index_name, musicdocs[score_id], descr_dict, encodedMS)
-				print("Successfully indexed the current document: ", score_id)
-			except:
-				print("Ignoring score", score_id, " since error occurred while processing")
-				continue
-		return
+					# Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
+					index_wrapper = IndexWrapper(index_name) 
+					index_wrapper.index_musicdoc(index_name, musicdocs[score_id], descr_dict, encodedMS)
+					print("Successfully indexed the current document: ", score_id)
+				except:
+					print("Ignoring score", score_id, ", error occurred while processing")
+					continue
+			return False
 
 def load_score(index_name, score, s_format, docid):
 		"""
@@ -464,26 +476,40 @@ def load_score(index_name, score, s_format, docid):
 		"""
 		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc" and s_format != "musicxml": #and s_format != "mid": #need to work on midi
 			print("Document format not supported for loading the current score.")
-			return
+			return "", None
 		
 		# The original score -> M21 score
 		if s_format == "mei":
 			conv = mei.MeiToM21Converter(score)
-			m21_score = conv.run()
+			try:
+				m21_score = conv.run()
+			except:
+				print("Error when loading the current score with music21: ", docid)
+				return "", None
+			
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 
 			return m21_score, musicdoc
 
 		elif s_format == "xml" or s_format == "krn" or s_format == "musicxml" or s_format == "mid":
-			m21_score = converter.parse(score)
+			try:
+				m21_score = converter.parse(score)
+			except:
+				print("Error when loading the current score with music21: ", docid)
+				return "", None
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 
 			return m21_score, musicdoc
 
 		elif s_format == "abc":
-			handler = abcFormat.ABCHandler()
-			handler.process(score)
-			m21_score = m21.abcFormat.translate.abcToStreamScore(handler)
+			try:
+				handler = abcFormat.ABCHandler()
+				handler.process(score)
+				m21_score = m21.abcFormat.translate.abcToStreamScore(handler)
+			except:
+				print("Error when loading the current score with music21: ", docid)
+				return "", None
+
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 			
 			return m21_score, musicdoc

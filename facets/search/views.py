@@ -147,7 +147,7 @@ def HighlightMusicDocView(request, index_name, doc_id):
 
         opus = Opus.objects.get(ref=opus_ref)
 
-        # Initialize context v    
+        # Initialize context
         context = super(OpusView, self).get_context_data(**kwargs)
 
         # Record the opus as the contextual one
@@ -181,7 +181,6 @@ def HighlightMusicDocView(request, index_name, doc_id):
                         if occurrences > 0:
                             for m_id in curr_matching_ids:
                                 matching_ids.append(m_id)
-            context["msummary"] = ""
             context["pattern"] = ""
             #Could be improved if necessary: context["occurrences"] in the same format as what it is for pattern search,
             #speicifying the voices and occurrences in each voices instead of a total number of occurrences
@@ -228,13 +227,6 @@ def HighlightMusicDocView(request, index_name, doc_id):
         else:
             # Default
             context['measure'] = 'pitches'
-        # We need all the measures eto choose
-        context['measures'] = SimMeasure.objects.all()
-        
-        measure = SimMeasure.objects.get(code=context['measure'])
-        
-        context['neighbors'] = []
-        context['neighbor_voices'] = list()
         
         """
         # Show detail on the sequence and matching

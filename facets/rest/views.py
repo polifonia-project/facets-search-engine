@@ -235,7 +235,7 @@ def document(request, index_name, doc_id):
     elif request.method == "PUT":
 
         # Load, process and index the music document
-        try:
+        #try:
             if request.content_type == "application/zip":
                 """
                 Bulk process and index all music documents from a zip file.
@@ -246,10 +246,12 @@ def document(request, index_name, doc_id):
                 curl -X PUT -H "Content-type:application/zip" http://localhost:8000/index/index_name/testzip/ --data-binary @data/test_zip.zip
 
                 """
-                try:
-                    ScoreProcessing.load_and_process_zip(index_name, request.body)
-                except Exception as ex:
-                    return JSONResponse({"Error while loading zip": str(ex)})
+                #try:
+                flag = ScoreProcessing.load_and_process_zip(index_name, request.body)
+                #except Exception as ex:
+                #    return JSONResponse({"Error while loading zip": str(ex)})
+                if flag == True:
+                    return JSONResponse({"message": "Error when loading zip: no valid document found."})
 
                 return JSONResponse({"message": "Successfully bulk indexed all documents in zip: " + doc_id})
 
@@ -268,6 +270,9 @@ def document(request, index_name, doc_id):
                     """
                     # Apply MEI -> Music21 converter
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "mei", doc_id)
+
+                    if m21_score == "" and musicdoc == None:
+                        return JSONResponse({"Error": "Error when reading MEI file: "+doc_id})
                 
                 elif request.content_type == "application/xml":
                     """
@@ -276,6 +281,8 @@ def document(request, index_name, doc_id):
                     http://localhost:8000/index/index_name/couperin/ -d @data/couperin.xml
                     """
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "xml", doc_id)
+                    if m21_score == "" and musicdoc == None:
+                        return JSONResponse({"Error": "Error when reading XML file: "+doc_id})
                 
                 elif request.content_type == "application/musicxml" or request.content_type == "application/vnd.recordare.musicxml+xml":
                     """
@@ -289,6 +296,8 @@ def document(request, index_name, doc_id):
 
                     """
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "musicxml", doc_id)
+                    if m21_score == "" and musicdoc == None:
+                        return JSONResponse({"Error": "Error when reading MusicXML file: "+doc_id})
 
                     """
                 elif request.content_type == "application/vnd.recordare.musicxml":
@@ -305,6 +314,8 @@ def document(request, index_name, doc_id):
                     curl -X PUT -H "Content-type:application/krn" http://localhost:8000/index/index_name/danmark/ --data-binary @data/danmark1.krn
                     """
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "krn", doc_id)
+                    if m21_score == "" and musicdoc == None:
+                        return JSONResponse({"Error": "Error when reading HUMDRUM file: "+doc_id})
 
                 elif request.content_type == "application/abc":
                     """
@@ -312,6 +323,9 @@ def document(request, index_name, doc_id):
                     curl -X PUT -H "Content-type:application/abc" http://localhost:8000/index/index_name/abctest/ --data-binary @data/test.abc
                     """
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
+                    if m21_score == "" and musicdoc == None:
+                        return JSONResponse({"Error": "Error when reading ABC file: "+doc_id})
+
                 elif request.content_type == "application/midi":
                     """
                     # To be fixed: why the intervals are 20D etc.?
@@ -320,6 +334,8 @@ def document(request, index_name, doc_id):
                     curl -X PUT -H "Content-type:application/midi" http://localhost:8000/index/index_name/miditest/ --data-binary @data/mazurka06-1.mid
                     """
                     m21_score, musicdoc  = ScoreProcessing.load_score(index_name, request.body, "mid", doc_id)
+                    if m21_score == "" and musicdoc == None:
+                        return JSONResponse({"Error": "Error when reading MIDI file: "+doc_id})
                 else:
                     # Otherwise, the format is not supported.
                     return JSONResponse({"Error": "Not supported content type: " + request.content_type})
@@ -332,7 +348,7 @@ def document(request, index_name, doc_id):
                 index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
                 
                 return JSONResponse({"message": "Successfully indexed document " + doc_id})
-        except Exception as ex:
-            return JSONResponse({"Error while loading music file": str(ex)})
+        #except Exception as ex:
+        #    return JSONResponse({"Error while loading music file": str(ex)})
 
     return Response(status=status.HTTP_400_BAD_REQUEST)
