@@ -60,13 +60,18 @@ def results(request):
                 searchcontext.read(searchinput)
                 # print the content of SearchContext object
                 print("\n\nSearching in index: ", searchcontext.index)
-                print("search type: ", searchcontext.search_type)
+                print("Search type: ", searchcontext.search_type)
                 if searchcontext.pattern:
                     print("ABC encoded pattern: ", searchcontext.pattern)
                 if searchcontext.text:
-                    print("text: ", searchcontext.text)
+                    print("Text: ", searchcontext.text)
+                if searchcontext.facet_composers != []:
+                    # MAKE SURE ALL THE NAMES ARE THE ORIGINAL INPUT IN CASE OF UPPER AND LOWER CASE
+                    print("Faceted: search for work composed by:")
+                    for composer in searchcontext.facet_composers:
+                        print(composer)
                 if searchcontext.search_type != "lyrics":
-                    print("mirror search: ", searchcontext.mirror_search,"\n\n")
+                    print("Mirror search: ", searchcontext.mirror_search,"\n\n")
 
                 index_wrapper = IndexWrapper(searchinput["index_name"])
                 # ES returns a "response" object with all the documents that matches query

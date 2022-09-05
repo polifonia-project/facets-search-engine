@@ -17,7 +17,8 @@ class SearchContext:
           
     """
     def __init__(self) :
-        self.index = ""   
+        self.index = ""
+        self.facet_composers = []
         self.search_type = settings.CHROMATIC_SEARCH
         self.pattern = ""
         self.text = ""
@@ -30,6 +31,9 @@ class SearchContext:
     def is_text_search(self):
         return self.text != ""
         
+    def facet_composer(self):
+        return self.facet_composers
+
     def is_pattern_search(self):
         return self.pattern != ""
 
@@ -58,6 +62,9 @@ class SearchContext:
                 self.mirror_search = True
             else:
                 self.mirror_search = False
+        if "composers" in search_input:
+            # This should be a list of composer names from the search input
+            self.facet_composers = search_input["composers"]
 
     def check_default_meter(self):
         # Check if the pattern contains definition of meter or unit note length

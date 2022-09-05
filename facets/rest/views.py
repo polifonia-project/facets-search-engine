@@ -150,6 +150,10 @@ def search(request, index_name):
             print("text: ", searchcontext.text)
         if searchcontext.search_type != "lyrics":
             print("mirror search: ", searchcontext.mirror_search,"\n\n")
+        if searchcontext.facet_composers != []:
+            print("Faceted: search for work composed by:")
+            for composer in searchcontext.facet_composers:
+                print(composer)
 
         # Check if index of index_name exists on ES.
         #THIS NEEDS TO BE TESTED
