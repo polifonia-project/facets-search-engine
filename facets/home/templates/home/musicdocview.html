@@ -1,19 +1,22 @@
-<div class="panel-body">
-    <div id="app" class="panel" style="border: 1px solid lightgray; min-height: 800px;"></div>
-</div>
 
-<script type="module">
-    import 'https://www.verovio.org/javascript/app/verovio-app.js';
+<div class="container">
+    <div class="row mb-8">
 
-    // Create the app - here with an empty option object
-    const app = new Verovio.App(document.getElementById("app"), {});
+        <div class="col-lg-2 mx-auto">
+        </div>
 
-    // Load a file (MEI or MusicXML)
-    fetch(doc_url)
-        .then(function(response) {
-            return response.text();
-        })
-        .then(function(text) {
-            app.loadData(text);
-        });
-</script> 
+        <div class="col-lg-8 mx-auto">
+            <h1 class="text-center">{{ globalvariables.sitename }} MusicDoc View</h1>
+
+            <div class="card text-center">
+                <div class="card-header">
+                    URL of the score is {{doc_url}}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-2 mx-auto">
+        </div>
+
+    </div> <!-- row -->
+</div> <!-- container -->

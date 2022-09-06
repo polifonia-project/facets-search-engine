@@ -75,11 +75,12 @@ def IndexView(request, index_name):
     return HttpResponse(template.render(context, request))
 
 def MusicDocView(request, index_name, doc_id):
-    #template = loader.get_template('home/musicdocview.html')
+    template = loader.get_template('home/musicdocview.html')
     # this "verovio_test.html" template is for testing only!!
-    template = loader.get_template('home/verovio_test.html')
+    #template = loader.get_template('home/verovio_test.html')
     try:
-        musicdoc = MusicDoc.objects.get(doc_id = doc_id)
+        musicdoc = MusicDoc.objects.get(doc_id=doc_id)
+        #MusicDoc.objects.filter(doc_id=docid)
     except Exception as ex:
         return HttpResponse("No music document found in database.")
     try:
