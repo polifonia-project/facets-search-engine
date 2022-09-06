@@ -28,17 +28,18 @@ def loaddataIndex(request):
 
 def uploaddata(request, index_name, doc_id):
 
-    if request.method == "PUT":
+    if request.method == "PUT" and request.FILES[filename]:
 
         # Load, process and index the music document
         try:
 
+            #TODO: make the loading of file work
             uploadrequest = {}
             uploadrequest["indexname"] = request.PUT.get('indexname')
             uploadrequest["fileformat"] = request.PUT.get('fileformat')
             uploadrequest["filename"] = request.PUT.get('filename')
-            print(uploadrequest["filename"])
-            
+            uploadedfile = request.FILES[filename]
+                        
             if  uploadrequest["fileformat"] == "zip":
                 """
                 Bulk process and index all music documents from a zip file.
@@ -47,7 +48,7 @@ def uploaddata(request, index_name, doc_id):
 
                 """
                 try:
-                    ScoreProcessing.load_and_process_zip(index_name, request.body)
+                    ScoreProcessing.load_and_process_zip(index_name, uploadedfile)
                 except Exception as ex:
                     return HTTPResponse({"Error while loading zip": str(ex)})
                 #TODO: template = ??
@@ -59,7 +60,7 @@ def uploaddata(request, index_name, doc_id):
             else:
                 if uploadrequest["fileformat"] != "midi":
                     # Avoid using utf to decode midi, it causes error
-                    body_unicode = request.body.decode('utf')
+                    body_unicode = uploadedfile.decode('utf')
                 else:
                     return HTTPResponse("MIDI format is not supported yet, coming soon!")
                 
