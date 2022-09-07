@@ -1,6 +1,12 @@
+
+{% include 'search/keyboard.html' %}
+
+{% block content %}
+
 <div class="bg-white p-3 rounded shadow">
   <!-- Custom rounded search bars with input group -->
   <form action="/search/results/" method="post">
+
 	{% csrf_token %}
     <div class="p-3 bg-light rounded rounded-pill shadow-sm">
         <div class="input-group px-4">
@@ -54,3 +60,5 @@
   <!-- End -->
 </div>
 
+
+{% endblock content %}

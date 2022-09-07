@@ -28,7 +28,7 @@ urlpatterns = [
    url(r'^auth', AuthView.as_view(template_name="home/index.html"), name='auth'),
    url(r'^form_login', TemplateView.as_view(template_name="home/form_login.html"), name='form_login'),
     url(r'^transcription', NeumaView.as_view(template_name="transcription/index.html"), name='transcription'),
-    url(r'^keyboard', TemplateView.as_view(template_name="home/keyboard.html"), name='keyboard'),
+
     # ex: /main/corpus/sequentia/
     url(r'^corpus/(?P<corpus_ref>.+)/_export_zip/$', views.export_corpus_as_zip , name='corpus_export_zip'),
     url(r'^corpus/(?P<corpus_ref>.+)/_upload_zip/$', views.upload_corpus_zip , name='upload_corpus_zip'),
