@@ -24,7 +24,10 @@ except:
 
 def index(request):
     indices = es.indices.get_alias().keys()
-    context = {"indices_names": indices}
+    #TODO: list composer names from ES
+    composer_names = ["test1", "test2"]
+
+    context = {"indices_names": indices, "composer_names": composer_names}
 
     template = loader.get_template('search/index.html')
     return HttpResponse(template.render(context, request))
@@ -44,6 +47,7 @@ def results(request):
                 searchinput["mirror"] = True
             else:
                 searchinput["mirror"] = False
+
             searchinput["type"] = request.POST.get('searchtype', False)
             # The search type names for ES should be all in lower case
             searchinput["type"] = searchinput["type"].lower()
@@ -52,6 +56,8 @@ def results(request):
             # TO-DO: Forcing index_name to be all lower case might cause error.
             # Find a better fix: do not put the first letter as captial letter when displaying/send through request
             searchinput["index_name"] = searchinput["index_name"].lower()
+
+            searchinput["composer"] = request.POST.get('composer', False)
 
             if searchinput["pattern"]:
                 #print(searchinput)

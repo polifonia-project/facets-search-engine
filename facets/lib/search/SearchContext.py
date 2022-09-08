@@ -62,9 +62,9 @@ class SearchContext:
                 self.mirror_search = True
             else:
                 self.mirror_search = False
-        if "composers" in search_input:
+        if "composer" in search_input:
             # This should be a list of composer names from the search input
-            self.facet_composers = search_input["composers"]
+            self.facet_composers = search_input["composer"]
 
     def check_default_meter(self):
         # Check if the pattern contains definition of meter or unit note length
