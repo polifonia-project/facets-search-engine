@@ -49,17 +49,6 @@
   <option value="lyrics">Lyrics</option>
 </select>
 
-<select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 10rem;">
-    {% if searchinput.composer %}
-    <option selected>{{ searchinput.composer | title }}</option>
-  {% else %}
-  <option selected>Composers</option>
-  {% for composer in composer_names %}
-<option value="{{ composer }}">{{ composer | title }}</option>
-  {% endfor %}
-  {% endif %}
-</select>
-
 
 	<div class="px-4 mx-2 form-group form-check">
 <input type="checkbox" class="form-check-input" name="mirror" id="MirrorSearch" {% if searchinput.mirror %}checked{% endif %} >

@@ -70,7 +70,7 @@ class IndexWrapper:
 
     def get_composer_names(self):
         '''
-        Get all composer names 
+        Get all composer names in all indexes
         '''
         composer_names = []
         search = Search(using=self.elastic_search)
