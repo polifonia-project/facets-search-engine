@@ -24,6 +24,7 @@ import re
 
 def get_metadata_from_score(doctype, score, m21_score):
 	
+	#TODO: clean the '\n's from composer names and title names
 	metainfo = {"title":"", "composer":""}
 	
 	if doctype == "xml":

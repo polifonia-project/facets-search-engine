@@ -68,6 +68,27 @@ class IndexWrapper:
         '''
         return self.index.get()
 
+    def get_composer_names(self):
+        '''
+        Get all composer names 
+        '''
+        composer_names = []
+        search = Search(using=self.elastic_search)
+        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+        search = search.query("match_all")
+        doc_info = search.execute()
+
+        for doc in doc_info.hits.hits:
+            if 'composer' in doc['_source']:
+                composer_names.append(doc['_source']['composer'])
+
+        # Remove duplicates and get the final list of composers
+        unvalid_name = [""]
+        composer_names = list(set(composer_names)-set(unvalid_name))
+
+        return composer_names
+
+
     def get_MS_from_doc(self, index_name, doc_id):
 
         # Get musicsummary of the given doc_id
@@ -290,6 +311,8 @@ class IndexWrapper:
             search = search.query(q_title | q_lyrics)
 
         # If there is a pattern to search
+
+        #TODO: search with facets
         if search_context.pattern != '':
             if search_context.search_type == settings.RHYTHMIC_SEARCH:
                 search = search.query("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())

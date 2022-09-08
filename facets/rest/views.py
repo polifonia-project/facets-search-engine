@@ -174,6 +174,13 @@ def search(request, index_name):
         """
         # ES returns a "response" object with all the documents that matches query
 
+        # Make sure the composer(s) specified exists in index:
+        if searchcontext.facet_composers != []:
+            composer_names = index_wrapper.get_composer_names()
+            for cur_composer in searchcontext.facet_composers:
+                if cur_composer not in composer_names:
+                    return JSONResponse({"Message": "Can not execute the search, composer does not exist " + cur_composer})
+
         matching_docs = index_wrapper.search(searchcontext)
 
         # Get a list of doc_id

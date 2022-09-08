@@ -24,9 +24,16 @@ except:
 
 def index(request):
     indices = es.indices.get_alias().keys()
-    #TODO: list composer names from ES
-    composer_names = ["test1", "test2"]
+    
+    # Composer names in all indexes
+    composer_names = []
 
+    if indices != {}:
+        # Any index will do
+        anyindex = next(iter(indices))
+        index_wrapper = IndexWrapper(anyindex)
+        composer_names = index_wrapper.get_composer_names()
+    
     context = {"indices_names": indices, "composer_names": composer_names}
 
     template = loader.get_template('search/index.html')
