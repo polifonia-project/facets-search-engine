@@ -14,7 +14,7 @@
 
       <div class="card text-center">
         <div class="card-header">
-          Index {{ index_name }} contains {{ info.docs_number }} docs.
+            Index <span style="color:#00bb00;">{{ index_name }}</span> contains {{ info.docs_number }} docs.
         </div>
 			<table class="table">
 				<thead>
@@ -29,15 +29,16 @@
 					{% for k, v in documents.items %}
 					<tr>
 						<th scope="row">{{ forloop.counter }}</th>
-						<td>{{ k }}</td>
-						<td>{{ v.title }}</td>
-						<td>{{ v.composer }}</td>
+                        <td><a href="{{ k }}">{{ k }}</a></td>
+						<td>{{ v.source.title }}</td>
+						{% comment %}<td>{{ v.composer }}</td>{% endcomment %}
 						<td ><a href="#" onclick="toggle_visibility('res{{ forloop.counter }}');">
 <button type="button" class="btn btn-primary" aria-label="abstract"> Toggle doc </button> </a>
 </td>
 					</tr>
 					<tr>
-						<td colspan="4"><div id="res{{ forloop.counter }}" style="display:none;">{{ v }}</div></td>
+						<td colspan="4"><div id="res{{ forloop.counter }}"
+                                style="display:none;">{{ v.source }}</div></td>
 					</tr>
 					{% endfor %}
 				</tbody>

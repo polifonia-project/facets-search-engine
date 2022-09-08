@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.template import loader
 from django.conf import settings
+from pprint import pprint
 
 from django.http import HttpResponse
 
@@ -63,7 +64,9 @@ def IndexView(request, index_name):
                             size = 30)
             # print("----- Got %d Hits:" % res['hits']['total']['value'])
             for hit in res['hits']['hits']:
-                doc_results[hit["_id"]] = hit["_source"]
+                doc_results[hit["_id"]] = {}
+                doc_results[hit["_id"]]["source"] = hit["_source"]
+                # doc_results[hit["_id"]]["path"] = hit["_source"]
                 # make a check here for the keys to display
                 # print("%(corpus_ref)s %(ref)s: %(composer)s - %(title)s" % hit["_source"])
                 # print(hit["_source"])
@@ -77,13 +80,16 @@ def IndexView(request, index_name):
 def MusicDocView(request, index_name, doc_id):
     template = loader.get_template('home/musicdocview.html')
     # this "verovio_test.html" template is for testing only!!
-    #template = loader.get_template('home/verovio_test.html')
+    # template = loader.get_template('home/verovio_test.html')
     try:
         musicdoc = MusicDoc.objects.get(doc_id=doc_id)
         #MusicDoc.objects.filter(doc_id=docid)
     except Exception as ex:
         return HttpResponse("No music document found in database.")
     try:
+        print("------\n")
+        pprint(vars(musicdoc.meifile))
+        print("------\n")
         if musicdoc.doc_type == 'krn':
             doc_url = musicdoc.krnfile.path
             # Use verovio-humdrum kit
