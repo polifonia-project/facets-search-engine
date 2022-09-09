@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -8,8 +10,9 @@ urlpatterns = [
     path('dashboard/', views.OverviewDataView, name='OverviewDataView'),
     path('docs/', views.docs, name='docs'),
     path('dashboard/<str:index_name>/', views.IndexView, name='IndexView'),
-    path('dashboard/<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView')
-]
+    path('dashboard/<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView'),
+    path('media/<str:index_name>/<str:doc_id>/', views.fetch_musicdoc, name='FetchMusicDoc')
+]#+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 
 
 """

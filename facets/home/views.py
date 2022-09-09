@@ -34,6 +34,38 @@ def docs(request):
 # def LoadDataView(request):
     # return HttpResponse("Load a single music score or zip, with instruction displayed")
 
+def fetch_musicdoc(request, index_name, doc_id):
+
+    #template = loader.get_template('home/fetchmusicdoc.html')
+    try:
+        musicdoc = MusicDoc.objects.get(doc_id=doc_id)
+    except Exception as ex:
+        return HttpResponse("No music document found in database.")
+    try:
+        if musicdoc.doc_type == 'krn':
+            doc = musicdoc.krnfile #.path is the absolute path, not url
+            # Use verovio-humdrum kit
+        elif musicdoc.doc_type == 'musicxml':
+            doc = musicdoc.musicxmlfile
+        elif musicdoc.doc_type == 'mei':
+            doc = musicdoc.meifile
+        elif musicdoc.doc_type == 'xml':
+            # does verovio support xml? 
+            doc = musicdoc.xmlfile
+        elif musicdoc.doc_type == 'abc':
+            # does verovio support abc? 
+            doc = musicdoc.abcfile
+    except Exception as ex:
+        return HttpResponse("Error while fetching file from database: "+ str(ex))
+
+    if doc.url == None:
+        return HttpResponse("No path found for document display.")
+
+    return HttpResponse(doc)
+
+    #context = {"doc_id": doc_id, "doc_url": doc.url}
+    #return HttpResponse(template.render(context, request))
+
 # dashboard
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')
@@ -81,6 +113,7 @@ def MusicDocView(request, index_name, doc_id):
     template = loader.get_template('home/musicdocview.html')
     # this "verovio_test.html" template is for testing only!!
     # template = loader.get_template('home/verovio_test.html')
+
     try:
         musicdoc = MusicDoc.objects.get(doc_id=doc_id)
         #MusicDoc.objects.filter(doc_id=docid)
@@ -91,23 +124,23 @@ def MusicDocView(request, index_name, doc_id):
         pprint(vars(musicdoc.meifile))
         print("------\n")
         if musicdoc.doc_type == 'krn':
-            doc_url = musicdoc.krnfile.path
+            doc_url = musicdoc.krnfile.url #.path is the absolute path, not url
             # Use verovio-humdrum kit
         elif musicdoc.doc_type == 'musicxml':
-            doc_url = musicdoc.musicxmlfile.path
+            doc_url = musicdoc.musicxmlfile.url
         elif musicdoc.doc_type == 'mei':
-            doc_url = musicdoc.meifile.path
+            doc_url = musicdoc.meifile.url
         elif musicdoc.doc_type == 'xml':
             # does verovio support xml? 
-            doc_url = musicdoc.xmlfile.path
+            doc_url = musicdoc.xmlfile.url
         elif musicdoc.doc_type == 'abc':
             # does verovio support abc? 
-            doc_url = musicdoc.abcfile.path
+            doc_url = musicdoc.abcfile.url
     except Exception as ex:
         return HttpResponse("Error while retrieving file from database to display: "+ str(ex))
 
     if doc_url == None:
         return HttpResponse("No path found for document display.")
+
     context = {"index_name": index_name, "doc_id": doc_id, "doc_url": doc_url}
     return HttpResponse(template.render(context, request))
-

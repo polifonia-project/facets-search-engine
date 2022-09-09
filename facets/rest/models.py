@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from django.core.files import File
 
+from django.urls import reverse
+
 from .utils import OverwriteStorage
 
 class Index(models.Model):
@@ -26,6 +28,29 @@ class MusicDoc(models.Model):
 	def upload_path(self, filename):
 		# File will be uploaded to MEDIA_ROOT/<doc_id>/<filename>
 		return '%s/%s' % (self.doc_id, filename)
+	
+	"""
+	def load_score(self):
+		score = Score()
+ 		if self.doc_type == 'krn':
+            doc = self.krnfile
+            # To add: loading module in Score.py
+        elif self.doc_type == 'musicxml':
+            doc = self.musicxmlfile
+            # To add: loading module in Score.py
+        elif self.doc_type == 'mei':
+			score.load_from_xml(self.meifile.path, "mei")
+			return score
+        elif self.doc_type == 'xml':
+			score.load_from_xml(self.musicxmlfile.path, "musicxml")
+			return score
+        elif self.doc_type == 'abc':
+        	doc = self.abcfile
+        	# To add: loading module in Score.py
+		else:
+			raise LookupError ("MusicDoc " + self.doc_id + " doesn't have any file attached")
+    """
+
 
 	musicxmlfile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
 	xmlfile = models.FileField(upload_to=upload_path, null=True, blank=True, storage=OverwriteStorage())
