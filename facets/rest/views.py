@@ -84,8 +84,9 @@ def index(request, index_name):
               curl -X GET  http://localhost:8000/index/index_name/
         '''
 
-        indices = es.indices.get_alias()
-        if index_name in indices:
+        es = establish_es_connection()
+        esindices = es.indices.get_alias()
+        if index_name in esindices:
             index_wrapper = IndexWrapper(index_name)
             # Read the info on ES index "index_name"
             info = index_wrapper.get_index_info()
@@ -102,15 +103,23 @@ def index(request, index_name):
         '''
         es = establish_es_connection()
         indices = es.indices.get_alias()
+
         if index_name in indices:
-            print("Index name exists in the database.")
+            return JSONResponse({"Message": "Index already exists in ES:" + index_name})
         else:
+            # Create index on ES
+            index_wrapper = IndexWrapper(index_name)
+
+            # If it does not exist on ES but exists in database, it should be erased from database first
+            if Index.objects.filter(name=index_name).exists():
+                Index.objects.filter(name=index_name).delete()
+
+            # Save in the database
             index = Index()
             index.name = index_name
-            index_wrapper = IndexWrapper(index_name)
             index.save()
 
-        return JSONResponse({"Message": "Created index " + index_name})
+            return JSONResponse({"Message": "Created index " + index_name})
     
     # Should not happen
     return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -125,6 +134,8 @@ def search(request, index_name):
         curl -X POST http://localhost:8000/index/index_name/_search -d @queries/...
     '''
     if request.method == "POST":
+
+
         """
         Request body should be a SearchContext object,
         which has info including: 
@@ -132,13 +143,18 @@ def search(request, index_name):
         search text(optional when pattern search, mandatory when lyrics search), 
         and mirror search(optional).
         """
-
-        body_unicode = request.body.decode('utf-8')
-        body = json.loads(body_unicode)
+        try:
+            body_unicode = request.body.decode('utf-8')
+            body = json.loads(body_unicode)
+        except Exception as ex:
+            return JSONResponse({"Error when loading json, check if it exists": str(ex)})
         
         searchcontext = SearchContext()
         # json -> searchcontext
-        searchcontext.read(body)
+        try:
+            searchcontext.read(body)
+        except Exception as ex:
+            return JSONResponse({"Error when reading json, check if search type and index name are specified": str(ex)})
         
         """
         Print the content of SearchContext object
@@ -150,6 +166,7 @@ def search(request, index_name):
             print("text: ", searchcontext.text)
         if searchcontext.search_type != "lyrics":
             print("mirror search: ", searchcontext.mirror_search,"\n\n")
+        # If use curl to send search request, facet related filters should be specified in json
         if searchcontext.facet_composers != []:
             print("Faceted: search for work composed by:")
             for composer in searchcontext.facet_composers:
@@ -157,6 +174,7 @@ def search(request, index_name):
 
         # Check if index of index_name exists on ES.
         #THIS NEEDS TO BE TESTED
+        es = establish_es_connection()
         indices = es.indices.get_alias()
         if index_name not in indices:
             return JSONResponse({"Message": "Can not execute the search, index does not exist " + index_name})
@@ -218,9 +236,10 @@ def document(request, index_name, doc_id):
                 curl -X GET  http://localhost:8000/index/lklk/
         '''
         try:
-            es = Elasticsearch(hosts=[{'host': settings.ELASTIC_SEARCH["host"], 'port': settings.ELASTIC_SEARCH["port"]}],)
+            #es = Elasticsearch(hosts=[{'host': settings.ELASTIC_SEARCH["host"], 'port': settings.ELASTIC_SEARCH["port"]}],)
+            es = establish_es_connection()
         except:
-            print("Error connecting to Elasticsearch, please check your connection.")
+            return JSONResponse({"Error connecting to Elasticsearch, please check your connection."})
         
         indices = es.indices.get_alias()
         
@@ -240,9 +259,21 @@ def document(request, index_name, doc_id):
         return JSONResponse({"Message": "Read MusicSummary of " + doc_id + ":" + MS})
 
     elif request.method == "PUT":
+        try:
+                es = establish_es_connection()
+                #es = Elasticsearch(hosts=[{'host': settings.ELASTIC_SEARCH["host"], 'port': settings.ELASTIC_SEARCH["port"]}],)
+        except:
+                return JSONResponse({"Error connecting to Elasticsearch, please check your connection."})
+        
+        indices = es.indices.get_alias()
+        
+        # First check if the index exists on ES
+        if index_name not in indices:
+                return JSONResponse({"Message": "The index does not exist, please create a new index or change the name to an existing one."})
+
 
         # Load, process and index the music document
-        #try:
+        try:
             if request.content_type == "application/zip":
                 """
                 Bulk process and index all music documents from a zip file.
@@ -335,14 +366,16 @@ def document(request, index_name, doc_id):
 
                 elif request.content_type == "application/midi":
                     """
-                    # To be fixed: why the intervals are 20D etc.?
-                
+    
                     Example:
                     curl -X PUT -H "Content-type:application/midi" http://localhost:8000/index/index_name/miditest/ --data-binary @data/mazurka06-1.mid
                     """
-                    m21_score, musicdoc  = ScoreProcessing.load_score(index_name, request.body, "mid", doc_id)
-                    if m21_score == "" and musicdoc == None:
-                        return JSONResponse({"Error": "Error when reading MIDI file: "+doc_id})
+                    return JSONResponse({"Message": "MIDI format is not supported yet"})
+
+                    # To be fixed: why the intervals are 20D etc.?
+                    #m21_score, musicdoc  = ScoreProcessing.load_score(index_name, request.body, "mid", doc_id)
+                    #if m21_score == "" and musicdoc == None:
+                    #    return JSONResponse({"Error": "Error when reading MIDI file: "+doc_id})
                 else:
                     # Otherwise, the format is not supported.
                     return JSONResponse({"Error": "Not supported content type: " + request.content_type})
@@ -355,7 +388,7 @@ def document(request, index_name, doc_id):
                 index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
                 
                 return JSONResponse({"message": "Successfully indexed document " + doc_id})
-        #except Exception as ex:
-        #    return JSONResponse({"Error while loading music file": str(ex)})
+        except Exception as ex:
+            return JSONResponse({"Error while loading music file": str(ex)})
 
     return Response(status=status.HTTP_400_BAD_REQUEST)
