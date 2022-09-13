@@ -1,0 +1,23 @@
+
+<div class="container">
+
+        <div class="col-lg-2 mx-auto">
+        </div>
+
+        <h5>Facets</h5>
+    
+
+<select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 10rem;">
+    {% if matching_composers %}
+    <option selected>{{ matching_composers | title }}</option>
+  {% else %}
+  <option selected>Composers</option>
+  {% for composer in matching_composers %}
+<option value="{{ composer }}">{{ composer | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
+
+</div>
+

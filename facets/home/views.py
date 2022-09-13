@@ -108,6 +108,7 @@ def IndexView(request, index_name):
             doc_results = {}
             # print(es.indices.stats(index_name).get('_all').get('primaries').get('docs'))
             # here we need to run a query to retrieve some ids
+            # important: size 30 should be changed here when pagination is done
             res = es.search(index=index_name, body={"query": {"match_all": {}}},
                             size = 30)
             # print("----- Got %d Hits:" % res['hits']['total']['value'])

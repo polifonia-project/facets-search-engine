@@ -83,8 +83,8 @@ class IndexWrapper:
                 composer_names.append(doc['_source']['composer'])
 
         # Remove duplicates and get the final list of composers
-        unvalid_name = [""]
-        composer_names = list(set(composer_names)-set(unvalid_name))
+        invalid_name = [""] # could be more than "" here
+        composer_names = list(set(composer_names)-set(invalid_name))
 
         return composer_names
 

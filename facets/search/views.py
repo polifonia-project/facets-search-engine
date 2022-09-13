@@ -79,7 +79,7 @@ def results(request):
                     print("ABC encoded pattern: ", searchcontext.pattern)
                 if searchcontext.text:
                     print("Text: ", searchcontext.text)
-                if searchcontext.facet_composers != []:
+                if searchcontext.facet_composers != [] and searchinput["composer"] != False:
                     # MAKE SURE ALL THE NAMES ARE THE ORIGINAL INPUT IN CASE OF UPPER AND LOWER CASE
                     print("Faceted: search for work composed by:")
                     for composer in searchcontext.facet_composers:
@@ -91,11 +91,28 @@ def results(request):
                 # ES returns a "response" object with all the documents that matches query
                 matching_docs = index_wrapper.search(searchcontext)
 
-                # Get a list of doc_id
                 matching_doc_ids = []
+                matching_composers = []
+
+                # Get a list of doc_id and composer names
                 for hit in matching_docs.hits.hits:
+                    if 'composer' in hit['_source']:
+                        matching_composers.append(hit['_source']['composer'])
                     matching_doc_ids.append(hit['_id'])
+
+
+                """
+                # if there is a list of selected composers, filter the matching docs:
+                if searchinput["composer"] != [] and searchinput["composer"] != False:
+                    for hit in matching_docs.hits.hits:
+                        if 'composer' in hit['_source']:
+                            if hit['_source']['composer'] in searchinput["composer"]:
+                                matching_doc_ids.append(hit['_id'])
+                                matching_composers.append()
+                """
+                
                 print("Matching documents are:", matching_doc_ids)
+                print("Matching composers are:", matching_composers)
 
                 # Get matching ids(positions) of patterns in MusicSummary for highlighting
                 matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
@@ -125,6 +142,7 @@ def results(request):
         "num_matching_docs": len(matching_doc_ids),
         "num_matching_patterns": num_matching_patterns,
         "matching_doc_ids": matching_doc_ids,
+        "matching_composers": matching_composers,
         "matching_locations": matching_locations
     }
     return HttpResponse(template.render(context, request))
@@ -150,6 +168,7 @@ def HighlightMusicDocView(request, index_name, doc_id):
         "highlight_ids": highlight_ids}
 
     return HttpResponse(template.render(context, request))
+
 
 
 # The following are from Neuma for MusicDocView
