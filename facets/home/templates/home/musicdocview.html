@@ -18,7 +18,14 @@
 
             <div class="card text-center">
                 <div class="card-header">
-                    URL of the score is {{doc_url}}
+                    URL of the score is <a href="{{ doc_url }}">URL</a>
+                    <ul>
+                        <li>docid: {{ doc_id }} </li>
+                        <li>docurl: {{ doc_url }} </li>
+                        <li>doctype: {{ doc_type }} </li>
+                        <li>media url: {{ MEDIA_URL }} </li>
+                        <li> </li>
+                    </ul>
                 </div>
                 {% if doc_url %}
                 coucou
@@ -27,9 +34,9 @@
     console.log ("obtenons {{doc_url}}");
     document.addEventListener('DOMContentLoaded', (event) => {
         $.ajax({
-            url: "{{doc_url}}"
-            , dataType: "text"
-            , success: function(data) {
+            url: "{{doc_url}}", 
+            dataType: "text", 
+            success: function(data) {
                 let svg = vrvToolkit.renderData(data);
                 document.getElementById("notation").innerHTML = svg;
             },
