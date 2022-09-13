@@ -4,6 +4,10 @@ from django.conf import settings
 from pprint import pprint
 
 from django.http import HttpResponse
+from rest_framework import renderers
+#from rest_framework.renderers import JSONRenderer
+#from rest_framework.parsers import JSONParser
+import json
 
 from elasticsearch import Elasticsearch
 
@@ -20,7 +24,16 @@ try:
     ])
 except:
     print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
+"""
+class JSONResponse(HttpResponse):
 
+    #An HttpResponse that renders its content into JSON.
+    
+    def __init__(self, data, **kwargs):
+        content = JSONRenderer().render(data)
+        kwargs["content_type"] = "application/json"
+        super(JSONResponse, self).__init__(content, **kwargs)
+"""
 def index(request):
     template = loader.get_template('home/index.html')
     context = {}
@@ -62,6 +75,9 @@ def fetch_musicdoc(request, index_name, doc_id):
         return HttpResponse("No path found for document display.")
 
     return HttpResponse(doc)
+
+    #return doc
+    #return json.dumps(doc)
 
     #context = {"doc_id": doc_id, "doc_url": doc.url}
     #return HttpResponse(template.render(context, request))
@@ -124,23 +140,31 @@ def MusicDocView(request, index_name, doc_id):
         pprint(vars(musicdoc.meifile))
         print("------\n")
         if musicdoc.doc_type == 'krn':
-            doc_url = musicdoc.krnfile.url #.path is the absolute path, not url
+            doc_path = musicdoc.krnfile.path #.path is the absolute path, not url
             # Use verovio-humdrum kit
         elif musicdoc.doc_type == 'musicxml':
-            doc_url = musicdoc.musicxmlfile.url
+            doc_path = musicdoc.musicxmlfile.path
         elif musicdoc.doc_type == 'mei':
-            doc_url = musicdoc.meifile.url
+            doc_path = musicdoc.meifile.path
         elif musicdoc.doc_type == 'xml':
             # does verovio support xml? 
-            doc_url = musicdoc.xmlfile.url
+            doc_path = musicdoc.xmlfile.path
         elif musicdoc.doc_type == 'abc':
             # does verovio support abc? 
-            doc_url = musicdoc.abcfile.url
+            doc_path = musicdoc.abcfile.path
+        if doc_path == None:
+            return HttpResponse("No path found for fetching document.")
+
     except Exception as ex:
         return HttpResponse("Error while retrieving file from database to display: "+ str(ex))
 
-    if doc_url == None:
-        return HttpResponse("No path found for document display.")
+    #test:
+    #res = fetch_musicdoc(request, index_name, doc_id)
+    #print(res)
+    #print("res: ", dir(res))
+    
+    hostname = request.get_host()
+    doc_url = hostname+ "/home/media/"+index_name+"/"+doc_id
 
     context = {"index_name": index_name, "doc_id": doc_id, "doc_url": doc_url}
     return HttpResponse(template.render(context, request))
