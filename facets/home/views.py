@@ -137,9 +137,9 @@ def MusicDocView(request, index_name, doc_id):
     except Exception as ex:
         return HttpResponse("No music document found in database.")
     try:
-        print("------\n")
-        pprint(vars(musicdoc.meifile))
-        print("------\n")
+        # print("------\n")
+        # pprint(vars(musicdoc.meifile))
+        # print("------\n")
         if musicdoc.doc_type == 'krn':
             doc_path = musicdoc.krnfile.path #.path is the absolute path, not url
             # Use verovio-humdrum kit
@@ -159,13 +159,12 @@ def MusicDocView(request, index_name, doc_id):
     except Exception as ex:
         return HttpResponse("Error while retrieving file from database to display: "+ str(ex))
 
-    #test:
-    #res = fetch_musicdoc(request, index_name, doc_id)
-    #print(res)
-    #print("res: ", dir(res))
-    
     hostname = request.get_host()
-    doc_url = hostname+ "/home/media/"+index_name+"/"+doc_id
+    doc_url = "http://"+hostname+ "/home/media/"+index_name+"/"+doc_id+"/"
 
-    context = {"index_name": index_name, "doc_id": doc_id, "doc_url": doc_url}
+    context = {
+        "index_name": index_name,
+        "doc_type": musicdoc.doc_type,
+        "doc_id": doc_id,
+        "doc_url": doc_url}
     return HttpResponse(template.render(context, request))

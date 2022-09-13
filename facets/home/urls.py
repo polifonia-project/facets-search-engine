@@ -12,7 +12,7 @@ urlpatterns = [
     path('dashboard/<str:index_name>/', views.IndexView, name='IndexView'),
     path('dashboard/<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView'),
     path('media/<str:index_name>/<str:doc_id>/', views.fetch_musicdoc, name='FetchMusicDoc')
-]#+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 
 
 """
