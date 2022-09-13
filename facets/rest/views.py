@@ -135,7 +135,6 @@ def search(request, index_name):
     '''
     if request.method == "POST":
 
-
         """
         Request body should be a SearchContext object,
         which has info including: 
@@ -172,8 +171,15 @@ def search(request, index_name):
             for composer in searchcontext.facet_composers:
                 print(composer)
 
+        if not searchcontext.check_pattern_length():
+            searchcontext.pattern = ""
+            if searchcontext.keywords != "":
+                print("Pattern not valid, we are in keyword search mode.")
+            else:
+                return JSONResponse({"Message": "Can not execute the search, please re-enter a valid pattern: it must contain at least three intervals"})
+
         # Check if index of index_name exists on ES.
-        #THIS NEEDS TO BE TESTED
+        
         es = establish_es_connection()
         indices = es.indices.get_alias()
         if index_name not in indices:

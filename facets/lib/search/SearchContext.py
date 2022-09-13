@@ -21,6 +21,7 @@ class SearchContext:
         self.facet_composers = []
         self.search_type = settings.CHROMATIC_SEARCH
         self.pattern = ""
+        self.pianopattern = ""
         self.text = ""
         # Mirror search enabled or not
         self.mirror_search = False
@@ -35,7 +36,7 @@ class SearchContext:
         return self.facet_composers
 
     def is_pattern_search(self):
-        return self.pattern != ""
+        return self.pattern != "" or self.pianopattern != ""
 
     def is_mirror_search(self):
         return self.mirror_search
@@ -46,15 +47,21 @@ class SearchContext:
          """
         #TO-DO: add the code to validate if pattern is valid, 
         #using check_pattern_length
-        return self.text != "" or self.pattern != ""
+        return self.text != "" or self.pattern != "" or self.pianopattern != ""
 
     def read(self, search_input):
 
         # Read from the input and make a SearchContext out of it
         self.index = search_input["index_name"]
         self.search_type = search_input["type"]
+        if "pianopattern" in search_input:
+            self.pianopattern = search_input["pianopattern"]
+            # decode, get a sequence of items
+            #self.decode_piano_pattern()
         if "pattern" in search_input:
-            self.pattern = search_input["pattern"]
+            # Only if there is no input from piano. Otherwise we discard ABC pattern to avoid confusion
+            if not self.pianopattern:
+                self.pattern = search_input["pattern"]
         if "text" in search_input:
             self.text = search_input["text"]
         if "mirror" in search_input:
@@ -67,6 +74,7 @@ class SearchContext:
             self.facet_composers = search_input["composer"]
 
     def check_default_meter(self):
+        # For ABC pattern:
         # Check if the pattern contains definition of meter or unit note length
         # If not, add 1/4 as unit note length
         
@@ -87,6 +95,13 @@ class SearchContext:
             #abcStr = "M:4/4\n" + abcStr
 
         return abcStr
+
+    def decode_piano_pattern(self):
+        # Call Sequence.py to decode piano pattern to normal pattern
+        pattern_seq = Sequence()
+        if self.pianopattern:
+            item_list = pattern_seq.set_from_pianopattern(self.pianopattern)
+        return item_list
 
     def decode_pattern_context(self):
         # This function process abc format patterns -> a m21 stream -> a list of Items.
@@ -111,8 +126,9 @@ class SearchContext:
     def get_pattern_sequence(self):
         ''' Given the pattern content, output a Sequence obj representing the pattern'''
         pattern_seq = Sequence()
-        if self.pattern:
-            pattern_seq = Sequence()
+        if self.pianopattern:
+            pattern_seq.set_from_pianopattern(self.pianopattern)
+        elif self.pattern:
             list_of_items = self.decode_pattern_context()
             for item in list_of_items:
                 pattern_seq.add_item(item)
@@ -123,7 +139,7 @@ class SearchContext:
         '''
           Check if length of pattern is larger than ngram size
         '''
-        if self.pattern != "":
+        if self.pattern != "" or self.pianopattern != "":
             pattern_seq = self.get_pattern_sequence()
             pattern_len = len(pattern_seq.items)
             if pattern_len <= settings.NGRAM_SIZE:
@@ -137,7 +153,7 @@ class SearchContext:
           Transform the melodic pattern to an ngram representation
         '''
         
-        if self.pattern != "":
+        if self.pattern != "" or self.pianopattern != "":
             pattern_seq = self.get_pattern_sequence()
             # Check that the number of intervals is at least an ngram size
             intervals = pattern_seq.get_intervals(settings.CHROMATIC_DESCR)
@@ -153,7 +169,7 @@ class SearchContext:
             Transform diatonic intervals to n-gram representation
         '''
 
-        if self.pattern != "":
+        if self.pattern != "" or self.pianopattern != "":
             pattern_seq = self.get_pattern_sequence()
             # Check that the number of intervals is at least an ngram size
             diatonic_inter = pattern_seq.get_intervals(settings.DIATONIC_DESCR)
@@ -168,7 +184,7 @@ class SearchContext:
         '''
          Transform the rhythmic pattern to an ngram representation
          '''
-        if self.pattern != "":
+        if self.pattern != "" or self.pianopattern != "":
             pattern_seq = self.get_pattern_sequence()
             # Check that the number of intervals is at least an ngram size
             rhythms = pattern_seq.get_rhythms()
@@ -183,7 +199,7 @@ class SearchContext:
         '''
            Obtain the sequence of notes from the pattern
           '''
-        if self.pattern != "":
+        if self.pattern != "" or self.pianopattern != "":
             pattern_seq = self.get_pattern_sequence()
             return pattern_seq.get_note_encoding()
         else:

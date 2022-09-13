@@ -4,6 +4,7 @@
  * @author Xavier Guerineau (Armadillo) 2009
  * @version 0.1
  */
+import * from "soundmanager.js";
 
 var Piano = window.Piano =
 {

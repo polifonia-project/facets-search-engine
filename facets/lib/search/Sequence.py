@@ -41,6 +41,36 @@ class Sequence:
     def get_items_from_sequence(self):
         return self.items
 
+    def set_from_pianopattern(self, str_pattern):
+        """
+        Take a string representing the pattern, as supplied by the piano: A4-8;G5-4, etc.
+        Create the sequence from this encoding
+        """
+        if str_pattern == "":
+            return ""
+        
+        # Split the pattern string to identify each note
+        split_pattern = str_pattern.split(";")
+        
+        # Split each note to get the melody and rhythm
+        for note in split_pattern:
+            decomp_note = note.split("-")
+            item = Item()
+            # Now, decompose each note
+            item.step = decomp_note[0][0]
+            if decomp_note[0][1].isdigit():
+                item.octave = int(decomp_note[0][1])
+                item.alteration = 0
+            else:
+                if decomp_note[0][1] == 'b':
+                    item.alteration = -1
+                else:
+                    item.alteration = 1
+                item.octave = int(decomp_note[0][2])
+            item.duration = float(4/float(decomp_note[1][0]))
+            self.add_item(item)
+        return self.items
+
     """
         The functions below are for extracting list of different types of intervals.
 

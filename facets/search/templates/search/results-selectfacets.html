@@ -1,15 +1,12 @@
 
-<div class="container">
+<div class="bg-white p-3 rounded shadow">
 
-        <div class="col-lg-2 mx-auto">
-        </div>
-
+  <form action="/search/results/" method="post">
         <h5>Facets</h5>
     
-
 <select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 10rem;">
-    {% if matching_composers %}
-    <option selected>{{ matching_composers | title }}</option>
+    {% if searchinput.composer %}
+    <option selected>{{ searchinput.composer | title }}</option>
   {% else %}
   <option selected>Composers</option>
   {% for composer in matching_composers %}
@@ -17,7 +14,11 @@
   {% endfor %}
   {% endif %}
 </select>
+        <div class="input-group-append">
+          <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
+        </div>
+</div>
+
 
 
 </div>
-

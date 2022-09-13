@@ -24,16 +24,7 @@ try:
     ])
 except:
     print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
-"""
-class JSONResponse(HttpResponse):
 
-    #An HttpResponse that renders its content into JSON.
-    
-    def __init__(self, data, **kwargs):
-        content = JSONRenderer().render(data)
-        kwargs["content_type"] = "application/json"
-        super(JSONResponse, self).__init__(content, **kwargs)
-"""
 def index(request):
     template = loader.get_template('home/index.html')
     context = {}
@@ -75,9 +66,6 @@ def fetch_musicdoc(request, index_name, doc_id):
         return HttpResponse("No path found for document display.")
 
     return HttpResponse(doc)
-
-    #return doc
-    #return json.dumps(doc)
 
     #context = {"doc_id": doc_id, "doc_url": doc.url}
     #return HttpResponse(template.render(context, request))
@@ -137,9 +125,6 @@ def MusicDocView(request, index_name, doc_id):
     except Exception as ex:
         return HttpResponse("No music document found in database.")
     try:
-        # print("------\n")
-        # pprint(vars(musicdoc.meifile))
-        # print("------\n")
         if musicdoc.doc_type == 'krn':
             doc_path = musicdoc.krnfile.path #.path is the absolute path, not url
             # Use verovio-humdrum kit

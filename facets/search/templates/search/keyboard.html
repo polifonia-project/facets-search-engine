@@ -2,6 +2,8 @@
 
 <script src="/static/js/verovio-toolkit.js"></script>
 
+<script src="/static/js/piano.js"></script>
+<script src="/static/js/soundmanager.js"></script>
 
 <div class="document keyboardWrap">
 	<!-- Pattern: {melodicPattern} <div> Champ dans lequel la mélodie 
@@ -153,17 +155,19 @@
 	</table>
 </div>
 
+
+
 <script type="text/javascript">
 	//<![CDATA[
 	Piano.onChange = function(str) {
-		document.getElementById('pattern').value = str;
+		document.getElementById('pianopattern').value = str;
 	};
 
 	Piano.init();
 
 	// Pour donner une valeur initiale a la melodie 
-	if ('{}{pattern}')
-		Piano.getMelody('{% if searchinput.pattern %}{{ searchinput.pattern }}{% endif %}');
+	if ('{}{pianopattern}')
+		Piano.getMelody('{% if searchinput.pianopattern %}{{ searchinput.pianopattern }}{% endif %}');
 
 	// ]]>
 </script>

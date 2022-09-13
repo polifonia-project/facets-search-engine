@@ -31,7 +31,7 @@
 						<th scope="row">{{ forloop.counter }}</th>
                         <td><a href="{{ k }}">{{ k }}</a></td>
 						<td>{{ v.source.title }}</td>
-						{% comment %}<td>{{ v.composer }}</td>{% endcomment %}
+						<td>{{ v.source.composer }}</td>
 						<td ><a href="#" onclick="toggle_visibility('res{{ forloop.counter }}');">
 <button type="button" class="btn btn-primary" aria-label="abstract"> Toggle doc </button> </a>
 </td>

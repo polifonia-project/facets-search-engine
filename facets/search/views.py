@@ -56,6 +56,8 @@ def results(request):
             else:
                 searchinput["mirror"] = False
 
+            searchinput["pianopattern"] = request.POST.get('pianopattern', False)
+
             searchinput["type"] = request.POST.get('searchtype', False)
             # The search type names for ES should be all in lower case
             searchinput["type"] = searchinput["type"].lower()
@@ -67,7 +69,8 @@ def results(request):
 
             searchinput["composer"] = request.POST.get('composer', False)
 
-            if searchinput["pattern"]:
+            if searchinput["pattern"] or searchinput["pianopattern"]:
+
                 #print(searchinput)
                 searchcontext = SearchContext()
                 # json -> searchcontext
@@ -77,6 +80,18 @@ def results(request):
                 print("Search type: ", searchcontext.search_type)
                 if searchcontext.pattern:
                     print("ABC encoded pattern: ", searchcontext.pattern)
+                elif searchcontext.pianopattern:
+                    print("Pattern from piano", searchcontext.pianopattern)
+
+                if not searchcontext.check_pattern_length():
+                    # TODO: test this and show render in htmlresponse if pattern is too short
+                    searchcontext.pattern = ""
+                    searchcontext.pianopattern = ""
+                    if searchcontext.keywords != "":
+                        print("Pattern not valid, we are in keyword search mode.")
+                    else:
+                        print ("Please re-enter a valid pattern: it must contain at least three intervals")
+
                 if searchcontext.text:
                     print("Text: ", searchcontext.text)
                 if searchcontext.facet_composers != [] and searchinput["composer"] != False:
@@ -99,6 +114,10 @@ def results(request):
                     if 'composer' in hit['_source']:
                         matching_composers.append(hit['_source']['composer'])
                     matching_doc_ids.append(hit['_id'])
+
+                # Get rid of duplicates
+                invalid_name = [""]
+                matching_composers = list(set(matching_composers)-set(invalid_name))
 
 
                 """

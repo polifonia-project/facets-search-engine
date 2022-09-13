@@ -80,7 +80,8 @@ class IndexWrapper:
 
         for doc in doc_info.hits.hits:
             if 'composer' in doc['_source']:
-                composer_names.append(doc['_source']['composer'])
+                if doc['_source']['composer'] not in composer_names:
+                    composer_names.append(doc['_source']['composer'])
 
         # Remove duplicates and get the final list of composers
         invalid_name = [""] # could be more than "" here
@@ -277,6 +278,7 @@ class IndexWrapper:
         '''
         pattern_sequence = search_context.get_pattern_sequence()
         """
+        # for testing
         print("Search " 
                + "  Text: '" + search_context.text + "'"
                + "'  Pattern Sequence: [" + str(pattern_sequence) + "]")
@@ -312,8 +314,7 @@ class IndexWrapper:
 
         # If there is a pattern to search
 
-        #TODO: search with facets
-        if search_context.pattern != '':
+        if search_context.pattern != '' or search_context.pianopattern != '':
             if search_context.search_type == settings.RHYTHMIC_SEARCH:
                 search = search.query("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())
 
