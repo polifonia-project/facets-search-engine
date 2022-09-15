@@ -5,24 +5,28 @@
 
 <div class="container">
   
-  <div class="row mb-5">
-    <div class="col-lg-8 mx-auto">
+  <div class="row mb-8">
+    <div class="col-lg-7 mx-auto">
                 <h1>Load documents</h1>
         <div class="alert alert-warning" role="alert">
-          <form action="/" method="PUT" enctype="multipart/form-data">
-          <input type="file" id="myFile" name="filename">
-          </br></br>
+          <form action="/loaddata/results/" method="POST" enctype="multipart/form-data">
+
+          {% csrf_token %}
+          <input type="file" name="myfile">
+
+<br/><br/>
+          <div class="d-flex align-middle">
 
           <select name="indexname" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
           <option selected>Index name</option>
           {% for index in indices_names %}
           <option value="{{ index }}">{{ index | title }}</option>
           {% endfor %}
-          </select>
 
+
+          </select>
           <div class="d-flex align-middle">
-          <select name="fileformat" class="px-4 mr-2 custom-select custom-select-sm"
-          style="width: 10rem;">
+          <select name="fileformat" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
           <option selected>File format</option>
           <option value="mei">MEI</option>
           <option value="musicxml">MusicXML</option>
@@ -32,11 +36,16 @@
           <option value="zip">ZIP</option>
           </select>
 
+
           <input type="submit">
         </div>
-        
+        </div>
         </form>
 
+  {% if uploaded_file_url %}
+    <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+  {% endif %}
+  
       </div>
     </div>
   </div>

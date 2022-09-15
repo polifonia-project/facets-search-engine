@@ -8,6 +8,7 @@ from lib.search.IndexWrapper import IndexWrapper
 
 from elasticsearch import Elasticsearch
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
@@ -19,27 +20,58 @@ try:
 except:
     print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
 
-
-def loaddataIndex(request):
+@csrf_exempt
+def uploaddata(request):
     template = loader.get_template('loaddata/index.html')
     indices = es.indices.get_alias().keys()
     context = {"indices_names": indices}
     return HttpResponse(template.render(context, request))
 
-def uploaddata(request, index_name, doc_id):
+@csrf_exempt
+def processdata(request):
 
-    if request.method == "PUT" and request.FILES[filename]:
+    template = loader.get_template('loaddata/loaded.html')
 
-        # Load, process and index the music document
+    if request.method == "POST":
+
+        # In case the user wants to load more documents later
+        indices = es.indices.get_alias().keys()
+
+        # Load the music document
         try:
-
-            #TODO: make the loading of file work
             uploadrequest = {}
-            uploadrequest["indexname"] = request.PUT.get('indexname')
-            uploadrequest["fileformat"] = request.PUT.get('fileformat')
-            uploadrequest["filename"] = request.PUT.get('filename')
-            uploadedfile = request.FILES[filename]
-                        
+            index_name = request.POST.get('indexname')
+            templist = request.FILES["myfile"].name.split(".")
+            doc_id = templist[0]
+            real_format = templist[1]
+            print("index_name, doc_id, format are", index_name, " ",doc_id, " ", real_format)
+
+            uploadrequest["fileformat"] = request.POST.get('fileformat').lower()
+
+            # Check the file format, make sure it is supported.
+            allowed_formats = ["abc", "zip", "mei", "xml", "musicxml", "krn"]
+            if real_format != uploadrequest["fileformat"]:
+                # The real format is not selected format, it will cause problem. Return error page!
+                if real_format in allowed_formats:
+                    uploadrequest["fileformat"] = real_format
+                    print("Wrong file format selected, but it was auto-corrected.")
+                else:
+                    template = loader.get_template('loaddata/loaderror.html')
+                    context = {"indices_names": indices}
+                    return HttpResponse(template.render(context, request))
+
+            if real_format not in allowed_formats or (not request.FILES["myfile"]):
+                # Not supported, return error page.
+                template = loader.get_template('loaddata/loaderror.html')
+                context = {"indices_names": indices}
+                return HttpResponse(template.render(context, request))
+
+            uploadedfile = request.FILES["myfile"]
+
+            loadedfile = uploadedfile.read()
+            
+            # Now process and index the file
+
             if  uploadrequest["fileformat"] == "zip":
                 """
                 Bulk process and index all music documents from a zip file.
@@ -48,21 +80,23 @@ def uploaddata(request, index_name, doc_id):
 
                 """
                 try:
-                    ScoreProcessing.load_and_process_zip(index_name, uploadedfile)
+                    ScoreProcessing.load_and_process_zip(index_name, loadedfile)
+                    context = {"indices_names": indices, "zip_id": doc_id, "index_name": index_name}
+                    template = loader.get_template('loaddata/loaded.html')
+                    return HttpResponse(template.render(context, request))
                 except Exception as ex:
-                    return HTTPResponse({"Error while loading zip": str(ex)})
-                #TODO: template = ??
-                context = {"zip_id": doc_id}
-                #return HttpResponse(template.render(context, request))
-                return HTTPResponse({"Successfully bulk indexed zip:": doc_id})
-                #TODO: then redirect to dashboard/upload page?
-                #return HttpResponseRedirect('dashboard/')
+                    template = loader.get_template('loaddata/loaderror.html')
+                    return template.render(request)
             else:
                 if uploadrequest["fileformat"] != "midi":
                     # Avoid using utf to decode midi, it causes error
-                    body_unicode = uploadedfile.decode('utf')
+                    body_unicode = loadedfile.decode('utf')
                 else:
-                    return HTTPResponse("MIDI format is not supported yet, coming soon!")
+                    # Not supported MIDI yet
+                    template = loader.get_template('loaddata/loaderror.html')
+                    context = {"indices_names": indices}
+                    return HttpResponse(template.render(context, request))
+
                 
                 if uploadrequest["fileformat"] == "mei":
                     """
@@ -117,7 +151,10 @@ def uploaddata(request, index_name, doc_id):
                     m21_score, musicdoc = ScoreProcessing.load_score(index_name, body_unicode, "abc", doc_id)
                 else:
                     # Otherwise, the format is not supported.
-                    return HttpResponse({"Error": "Not supported content type: " + request.content_type})
+                    template = loader.get_template('loaddata/loaderror.html')
+                    context = {"indices_names": indices}
+                    return HttpResponse(template.render(context, request))
+
 
                 # Process the current score, produce descriptors from MusicSummary
                 descr_dict, encodedMS = ScoreProcessing.process_score(musicdoc, m21_score, doc_id)
@@ -126,11 +163,16 @@ def uploaddata(request, index_name, doc_id):
                 index_wrapper = IndexWrapper(index_name) 
                 index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
                 
-                # TO-DO: Need to create a new template???
-                #template = loader.get_template('loaddata/???.html') 
-                context = {"musicdoc": musicdoc, "descr_dict": descr_dict, "encodedMS": encodedMS}
-                #return HttpResponse(template.render(context, request))
-                return HttpResponse({"Successfully indexed music document:": doc_id})
+                context = {"index_name": index_name, "musicdoc": musicdoc, "descr_dict": descr_dict, "encodedMS": encodedMS, "indices_names": indices}
+                
+                return HttpResponse(template.render(context, request))
 
         except Exception as ex:
-            return HTTPResponse({"Error while loading music file": str(ex)})
+            template = loader.get_template('loaddata/loaderror.html')
+            context = {"indices_names": indices}
+            return HttpResponse(template.render(context, request))
+
+
+@csrf_exempt
+def viewdata(request):
+    return

@@ -18,11 +18,12 @@
 
             <div class="card text-center">
                 <div class="card-header">
-                    URL of the score is <a href="{{ doc_url }}">URL</a>
+                    {% comment %}URL of the score is <a href="{{ doc_url }}">URL</a>
                     <ul>
-                        <li>docid: {{ doc_id }} </li>
+                        <li>Document ID: {{ doc_id }} </li>
                         <li>docurl: {{ doc_url }} </li>
-                        <li>doctype: {{ doc_type }} </li>
+                        {% endcomment %}
+                        <li>Score format: {{ doc_type }} </li>
                     </ul>
                 </div>
                 {% if doc_url %}

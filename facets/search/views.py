@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 from django.template import loader
 import json
 
@@ -179,22 +182,36 @@ class search_results:
     def HighlightMusicDocView(request, doc_id):
         # Highlight patterns while viewing a music document
 
+        """
+        TODO:
+        1. HOW to modify the code in results-list.html to redirect it with the attribute of index name?
+        2. HOW to get the ids to highlight from def result?
+
+        3. HOW to highlight with verovio toolkit?
+    
+        #if request.method == 'GET':
+        #    highlight_ids = request.GET.get('matching_doc_ids')
         #try:
             # highlight_ids = matching_locations[doc_id]["matching_ids"]
         #except Exception as ex:
         #    print("Error occurred while getting ids to highlight:", str(ex))
+
+        """
         template = loader.get_template('search/highlight_musicdoc.html')
 
-        if request.method == 'GET':
-            highlight_ids = request.GET.get('matching_doc_ids')
+        try:
+            musicdoc = MusicDoc.objects.get(doc_id=doc_id)
+        except Exception as ex:
+            return HttpResponse("No music document found in database.")
 
+        hostname = request.get_host()
+        doc_url = "http://"+hostname+ "/home/media/"+index_name+"/"+doc_id+"/"
 
-        # TODO: this highlight_musicdoc.html needs to be written
         context = {
+            "index_name": index_name,
+            "doc_type": musicdoc.doc_type,
             "doc_id": doc_id,
-            "highlight_ids": highlight_ids
+            "doc_url": doc_url#,
+            #"highlight_ids": highlight_ids
         }
-
         return HttpResponse(template.render(context, request))
-
-

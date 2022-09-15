@@ -1,0 +1,47 @@
+
+{% include 'loaddata/index.html' %}
+
+{% block content %}
+
+<div class="container">
+
+{% if musicdoc %}
+
+<div class="card text-center">
+<div class="card-header">
+Sucessfully loaded the music score!
+</div>
+"{{musicdoc}}" is now under index: {{index_name}}
+<br/>
+
+{% comment %}
+{{descr_dict}}
+<br/>
+{{encodedMS}}
+{% endcomment %}
+{% endif %}
+
+
+{% if zip_id %}
+
+Successfully loaded the zip file!
+
+Scores in {{zip_id}} is now under index: {{index_name}}
+
+{% endif %}
+
+<div class="card-header">
+If you want to load another:
+</div>
+
+<div class="card-header">
+Otherwise: view the index:
+</div>
+<div class="card-header">
+View dashboard:
+</div>
+</div>
+</div>
+
+
+{% endblock %}
