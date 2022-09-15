@@ -160,13 +160,13 @@
 <script type="text/javascript">
 	//<![CDATA[
 	Piano.onChange = function(str) {
-		document.getElementById('pianopattern').value = str;
+		document.getElementById('pattern').value = str;
 	};
 
 	Piano.init();
 
 	// Pour donner une valeur initiale a la melodie 
-	if ('{}{pianopattern}')
+	if ('{}{pattern}')
 		Piano.getMelody('{% if searchinput.pianopattern %}{{ searchinput.pianopattern }}{% endif %}');
 
 	// ]]>

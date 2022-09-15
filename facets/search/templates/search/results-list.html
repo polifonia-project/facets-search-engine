@@ -10,12 +10,26 @@
 
 <div class="card">
   <div class="card-header">
-
-  <h4>Documents matching the pattern</h4>
+    <h4>Documents matching the pattern</h4>
   </div>
-  <ul>
-{% for i,result in results.items %}
-  <li class="list-group-item">{{ i }} - {{ result | title }}</li>
-{% endfor %}
-</ul> 
+
+
+  <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Document ID</th>
+            <th scope="col">Num of patterns</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i,result in results.items %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{{ i }}">{{ i }}</a></td>
+            <td>{{ result}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 </div>
