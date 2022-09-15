@@ -171,8 +171,3 @@ def processdata(request):
             template = loader.get_template('loaddata/loaderror.html')
             context = {"indices_names": indices}
             return HttpResponse(template.render(context, request))
-
-
-@csrf_exempt
-def viewdata(request):
-    return
