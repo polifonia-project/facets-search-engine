@@ -15,6 +15,8 @@ from lib.search.SearchContext import *
 from django.conf import settings
 import requests
 
+from rest.models import *
+
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
     es = Elasticsearch(hosts=[
@@ -148,6 +150,7 @@ class search_results:
                     # Get matching ids(positions) of patterns in MusicSummary for highlighting
                     matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
 
+                    # Display the list: number of pattern occurrences in every matching doc
                     match_dict_display = {}
                     num_matching_patterns = 0
                     for mat_doc in matching_locations:
@@ -156,9 +159,26 @@ class search_results:
                         print("ids of all matching notes are:", mat_doc["matching_ids"], "\n")
                         match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
 
+                    hostname = request.get_host()
+                    score_info = {}
+                    score_url = {}
+                    # Display the score:
+                    for doc_id in matching_doc_ids:
+                        try:
+                            # TODO: fix this!!!!
+                            musicdoc = MusicDoc.objects.get(doc_id=doc_id)
+                            print(musicdoc.doc_type)
+                            #score_info[doc_id] = musicdoc.doc_type
+                            #docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
+                            #score_url[doc_id] =docurl
+                        except Exception as ex:
+                            return HttpResponse(str(ex))
+
                 else:
                     # TODO: lyrics?
                     match_dict_display = {}
+                    score_info = {}
+                    score_url = {}
                     num_matching_patterns = 0
 
             #except Exception as ex:
@@ -174,7 +194,9 @@ class search_results:
             "num_matching_patterns": num_matching_patterns,
             "matching_doc_ids": matching_doc_ids,
             "matching_composers": matching_composers,
-            "matching_locations": matching_locations
+            "matching_locations": matching_locations,
+            "score_info": score_info,
+            "score_url": score_url
         }
 
         return HttpResponse(template.render(context, request))
