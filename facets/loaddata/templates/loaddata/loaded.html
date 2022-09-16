@@ -37,12 +37,12 @@ Scores in {{zip_id}} is now under index: {{index_name}}
 If you want to load another, just keep loading!
 
 {% endif %}
-{%comment%}
 </div>
-	<button onclick="window.location.href='/home/dashboard/index_name/';">
-	View {{index_name}}
-    </button>
-{%endcomment%}
+
+<button onclick="window.location.href='/home/dashboard/{{index_name}}';">
+View {{index_name}}
+</button>
+
 <button onclick="window.location.href='/home/dashboard/';">
 View dashboard
 </button>

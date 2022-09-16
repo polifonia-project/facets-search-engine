@@ -67,8 +67,6 @@ def fetch_musicdoc(request, index_name, doc_id):
 
     return HttpResponse(doc)
 
-    #context = {"doc_id": doc_id, "doc_url": doc.url}
-
 # dashboard
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')

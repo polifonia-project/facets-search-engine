@@ -1,47 +1,43 @@
 {% load i18n %}
 
- <!--/////////////-->
+<!--/////////////-->
 <!-- VEROVIO -->
 <!--/////////////-->  
 
+
+<script src="/static/js/verovio-toolkit.js"></script>
+<script>var vrvToolkit = new verovio.toolkit();</script>
+
 <div>
     <ul class="toolbar">
+    {% if score_info %}
 
     {% for i in score_info %}
 
 
-        {% if score_info[i] == "mei" %}
-        <li class="mei"><a target="_blank" href="{{score_url[i]}}"
+        {% if score_info.i == "mei" %}
+        <li class="mei"><a target="_blank" href="{{score_url.i}}"
                            title="{% trans 'Download MEI' %}"> <span class="accessibility">{% trans 'Download MEI' %}</span>
         </a></li>
         {% endif  %}
 
-        {% if score_info[i] == "musicxml" or score_info[i] == "xml" %}
-        <li class="download"><a target="_blank" href="{{score_url[i]}}"
+        {% if score_info.i == "musicxml" or score_info.i == "xml" %}
+        <li class="download"><a target="_blank" href="{{score_url.i}}"
                                 title="{% trans 'Download MusicXML'%}" target="_blank"> <span class="accessibility">{% trans 'Download MusicXML' %}</span>
         </a></li>
         {% endif %}
-
-        {%comment%}
-        <li class="zoom">  <a  href="{% url 'home:opus' opus.ref %}" title="{% trans 'Open'%}">
-                 <img width="20px" src="/static/images/zoom-icon.png"/>
-        </a>
-        </li>
-        {%endcomment%}
  
     </ul>
-
         <a name="{{i}}" />
         <h5>
-            <a href="{{% url 'home:dashboard' [searchinput['index_name'], i] %}}">{{i}}</a>
+            link here
+            <a href="{{i}} ">{{i}}</a>
         </h5>
     
-        {% if score_info[i] == "mei" or score_info[i] == "abc" or score_info[i] == "xml" or score_info[i] == "krn" or score_info[i] == "musicxml" %}
         <script type="text/javascript">
         /* Load the file using HTTP GET */
-        console.log ("Get {{score_url[i]}}")
+        console.log ("Get {{score_url.i}}")
             var vrvOptions = {
-            inputFormat : 'mei',
             scale : 35,
             pageHeight : 100,
             adjustPageHeight : 1,
@@ -50,37 +46,37 @@
         };
 
         vrvToolkit.setOptions(vrvOptions);
-    
-        $.ajax({
-        url: "{{score_url[i]}}"
-        , dataType: "text"
-        , success: function(data) {
-            var svg = vrvToolkit.renderData(data);
-            $("#incipit{{i}}").html(svg);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            console.log("Error with document {{score_url[i]}} " + xhr.status);
-        }
-        });</script>       
+        document.addEventListener('DOMContentLoaded', (event) => {
+            $.ajax({
+                url: "{{score_url.i}}",
+                dataType: "text",
+                success: function(data) {
+                    var svg = vrvToolkit.renderData(data);
+                    document.getElementById("notation").innerHTML = svg;
+                    //$("#incipit{{i}}").html(svg);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error with document {{i}} " + xhr.status);
+                }
+            });
+        });
+        </script>       
 
         <table class="preview"><tr>
             <td valign="top">
-            </td><td>     <a href="{% url 'home:dashboard' [[searchinput['index_name'], i]] %}"><div id="incipit{{i}}"></div></a>
+            </td><td>     <a href="home/dashboard/{{searchinput.index_name}}/{{i}}'";><div id="incipit{{i}}"></div></a>
         </td>
         </tr>
         </table>
-    {% endif %}
 
-{%comment%}
-{% elif opus.png %}
+    {% endfor %}
 
+    {% else %}
     <table class="preview"><tr>
-        <td valign="top">
-        </td><td>     <a href="{% url 'home:opus' opus.ref %}"><img src="{{opus.preview.url}}" alt="{{opus.title}}" /></a>
-        </td>
+        <td valign="top"> </td>
+        <td>     <div id="notation">scores placeholder</div> </td>
     </tr>
     </table>
-{% endif %}
-{%endcomment%}
+    {% endif %}
 
 </div>

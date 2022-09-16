@@ -167,10 +167,9 @@ class search_results:
                         try:
                             # TODO: fix this!!!!
                             musicdoc = MusicDoc.objects.get(doc_id=doc_id)
-                            print(musicdoc.doc_type)
-                            #score_info[doc_id] = musicdoc.doc_type
-                            #docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
-                            #score_url[doc_id] =docurl
+                            score_info[doc_id] = musicdoc.doc_type
+                            docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
+                            score_url[doc_id] = docurl
                         except Exception as ex:
                             return HttpResponse(str(ex))
 

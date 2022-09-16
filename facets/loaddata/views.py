@@ -44,8 +44,7 @@ def processdata(request):
             templist = request.FILES["myfile"].name.split(".")
             doc_id = templist[0]
             real_format = templist[1]
-            print("index_name, doc_id, format are", index_name, " ",doc_id, " ", real_format)
-
+            
             uploadrequest["fileformat"] = request.POST.get('fileformat').lower()
 
             # Check the file format, make sure it is supported.
