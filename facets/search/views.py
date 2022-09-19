@@ -80,11 +80,6 @@ class search_results:
                 searchinput["composer"] = request.POST.get('composer', False)
 
                 print("piano pattern:", searchinput["pianopattern"])
-            
-                #req = Request('GET',  url, data=data, headers=headers)
-                # if the user views a musicdoc
-                #HttpResponseRedirect(reverse('highlight_musicdoc'), context)
-
 
                 if searchinput["pattern"] or searchinput["pianopattern"]:
 
@@ -125,32 +120,33 @@ class search_results:
 
                     matching_doc_ids = []
                     matching_composers = []
-
+                    matching_info_dict = {}
                     # Get a list of doc_id and composer names
                     for hit in matching_docs.hits.hits:
                         if 'composer' in hit['_source']:
                             matching_composers.append(hit['_source']['composer'])
+                            matching_info_dict[hit['_id']] = hit['_source']['composer']
                         matching_doc_ids.append(hit['_id'])
 
                     # Get rid of duplicates
                     invalid_name = [""]
                     matching_composers = list(set(matching_composers)-set(invalid_name))
 
-
-                    """
-                    # if there is a list of selected composers, filter the matching docs:
-                    if searchinput["composer"] != [] and searchinput["composer"] != False:
-                        for hit in matching_docs.hits.hits:
-                            if 'composer' in hit['_source']:
-                                if hit['_source']['composer'] in searchinput["composer"]:
-                                    matching_doc_ids.append(hit['_id'])
-                                    matching_composers.append()
-                    """
+                    # Faceted filter, only composer for the moment
+                    filtered_doc_ids = []
+                    # only one name at this moment but should be a list
+                    if searchinput["composer"]:
+                        for i in matching_doc_ids:
+                           if matching_info_dict[i] == searchinput["composer"]: # later change to "in" when searchinput["composer"] becomes a list
+                                filtered_doc_ids.append(i)
+                        # only match the filtered ones, discard others
+                        matching_doc_ids = filtered_doc_ids
                 
                     # Get matching ids(positions) of patterns in MusicSummary for highlighting
                     matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
 
                     # Display the list: number of pattern occurrences in every matching doc
+                    # This should not be useful in final result view
                     match_dict_display = {}
                     num_matching_patterns = 0
                     for mat_doc in matching_locations:
@@ -160,45 +156,49 @@ class search_results:
                         match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
 
                     hostname = request.get_host()
-                    score_info = {}
-                    score_url = {}
+                    score_info = {}\
                     # Display the score:
                     for doc_id in matching_doc_ids:
                         try:
-                            # TODO: fix this!!!!
                             musicdoc = MusicDoc.objects.get(doc_id=doc_id)
-                            score_info[doc_id] = musicdoc.doc_type
+                            score_info[doc_id] = []
+                            score_info[doc_id].append(musicdoc.doc_type)
+                            print(doc_id)
                             docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
-                            score_url[doc_id] = docurl
+                            score_info[doc_id].append(docurl)
+                            print(score_info[doc_id])
                         except Exception as ex:
                             return HttpResponse(str(ex))
+
 
                 else:
                     # TODO: lyrics?
                     match_dict_display = {}
                     score_info = {}
-                    score_url = {}
                     num_matching_patterns = 0
 
-            #except Exception as ex:
-            #    print("Error occurred while searching on ES index:", str(ex))
+                #except Exception as ex:
+                #    print("Error occurred while searching on ES index:", str(ex))
 
-        template = loader.get_template('search/results.html')
-        context = {
-            "searchinput": searchinput,
-            "results": match_dict_display,
-            "indices_names": indices,
-            "searchcontext": searchcontext,
-            "num_matching_docs": len(matching_doc_ids),
-            "num_matching_patterns": num_matching_patterns,
-            "matching_doc_ids": matching_doc_ids,
-            "matching_composers": matching_composers,
-            "matching_locations": matching_locations,
-            "score_info": score_info,
-            "score_url": score_url
-        }
+                template = loader.get_template('search/results.html')
+                context = {
+                    "searchinput": searchinput,
+                    "index_name": searchinput["index_name"],
+                    "results": match_dict_display,
+                    "indices_names": indices,
+                    "searchcontext": searchcontext,
+                    "num_matching_docs": len(matching_doc_ids),
+                    "num_matching_patterns": num_matching_patterns,
+                    "matching_doc_ids": matching_doc_ids,
+                    "matching_composers": matching_composers,
+                    "matching_locations": matching_locations,
+                    "score_info": score_info
+                }
 
-        return HttpResponse(template.render(context, request))
+                return HttpResponse(template.render(context, request))
+        elif request.method == 'GET':
+            # should not be called at this moment
+            return HttpResponse("Please return and search again.")
 
     def HighlightMusicDocView(request, doc_id):
         # Highlight patterns while viewing a music document

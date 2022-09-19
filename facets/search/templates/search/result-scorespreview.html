@@ -4,7 +4,6 @@
 <!-- VEROVIO -->
 <!--/////////////-->  
 
-
 <script src="/static/js/verovio-toolkit.js"></script>
 <script>var vrvToolkit = new verovio.toolkit();</script>
 
@@ -12,31 +11,31 @@
     <ul class="toolbar">
     {% if score_info %}
 
-    {% for i in score_info %}
+        {% for i, v in score_info.items %}
 
-
-        {% if score_info.i == "mei" %}
-        <li class="mei"><a target="_blank" href="{{score_url.i}}"
+        {% if v.0 == "mei" %}
+        <li class="mei"><a target="_blank" href="{{v.1}}"
                            title="{% trans 'Download MEI' %}"> <span class="accessibility">{% trans 'Download MEI' %}</span>
         </a></li>
         {% endif  %}
 
-        {% if score_info.i == "musicxml" or score_info.i == "xml" %}
-        <li class="download"><a target="_blank" href="{{score_url.i}}"
+        {% if v.0 == "musicxml" or v.0 == "xml"%}
+        <li class="download"><a target="_blank" href="{{v.1}}"
                                 title="{% trans 'Download MusicXML'%}" target="_blank"> <span class="accessibility">{% trans 'Download MusicXML' %}</span>
         </a></li>
         {% endif %}
  
     </ul>
         <a name="{{i}}" />
+        {%comment%}
         <h5>
-            link here
             <a href="{{i}} ">{{i}}</a>
         </h5>
+        {%endcomment%}
     
         <script type="text/javascript">
         /* Load the file using HTTP GET */
-        console.log ("Get {{score_url.i}}")
+        console.log ("Get url for {{i}}")
             var vrvOptions = {
             scale : 35,
             pageHeight : 100,
@@ -46,14 +45,15 @@
         };
 
         vrvToolkit.setOptions(vrvOptions);
+
         document.addEventListener('DOMContentLoaded', (event) => {
             $.ajax({
-                url: "{{score_url.i}}",
+                url: "{{v.1}}",
                 dataType: "text",
                 success: function(data) {
                     var svg = vrvToolkit.renderData(data);
                     document.getElementById("notation").innerHTML = svg;
-                    //$("#incipit{{i}}").html(svg);
+                    $("#incipit{{i}}").html(svg);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log("Error with document {{i}} " + xhr.status);
@@ -61,13 +61,14 @@
             });
         });
         </script>       
-
+        {%comment%}
         <table class="preview"><tr>
             <td valign="top">
-            </td><td>     <a href="home/dashboard/{{searchinput.index_name}}/{{i}}'";><div id="incipit{{i}}"></div></a>
+            </td><td>     <a href="home/dashboard/{{index_name}}/{{i}}'";><div id="incipit{{i}}"></div></a>
         </td>
         </tr>
         </table>
+        {%endcomment%}
 
     {% endfor %}
 
