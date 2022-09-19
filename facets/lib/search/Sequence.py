@@ -519,7 +519,8 @@ class Sequence:
             return 1000000
         
         score = Distance.rhythmic_distance(s1, s2)
-        print ("Rhythmic distance between the pattern and occurrence " + str(s1) + " : " + str(round(score, 4)))
+        # Print for testing only
+        #print ("Rhythmic distance between the pattern and occurrence " + str(s1) + " : " + str(round(score, 4)))
         return score
 
     def get_melodic_distance(self, s1, s2):
@@ -533,7 +534,8 @@ class Sequence:
         #Use modified edit distance to represent the melodic distance between two sequences
         m_distance = Distance.melodic_distance(s1, s2)
 
-        print("Melodic distance between the pattern and occurrence " + str(s1) + " : "+ str(round(m_distance, 4)))
+        # Print for testing only
+        #print("Melodic distance between the pattern and occurrence " + str(s1) + " : "+ str(round(m_distance, 4)))
         return m_distance
 
     def sequence_to_symbols(self):

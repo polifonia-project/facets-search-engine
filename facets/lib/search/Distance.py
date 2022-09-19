@@ -29,16 +29,19 @@ class Distance:
 
         # Sanity check
         if len(s1.items) == 0 or len(s2.items) == 0:
-            print("Skip measurement of rhythmic distance between the current match and search pattern: one of the sequence is empty.")
+            # print for test only
+            #print("Skip measurement of rhythmic distance between the current match and search pattern: one of the sequence is empty.")
             return 1000000 # Find sth cleaner
         
         # Compute blocks ranges
         blocks1 = Distance.find_blocks_range(s1)
         blocks2 = Distance.find_blocks_range(s2)
 
-        # Check if the number of block are the same, if not raises an error
+        # Check if the number of block are the same, print out for testing only
+        """
         if len(blocks1) != len(blocks2):
-            print("note: this occurrence has different numbers of blocks")
+            print("Note: this occurrence has different numbers of blocks")
+        """
 
         blocks1  = Distance.normalize_block_duration(blocks1)
         blocks2  = Distance.normalize_block_duration(blocks2)
@@ -57,10 +60,13 @@ class Distance:
             block1 = blocks1[iblock]
             block2 = blocks2[iblock]
             
+            # COMMENTED: THE FOLLOWING prints out the details of distance, for testing only
+            """
             logger.info("Block " + str(iblock) + ". Seq1: [" + str(block1["start_pos"]) + "," + str(block1["end_pos"]) + 
                 "] duration " + str(block1["duration"])
                                     + " Seq2 [" + str(block2["start_pos"]) + "," + str(block2["end_pos"]) + 
                 "] duration " + str(block2["duration"]))
+            """
             
             # The sum of the normalized durations gaps represents the cost of aligning the 
             # two sequences of durations
@@ -93,8 +99,8 @@ class Distance:
         blocks2 = Distance.simplified_interval_for_blocks(s2)
 
         # Check if the query pattern and the matched pattern has same amount of blocks
-        if len(blocks1) != len(blocks2):
-            print("note: this occurrence has different number of blocks compared to the search pattern")
+        #if len(blocks1) != len(blocks2):
+        #    print("note: this occurrence has different number of blocks compared to the search pattern")
         
         intervals_blocks1 = []
         intervals_blocks2 = []

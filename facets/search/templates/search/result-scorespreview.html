@@ -7,75 +7,91 @@
 <script src="/static/js/verovio-toolkit.js"></script>
 <script>var vrvToolkit = new verovio.toolkit();</script>
 
-<div>
-    <ul class="toolbar">
+<div width="400">
+
     {% if score_info %}
 
         {% for i, v in score_info.items %}
 
-        {% if v.0 == "mei" %}
-        <li class="mei"><a target="_blank" href="{{v.1}}"
+        <div class="bg-white p-3 rounded shadow" style="width: 800px;">
+            {%comment%}
+            {% if v.0 == "mei" %}
+            <li class="mei"><a target="_blank" href="{{v.1}}"
                            title="{% trans 'Download MEI' %}"> <span class="accessibility">{% trans 'Download MEI' %}</span>
-        </a></li>
-        {% endif  %}
+            </a></li>
+            {% endif  %}
 
-        {% if v.0 == "musicxml" or v.0 == "xml"%}
-        <li class="download"><a target="_blank" href="{{v.1}}"
+            {% if v.0 == "musicxml" or v.0 == "xml"%}
+            <li class="download"><a target="_blank" href="{{v.1}}"
                                 title="{% trans 'Download MusicXML'%}" target="_blank"> <span class="accessibility">{% trans 'Download MusicXML' %}</span>
-        </a></li>
-        {% endif %}
- 
-    </ul>
-        <a name="{{i}}" />
-        {%comment%}
-        <h5>
-            <a href="{{i}} ">{{i}}</a>
-        </h5>
-        {%endcomment%}
-    
-        <script type="text/javascript">
-        /* Load the file using HTTP GET */
-        console.log ("Get url for {{i}}")
-            var vrvOptions = {
-            scale : 35,
-            pageHeight : 100,
-            adjustPageHeight : 1,
-            border : 0,
-            ignoreLayout : 1
-        };
+            </a></li>
+            {% endif %}
+            {%endcomment%}
 
-        vrvToolkit.setOptions(vrvOptions);
 
-        document.addEventListener('DOMContentLoaded', (event) => {
-            $.ajax({
-                url: "{{v.1}}",
-                dataType: "text",
-                success: function(data) {
-                    var svg = vrvToolkit.renderData(data);
-                    document.getElementById("notation").innerHTML = svg;
-                    $("#incipit{{i}}").html(svg);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    console.log("Error with document {{i}} " + xhr.status);
-                }
+            <h6>
+            Title: {{v.2}}
+            </br>
+            Composer: {{v.3}}
+            </br>
+            Click to see full score of the document: 
+            <a href="/home/dashboard/{{index_name}}/{{i}}"> "{{i}}" </a>
+            </h6>
+            </br>
+            <script type="text/javascript">
+            /* Load the file using HTTP GET */
+            console.log ("Get url for {{i}}")
+                var vrvOptions = {
+                scale : 35,
+                pageHeight : 100,
+                adjustPageHeight : 1,
+                border : 0,
+                ignoreLayout : 1
+            };
+
+            vrvToolkit.setOptions(vrvOptions);
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                $.ajax({
+                    url: "{{v.1}}",
+                    dataType: "text",
+                    success: function(data) {
+                        var svg = vrvToolkit.renderData(data);
+                        document.getElementById("notation").innerHTML = svg;
+                        $("#incipit{{i}}").html(svg);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log("Error with document {{i}} " + xhr.status);
+                    }
+                });
             });
-        });
-        </script>       
-        {%comment%}
-        <table class="preview"><tr>
-            <td valign="top">
-            </td><td>     <a href="home/dashboard/{{index_name}}/{{i}}'";><div id="incipit{{i}}"></div></a>
-        </td>
-        </tr>
-        </table>
-        {%endcomment%}
+            </script>       
 
+            <div>
+            <table class="preview"><tr>
+            <td valign="10em"> </td>
+            <td>     <div id="notation">score placeholder</div> </td>
+            </tr>
+            </table>
+            </div>
+
+
+            {%comment%}
+            <table class="preview"><tr>
+                <td valign="middle">
+                </td><td>     <a href="home/dashboard/{{index_name}}/{{i}}'";><div id="incipit{{i}}"></div></a>
+            </td>
+            </tr>
+            </table>
+            {%endcomment%}
+            </div>
+            <br/>
     {% endfor %}
 
     {% else %}
     <table class="preview"><tr>
         <td valign="top"> </td>
-        <td>     <div id="notation">scores placeholder</div> </td>
+        <td>     <div id="notation">Please re-enter your search!</div> </td>
     </tr>
     </table>
     {% endif %}

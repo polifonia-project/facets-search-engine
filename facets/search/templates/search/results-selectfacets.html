@@ -1,9 +1,9 @@
 
 <div class="bg-white p-3 rounded shadow">
 <form action="/search/results/" method="post">
-<h5>Facets</h5>
+<h4>Facets</h4>
     
-<select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 10rem;">
+<select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 800px;">
     {% if searchinput.composer %}
     <option selected>{{ searchinput.composer | title }}</option>
   {% else %}
@@ -21,3 +21,5 @@
 {%endcomment%}
 
 </div>
+
+<br/><br/>

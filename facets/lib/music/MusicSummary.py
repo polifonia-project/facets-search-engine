@@ -118,10 +118,10 @@ class MusicSummary:
         occurrences = self.find_sequences(pattern, search_type, False)
 
         # If there is a match in the opus
-        if occurrences != None:
+        #if occurrences != None:
         # TODO TIANGE: it should be if len(occurrences) > 0 but occurrences is empty []
-            print("#######################################")
-            print("Found exact match in musicdoc:  ", self.opus_id)
+            #print("#######################################")
+            #print("Found exact match in musicdoc:  ", self.doc_id)
 
         return occurrences
 
@@ -135,12 +135,14 @@ class MusicSummary:
         distances = list()
 
         # If there is a match in the musicdoc
-        if len(occurrences) > 0 :
-            print("#######################################")
-            print("Found occurrence in musicdoc:  " + self.doc_id)
-        else:
-            print("Error: no occurrence of pattern" + str([pattern]) +" is found in " + self.doc_id)
+        if len(occurrences) <= 0:
+            #print("Error: no occurrence of pattern" + str([pattern]) +" is found in " + self.doc_id)
             return occurrences, "", 1000000
+        # Print is for testing only
+        #else:
+            #print("#######################################")
+            #print("Found occurrence in musicdoc:  " + self.doc_id)
+            
 
         # Iterate over all the matches in an opus
         for o in occurrences:

@@ -156,17 +156,23 @@ class search_results:
                         match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
 
                     hostname = request.get_host()
-                    score_info = {}\
-                    # Display the score:
+                    score_info = {}
+                    # Score info(type, media link) for score display:
                     for doc_id in matching_doc_ids:
                         try:
                             musicdoc = MusicDoc.objects.get(doc_id=doc_id)
                             score_info[doc_id] = []
                             score_info[doc_id].append(musicdoc.doc_type)
-                            print(doc_id)
                             docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
                             score_info[doc_id].append(docurl)
-                            print(score_info[doc_id])
+                            if musicdoc.title:
+                                score_info[doc_id].append(musicdoc.title)
+                            else:
+                                score_info[doc_id].append("Unknown title")
+                            if musicdoc.composer:
+                                score_info[doc_id].append(musicdoc.composer)
+                            else:
+                                score_info[doc_id].append("Unknown composer")
                         except Exception as ex:
                             return HttpResponse(str(ex))
 
