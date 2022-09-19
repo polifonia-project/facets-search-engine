@@ -1,0 +1,35 @@
+{%if query_url %}
+<div width="400">
+<div class="bg-white p-3 rounded shadow" style="width: 800px;">
+<script src="/static/js/verovio-toolkit.js"></script>
+{% if query_url %}
+                <script type="text/javascript">
+                /* Load the file using HTTP GET */
+                console.log ("we got url of query in ABC format!");
+                document.addEventListener('DOMContentLoaded', (event) => {
+                    $.ajax({
+                        url: "{{query_url}}", 
+                        dataType: "text", 
+                        success: function(data) {
+                            let svg = vrvToolkit.renderData(data);
+                            document.getElementById("notation_abcquery").innerHTML = svg;
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.log("Error with document {{query_url}} " + xhr.status);
+                        }
+                    });
+                });
+                </script>       
+
+                <table class="preview"><tr>
+                    <td valign="top"> </td>
+                    <td>     <div id="notation_abcquery">ABC query placeholder</div> </td>
+                </tr>
+                </table>
+                {% else %}
+                no score to display
+                {% endif %}
+
+</div>
+</div>
+{%endif%}

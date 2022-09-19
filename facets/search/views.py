@@ -15,6 +15,8 @@ from lib.search.SearchContext import *
 from django.conf import settings
 import requests
 
+import urllib.parse
+
 from rest.models import *
 
 try:
@@ -32,7 +34,7 @@ def index(request):
     indices = es.indices.get_alias().keys()
 
     """
-    # Composer names in all indexes
+    # Find composer names in all indexes
     composer_names = []
     if indices != {}:
         # Any index will do
@@ -45,6 +47,22 @@ def index(request):
 
     template = loader.get_template('search/index.html')
     return HttpResponse(template.render(context, request))
+
+def fetch_query(request):
+    # Fetch query in abc format
+
+    """
+    #the commented code does not work, has to save it as file then open
+    tempcontext = SearchContext()
+    tempcontext.pattern = pattern
+    abcpattern = tempcontext.check_default_meter()
+    if pattern == None:
+        return HttpResponse("No query for display.")
+    return HttpResponse(abcpattern)
+    """
+
+    return
+
 
 class search_results:
 
@@ -132,7 +150,7 @@ class search_results:
                     invalid_name = [""]
                     matching_composers = list(set(matching_composers)-set(invalid_name))
 
-                    # Faceted filter, only composer for the moment
+                    # TODO: Faceted filter(only composer for the moment)
                     filtered_doc_ids = []
                     # only one name at this moment but should be a list
                     if searchinput["composer"]:
@@ -176,6 +194,9 @@ class search_results:
                         except Exception as ex:
                             return HttpResponse(str(ex))
 
+                    # the idea is to get url for abc pattern display,
+                    # but the only way to do it is to save the query
+                    abcurl = "http://"+hostname+"/search/query/"#+searchinput["pattern"]+"/"
 
                 else:
                     # TODO: lyrics?
@@ -185,6 +206,8 @@ class search_results:
 
                 #except Exception as ex:
                 #    print("Error occurred while searching on ES index:", str(ex))
+
+                #print("Matching documents are:", matching_doc_ids)
 
                 template = loader.get_template('search/results.html')
                 context = {
@@ -198,7 +221,8 @@ class search_results:
                     "matching_doc_ids": matching_doc_ids,
                     "matching_composers": matching_composers,
                     "matching_locations": matching_locations,
-                    "score_info": score_info
+                    "score_info": score_info,
+                    "query_url": abcurl
                 }
 
                 return HttpResponse(template.render(context, request))
@@ -208,6 +232,7 @@ class search_results:
 
     def HighlightMusicDocView(request, doc_id):
         # Highlight patterns while viewing a music document
+        # not in use right now!!
 
         """
         TODO:
@@ -242,3 +267,5 @@ class search_results:
             #"highlight_ids": highlight_ids
         }
         return HttpResponse(template.render(context, request))
+
+

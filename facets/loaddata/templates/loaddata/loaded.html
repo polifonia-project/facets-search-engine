@@ -4,13 +4,14 @@
 {% block content %}
 
 <div class="container">
-
+<div class="row mb-8">
+<div class="col-lg-7 mx-auto">
 {% if musicdoc %}
 
-<div class="card text-center">
+<div class="card text-center" >
+
 <div class="card-header">
 Sucessfully loaded the music score.
-
 <br/>
 If you want to load another, keep loading!
 
@@ -30,21 +31,24 @@ If you want to load another, keep loading!
 {% if zip_id %}
 
 Successfully loaded the zip file.
+If you want to load another, just keep loading!
 
 Scores in {{zip_id}} is now under index: {{index_name}}
 
-If you want to load another, just keep loading!
-
 {% endif %}
-</div>
 
+</div>
+<div class="card text-center" >
 <button onclick="window.location.href='/home/dashboard/{{index_name}}';">
 View {{index_name}}
 </button>
 
 <button onclick="window.location.href='/home/dashboard/';">
-View dashboard
+View Dashboard
 </button>
 </div>
-
+</div>
+</div>
+</div>
+</div>
 {% endblock %}

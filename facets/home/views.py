@@ -14,7 +14,6 @@ from elasticsearch import Elasticsearch
 from lib.search.IndexWrapper import IndexWrapper
 
 from rest.models import *
-
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
     es = Elasticsearch(hosts=[
@@ -40,7 +39,6 @@ def docs(request):
 
 def fetch_musicdoc(request, index_name, doc_id):
 
-    #template = loader.get_template('home/fetchmusicdoc.html')
     try:
         musicdoc = MusicDoc.objects.get(doc_id=doc_id)
     except Exception as ex:
@@ -118,10 +116,10 @@ def MusicDocView(request, index_name, doc_id):
 
     try:
         musicdoc = MusicDoc.objects.get(doc_id=doc_id)
-        #MusicDoc.objects.filter(doc_id=docid)
     except Exception as ex:
         return HttpResponse("No music document found in database.")
     try:
+        # just to make sure it is stored and there is a path
         if musicdoc.doc_type == 'krn':
             doc_path = musicdoc.krnfile.path #.path is the absolute path, not url
             # Use verovio-humdrum kit
@@ -136,17 +134,31 @@ def MusicDocView(request, index_name, doc_id):
             # does verovio support abc? 
             doc_path = musicdoc.abcfile.path
         if doc_path == None:
-            return HttpResponse("No path found for fetching document.")
+            return HttpResponse("No path found for document fetching.")
+    
+        # get the url to display score
+        hostname = request.get_host()
+        doc_url = "http://"+hostname+ "/home/media/"+index_name+"/"+doc_id+"/"
+
+        # get metadata info from database
+        if musicdoc.title:
+            md_title = musicdoc.title
+        else:
+            md_title = "Unknown Title"
+        if musicdoc.composer:
+            md_composer = musicdoc.composer
+        else:
+            md_composer = "Unknown Composer"
 
     except Exception as ex:
         return HttpResponse("Error while retrieving file from database to display: "+ str(ex))
-
-    hostname = request.get_host()
-    doc_url = "http://"+hostname+ "/home/media/"+index_name+"/"+doc_id+"/"
 
     context = {
         "index_name": index_name,
         "doc_type": musicdoc.doc_type,
         "doc_id": doc_id,
-        "doc_url": doc_url}
+        "doc_url": doc_url,
+        "doc_title": md_title,
+        "doc_composer": md_composer
+        }
     return HttpResponse(template.render(context, request))
