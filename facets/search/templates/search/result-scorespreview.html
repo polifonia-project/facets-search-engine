@@ -57,7 +57,7 @@
                     dataType: "text",
                     success: function(data) {
                         var svg = vrvToolkit.renderData(data);
-                        document.getElementById("notation").innerHTML = svg;
+                        document.getElementById("notation{{i}}").innerHTML = svg;
                         $("#incipit{{i}}").html(svg);
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
@@ -70,7 +70,7 @@
             <div>
             <table class="preview"><tr>
             <td valign="10em"> </td>
-            <td>     <div id="notation">score placeholder</div> </td>
+            <td>     <div id="notation{{i}}">score placeholder</div> </td>
             </tr>
             </table>
             </div>
