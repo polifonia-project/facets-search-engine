@@ -1,54 +1,77 @@
-
 {% include 'loaddata/index.html' %}
 
 {% block content %}
 
-<div class="container">
-<div class="row mb-8">
 <div class="col-lg-7 mx-auto">
+
 {% if musicdoc %}
+<div class="text-center" >
 
-<div class="card text-center" >
-
-<div class="card-header">
+<div class="card-header mx-auto">
+<h4>
 Sucessfully loaded the music score.
 <br/>
+
+"{{musicdoc}}" is now under index: {{index_name}}
+<br/>
+
+{%comment%}
 If you want to load another, keep loading!
+<br/>
+
+{%endcomment%}
+</h4>
+
+<br/>
+<button onclick="window.location.href='/home/dashboard/{{index_name}}';" class="mx-auto">
+View {{index_name}}
+</button>
+
+<button onclick="window.location.href='/home/dashboard/';" class="mx-auto">
+View Dashboard
+</button>
+<br/>
+
 
 </div>
-"{{musicdoc}}" is now under index: {{index_name}}
-
-<br/>
-
-{% comment %}
-{{descr_dict}}
-<br/>
-{{encodedMS}}
-{% endcomment %}
 
 {% endif %}
 
 {% if zip_id %}
+<div class="card-header mx-auto">
 
 Successfully loaded the zip file.
 If you want to load another, just keep loading!
 
 Scores in {{zip_id}} is now under index: {{index_name}}
 
-{% endif %}
-
-</div>
-<div class="card text-center" >
-<button onclick="window.location.href='/home/dashboard/{{index_name}}';">
+<button onclick="window.location.href='/home/dashboard/{{index_name}}';" class="mx-auto">
 View {{index_name}}
 </button>
 
-<button onclick="window.location.href='/home/dashboard/';">
+<button onclick="window.location.href='/home/dashboard/';" class="mx-auto">
 View Dashboard
 </button>
+<br/>
+
 </div>
+
+{% endif %}
+
+{%comment%}
+<div class="mx-auto">
+<br/>
+<button onclick="window.location.href='/home/dashboard/{{index_name}}';" class="mx-auto">
+View {{index_name}}
+</button>
+
+<button onclick="window.location.href='/home/dashboard/';" class="mx-auto">
+View Dashboard
+</button>
+<br/>
+
 </div>
-</div>
+{%endcomment%}
 </div>
 </div>
 {% endblock %}

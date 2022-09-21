@@ -1,9 +1,9 @@
 
-<div class="bg-white p-3 rounded shadow">
+<div class="bg-white p-3 rounded shadow" style="width: 800px;">
 <form action="/search/results/" method="post">
 <h4>Facets</h4>
     
-<select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 800px;">
+<select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 200px;">
     {% if searchinput.composer %}
     <option selected>{{ searchinput.composer | title }}</option>
   {% else %}
@@ -13,7 +13,6 @@
   {% endfor %}
   {% endif %}
 </select>
-</div>
   {%comment%}
         <div class="input-group-append">
           <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>

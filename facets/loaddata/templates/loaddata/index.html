@@ -5,7 +5,6 @@
 
 <div class="container">
   
-  <div class="row mb-8">
     <div class="col-lg-7 mx-auto">
                 <h1>Load Documents</h1>
         <div class="alert alert-warning" role="alert">
@@ -22,7 +21,7 @@
           {% for index in indices_names %}
           <option value="{{ index }}">{{ index | title }}</option>
           {% endfor %}
-
+          </div>
 
           </select>
           <div class="d-flex align-middle">
@@ -36,15 +35,12 @@
           <option value="zip">ZIP</option>
           </select>
 
-
           <input type="submit">
-        </div>
-        </div>
+          </div>
+
         </form>
 
-      </div>
     </div>
   </div>
-
 </div>
 {% endblock %}
