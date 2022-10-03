@@ -1,0 +1,17 @@
+
+<div class="bg-white p-3 rounded shadow" style="width: 800px;">
+  <!-- Custom rounded search bars with input group -->
+    <form action="/loaddata/index_added/" method="POST" enctype="multipart/form-data">
+    <div class="mx-auto">
+	<h5>
+	Add a new index
+	<br/>
+	</div>
+
+	{% csrf_token %}
+		<form>
+  		<label for="indexname">Index name:</label><br>
+  		<input type="text" id="indexname" name="indexname"><br><br>
+  		<input type="submit">
+  		</form>
+</div>

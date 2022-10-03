@@ -31,7 +31,12 @@ except:
     print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
 
 def index(request):
-    indices = es.indices.get_alias().keys()
+    try:
+        indices = es.indices.get_alias().keys()
+    except:
+        template = loader.get_template('home/es_errorpage.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
 
     """
     # Find composer names in all indexes
@@ -73,7 +78,14 @@ class search_results:
         # print("result view called")
 
         es = Elasticsearch()
-        indices = es.indices.get_alias().keys()
+        try:
+            indices = es.indices.get_alias().keys()
+        except:
+            # if ES is not connected, it should be warned
+            template = loader.get_template('home/es_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
+
 
         if request.method == 'POST':
             #try:

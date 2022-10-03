@@ -7,7 +7,7 @@
   
     <div class="col-lg-7 mx-auto">
                 <h1>Load Documents</h1>
-        <div class="alert alert-warning" role="alert">
+        <div class="alert alert-warning">
           <form action="/loaddata/results/" method="POST" enctype="multipart/form-data">
 
           {% csrf_token %}
@@ -43,4 +43,8 @@
     </div>
   </div>
 </div>
+
+
+{%include  'loaddata/add_index.html' %}
+
 {% endblock %}

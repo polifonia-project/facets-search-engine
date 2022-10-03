@@ -2,7 +2,7 @@
 	Processing scores or zip of scores.
 
 	Transform score to music21 stream to MusicSummary,
-	Then extract features.
+	get metadata, extract features.
 
 """
 
@@ -195,6 +195,7 @@ def get_metadata_from_score(doctype, score, m21_score):
 
 def save_data(index_name, docid, doctype, score, m21_score):
 
+		# If there is no such index, create such index and store the score
 		if Index.objects.filter(name=index_name).exists():
 			index = Index.objects.get(name = index_name)
 		else:
@@ -202,7 +203,7 @@ def save_data(index_name, docid, doctype, score, m21_score):
 			index.name = index_name
 			index.save()
 
-		# Delete musicdoc object saved in database of the same id if exists
+		# Delete musicdoc object saved in database of the same id, if exists
 		MusicDoc.objects.filter(doc_id=docid).delete()
 
 	 	# Create a musicdoc object
@@ -498,6 +499,7 @@ def load_score(index_name, score, s_format, docid):
 			except:
 				print("Error when loading the current score with music21: ", docid)
 				return "", None
+			
 			musicdoc = save_data(index_name, docid, s_format, score, m21_score)
 
 			return m21_score, musicdoc

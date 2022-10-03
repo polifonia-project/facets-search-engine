@@ -9,7 +9,7 @@ from lib.search.IndexWrapper import IndexWrapper
 from elasticsearch import Elasticsearch
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-
+from rest.models import *
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
     es = Elasticsearch(hosts=[
@@ -23,10 +23,56 @@ except:
 @csrf_exempt
 def uploaddata(request):
     template = loader.get_template('loaddata/index.html')
-    indices = es.indices.get_alias().keys()
+    try:
+        indices = es.indices.get_alias().keys()
+    except:
+        template = loader.get_template('home/es_errorpage.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
+    
     context = {"indices_names": indices}
     return HttpResponse(template.render(context, request))
 
+@csrf_exempt
+def add_new_index(request):
+
+    if request.method == "GET":
+        template = loader.get_template('loaddata/index.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
+
+    if request.method == "POST":
+        template = loader.get_template('loaddata/added_new_index.html')
+        try:
+            indices = es.indices.get_alias().keys()
+        except:
+            # ES connection error
+            template = loader.get_template('home/es_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
+
+        index_name = request.POST.get('indexname')
+        
+        if index_name in indices:
+            context = {"indices_names": indices, "success": False, "index_name": index_name}
+            return HttpResponse(template.render(context, request))
+        else:
+            # Create index on ES
+            index_wrapper = IndexWrapper(index_name)
+            # If it does not exist on ES but exists in database, it should be erased from database first
+            if Index.objects.filter(name=index_name).exists():
+                Index.objects.filter(name=index_name).delete()
+            # Save in the database
+            index = Index()
+            index.name = index_name
+            index.save()
+            
+            # View new indices, should include the new index
+            indices = es.indices.get_alias().keys()
+            context = {"indices_names": indices, "success": True, "index_name": index_name}
+            print(context)
+            return HttpResponse(template.render(context, request))
+    
 @csrf_exempt
 def processdata(request):
 
@@ -34,8 +80,13 @@ def processdata(request):
 
     if request.method == "POST":
 
-        # In case the user wants to load more documents later
-        indices = es.indices.get_alias().keys()
+        # In case the user wants to load more documents
+        try:
+            indices = es.indices.get_alias().keys()
+        except:
+            template = loader.get_template('home/es_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
 
         # Load the music document
         try:

@@ -68,7 +68,14 @@ def fetch_musicdoc(request, index_name, doc_id):
 # dashboard
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')
-    indices = es.indices.get_alias()
+    try:
+        indices = es.indices.get_alias()
+    except:
+        # if ES is not connected, it should be warned
+        template = loader.get_template('home/es_errorpage.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
+    
     indices_stats = {}
     for key in indices.keys():
         # stats[key] = es.indices.stats(key)
@@ -78,11 +85,19 @@ def OverviewDataView(request):
     return HttpResponse(template.render(context, request))
 
 def IndexView(request, index_name):
+
     if request.method == "GET":
         # Return the info of ES index "index_name".
         template = loader.get_template('home/indexview.html')
 
-        indices = es.indices.get_alias()
+        try:
+            indices = es.indices.get_alias()
+        except:
+            # if ES is not connected, it should be warned
+            template = loader.get_template('home/es_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
+
         if index_name in indices:
             # TODO: info should be a list of documents under this index!! Not just document number.
             # info = {"aa" : 2, "bb": 3}

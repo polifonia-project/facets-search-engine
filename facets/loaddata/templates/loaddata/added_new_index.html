@@ -1,0 +1,40 @@
+{% include 'loaddata/index.html' %}
+
+{% block content %}
+
+<div class="col-lg-7 mx-auto">
+
+<div class="text-center" >
+{% if success == True %}
+
+<div class="card-header mx-auto">
+<h4>
+Sucessfully added the new index {{index_name}}.
+<br/>
+
+<button onclick="window.location.href='/home/dashboard/';" class="mx-auto">
+View Dashboard
+</button>
+<br/>
+</div>
+
+{%else%}
+<div class="card-header mx-auto">
+<h4>
+{{index_name}} already exists.
+<br/>
+
+<button onclick="window.location.href='/home/dashboard/';" class="mx-auto">
+View Dashboard
+</button>
+<br/>
+</div>
+
+
+</div>
+
+{%endif%}
+
+</div>
+
+{%endblock%}
