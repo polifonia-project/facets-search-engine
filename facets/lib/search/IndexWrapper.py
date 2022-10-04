@@ -354,6 +354,7 @@ class IndexWrapper:
             elif search_context.search_type == settings.EXACT_SEARCH:
                 search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
 
+        # To write: facets related
 
         return search
 

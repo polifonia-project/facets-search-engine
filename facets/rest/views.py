@@ -120,7 +120,13 @@ def index(request, index_name):
             index.save()
 
             return JSONResponse({"Message": "Created index " + index_name})
-    
+    """
+    elif request.method == "DELETE":
+        print(index_name)
+        if index_name == "scorelib":
+            return JSONResponse({"Message": "Not allowed to delete" + index_name})
+    """
+
     # Should not happen
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -190,13 +196,14 @@ def search(request, index_name):
 
         index_wrapper = IndexWrapper(index_name)
         """
-          The following call includes:
+          The following call does:
           searchcontext.pattern(abc format) -> music21 objects
           music21 objects -> items -> pattern sequence
           sequence -> encoded n-grams according to search type
           search in ES
         """
         # ES returns a "response" object with all the documents that matches query
+
 
         # Make sure the composer(s) specified exists in index:
         if searchcontext.facet_composers != []:

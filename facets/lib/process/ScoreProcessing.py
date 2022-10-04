@@ -24,7 +24,7 @@ import re
 
 def get_metadata_from_score(doctype, score, m21_score):
 	
-	#TODO: clean the '\n's from composer names and title names
+	#TODO: clean the '\n's from composer names and title names. kern
 	metainfo = {"title":"", "composer":""}
 	
 	if doctype == "xml":
@@ -193,6 +193,24 @@ def get_metadata_from_score(doctype, score, m21_score):
 
 	return metainfo
 
+"""
+def load_meta_from_json(dict_corpus):
+		# For zip, filter out the metadata we don't need(?) 
+		metainfo = {"title":"", "composer":""}
+		# Should this be empty? sometimes they can be extracted from score
+	
+		metainfo["title"] = dict_corpus["title"]
+		#metainfo["short_title"] = dict_corpus["short_title"]
+		metainfo["description"] = dict_corpus["description"]
+		#metainfo["short_description"] = dict_corpus["short_description"]
+		#metainfo["is_public"] = dict_corpus["is_public"]
+		if "copyright" in dict_corpus:
+			metainfo["copyright"] = dict_corpus["copyright"]
+		if "supervisors" in dict_corpus:
+			metainfo["supervisors"] = dict_corpus["supervisors"]
+		return metainfo
+"""
+
 def save_data(index_name, docid, doctype, score, m21_score):
 
 		# If there is no such index, create such index and store the score
@@ -352,6 +370,7 @@ def extract_features(score, music_summary, musicdoc):
 
 		return descr_dict
 
+
 def decompose_zip_name(fname):
 
 	dirname = os.path.dirname(fname)
@@ -386,12 +405,9 @@ def read_zip(index_name, byte_str):
 		m21scores = {}
 		musicdocs = {}
 
-		# May improve later: work with json metadata, cover pictures.
-		files = {}
+		# TODO: work with json metadata
 		found_metadata = False
-		found_cover = False
 		meta_dict = {}
-		cover_data = ""
 
 		for fname in zfile.namelist():
 			# Skip files with weird names
@@ -403,21 +419,21 @@ def read_zip(index_name, byte_str):
 
 			# TODO: if there is a folder within zip, work with it
 
-			# Read json of the corpus data, COULD BE USED LATER
-			"""
+			# Read json of the corpus data
 			if extension == ".json":
-				found_metadata = True 
-				meta_dict = json.loads(zfile.open(fname).read().decode('utf-8'))
-			elif base == "cover" and extension == ".jpg":
-				found_cover = True 
-				cover_data = zfile.open(fname).read()
-			"""
+				# should check name of the json file to know if it is for a single score or the whole zip...
+				found_metadata = True
+				#meta_dict = json.loads(zfile.open(fname).read().decode('utf-8'))
+				meta_dict = json.loads(zfile.read(fname).decode('utf'))
+				#THIS meta_dict SHOULD BE USED LATER IN SAVE_DATA but is there a better way?
+				#metainfo_zip = load_meta_from_json(meta_dict)
+			
+
 			if (extension == ".mei" or extension == ".xml"
 				or extension=='.krn' or extension=='.abc' or extension == '.musicxml'): #or extension == '.mxl' 
 				valid_namelist.append(fname)
 			else:
 				print ("Ignoring file %s.%s" % (base, extension))
-
 
 		for valid_name in valid_namelist:
 

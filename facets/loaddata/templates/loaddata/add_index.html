@@ -1,17 +1,21 @@
 
-<div class="bg-white p-3 rounded shadow" style="width: 800px;">
+    <div class="col-lg-7 mx-auto" style="width: 600px;">
+
+<div class="p-3 rounded shadow alert alert-info" >
   <!-- Custom rounded search bars with input group -->
-    <form action="/loaddata/index_added/" method="POST" enctype="multipart/form-data">
-    <div class="mx-auto">
-	<h5>
+
+	<h3 class="alert-heading">
 	Add a new index
+  </h3>
 	<br/>
-	</div>
 
 	{% csrf_token %}
-		<form>
-  		<label for="indexname">Index name:</label><br>
+		<form action="/loaddata/index_added/" method="POST" enctype="multipart/form-data">
+  		{%comment%}<label for="indexname">Index name:</label><br>{%endcomment%}
+  		Index name:
   		<input type="text" id="indexname" name="indexname"><br><br>
   		<input type="submit">
-  		</form>
+  	</form>
+</div>
+
 </div>

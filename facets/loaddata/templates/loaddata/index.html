@@ -3,28 +3,31 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-<div class="container">
+
   
-    <div class="col-lg-7 mx-auto">
-                <h1>Load Documents</h1>
+    <div class="col-lg-7 mx-auto" style="width: 600px;">
+
+        <h1>Load music data</h1>
+
         <div class="alert alert-warning">
+
+          <h3 class="alert-heading">Load documents</h3>
+          <br/>
           <form action="/loaddata/results/" method="POST" enctype="multipart/form-data">
 
           {% csrf_token %}
           <input type="file" name="myfile">
 
-<br/><br/>
-          <div class="d-flex align-middle">
+          <br/><br/>
 
-          <select name="indexname" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
+          <select name="indexname" class="px-4 mr-2 custom-select-sm" style="width: 10rem;">
           <option selected>Index name</option>
           {% for index in indices_names %}
           <option value="{{ index }}">{{ index | title }}</option>
           {% endfor %}
-          </div>
 
           </select>
-          <div class="d-flex align-middle">
+          
           <select name="fileformat" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
           <option selected>File format</option>
           <option value="mei">MEI</option>
@@ -36,15 +39,13 @@
           </select>
 
           <input type="submit">
-          </div>
+          </form>
+        </div>
 
-        </form>
-
-    </div>
   </div>
-</div>
 
 
+<br/>
 {%include  'loaddata/add_index.html' %}
 
 {% endblock %}
