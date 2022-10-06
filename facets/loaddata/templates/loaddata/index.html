@@ -12,6 +12,13 @@
         <div class="alert alert-warning">
 
           <h3 class="alert-heading">Load documents</h3>
+            <h6 class="alert-heading">
+            FACETS support the search of music documents in MEI, MusicXML, XML, HUMDRUM and ABC formats. <br/>
+            For loading multiple music documents, they may be uploaded as a ZIP. Metadata files may also be included in ZIP. Note that the ZIP should not include any folder.<br/>
+            It is highly recommended to include title and composer in the music score or metadata file, in order to allow faceted search navigation.
+            <br/>
+            </h6>
+
           <br/>
           <form action="/loaddata/results/" method="POST" enctype="multipart/form-data">
 
@@ -47,5 +54,7 @@
 
 <br/>
 {%include  'loaddata/add_index.html' %}
+<br/>
+{%include  'loaddata/add_metadata.html' %}
 
 {% endblock %}

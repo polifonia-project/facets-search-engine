@@ -1,0 +1,25 @@
+{% include 'loaddata/index.html' %}
+
+{% block content %}
+<br/>
+<div class="col-lg-7 mx-auto" style="width: 600px;">
+
+<div class="text-center" >
+
+<div class="card-header mx-auto">
+	<h4>
+	Sucessfully added metadata for {{doc_id}} in {{index_name}}.
+	The title of {{doc_id}} is {{title}}, and the composer is {{composer}}.
+	<br/>
+
+	<button onclick="window.location.href='/home/dashboard/';" class="mx-auto">
+	View Dashboard
+	</button>
+	</h4>
+	<br/>
+</div>
+
+
+</div>
+
+{%endblock%}

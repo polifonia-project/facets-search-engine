@@ -102,7 +102,14 @@ class IndexWrapper:
             return encodedMS
         else:
             return None
-        
+    
+    def update_musicdoc_metadata(self, index_name, doc_id):
+        search = Search(using=self.elastic_search)
+        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+        search = search.query("match_phrase", _id=doc_id)
+        #TODO!!!!!!
+        return
+
     def index_musicdoc(self, index_name, musicdoc, descr_dict, encodedMS):
         """ 
         Add or replace a MusicDoc in the ElasticSearch index

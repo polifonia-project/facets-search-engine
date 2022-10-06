@@ -1,0 +1,39 @@
+<div class="col-lg-7 mx-auto" style="width: 600px;">
+
+<div class="p-3 rounded shadow alert alert-warning" >
+  <!-- Custom rounded search bars with input group -->
+
+	<h3 class="alert-heading">
+	Load metadata for indexed music documents
+  </h3>
+
+  <h6 class="alert-heading">
+	See Help to find example of supported metadata files.	<br/>
+	It should be in json format, strictly named after the document id of the corresponding already indexed document. If you are not sure about the document id, or which index the document belongs to, please see Dashboard.	<br/>
+	Once metadata is uploaded, it can not be erased. If you wish to update any information, you may upload a new metadata file to cover the previous version.
+	
+  </h6>
+	<br/>
+
+	{% csrf_token %}
+
+			<form action="/loaddata/loaded_metadata/" method="POST" enctype="multipart/form-data">
+
+          {% csrf_token %}
+          <input type="file" name="jsonfile">
+
+          <br/><br/>
+
+          <select name="indexname" class="px-4 mr-2 custom-select-sm" style="width: 10rem;">
+          <option selected>Index name</option>
+          {% for index in indices_names %}
+          <option value="{{ index }}">{{ index | title }}</option>
+          {% endfor %}
+          </select>
+          
+          <input type="submit">
+      </form>
+
+</div>
+
+</div>

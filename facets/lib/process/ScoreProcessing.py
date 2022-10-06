@@ -194,6 +194,7 @@ def get_metadata_from_score(doctype, score, m21_score):
 	return metainfo
 
 """
+# this is metadata for corpus but we need metadata for single files
 def load_meta_from_json(dict_corpus):
 		# For zip, filter out the metadata we don't need(?) 
 		metainfo = {"title":"", "composer":""}
@@ -492,6 +493,7 @@ def load_score(index_name, score, s_format, docid):
 		"""
 			Load a music score and save in database
 		"""
+
 		if s_format != "mei" and s_format != "xml" and s_format != "krn" and s_format != "abc" and s_format != "musicxml": #and s_format != "mid": #need to work on midi
 			print("Document format not supported for loading the current score.")
 			return "", None

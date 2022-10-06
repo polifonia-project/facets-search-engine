@@ -10,6 +10,7 @@ from elasticsearch import Elasticsearch
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest.models import *
+
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
     es = Elasticsearch(hosts=[
@@ -72,7 +73,88 @@ def add_new_index(request):
             context = {"indices_names": indices, "success": True, "index_name": index_name}
             print(context)
             return HttpResponse(template.render(context, request))
-    
+
+@csrf_exempt
+def add_metadata(request):
+    if request.method == "GET":
+        template = loader.get_template('loaddata/index.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
+
+    if request.method == "POST":
+        template = loader.get_template('loaddata/loaded_metadata.html')
+
+        # First check if the ES is connected
+        try:
+            indices = es.indices.get_alias().keys()
+        except:
+            # if there is ES connection error
+            template = loader.get_template('home/es_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
+
+        index_name = request.POST.get('indexname')
+
+        try:
+            uploadrequest = {}
+            templist = request.FILES["myfile"].name.split(".")
+            doc_id = templist[0] # doc_id of the metadata is describing
+            real_format = templist[1] # real format of the uploaded file
+
+            if real_format != "json":
+                # refer to error page if the actual file is not in json format
+                template = loader.get_template('loaddata/loaderror.html')
+                context = {"indices_names": indices}
+                return HttpResponse(template.render(context, request))         
+            
+            uploadedfile = request.FILES["myfile"]
+
+            loadedfile = uploadedfile.read().decode('utf')
+
+            # load metadata as a dictionary 
+            metainfo = json.loads(loadedfile)
+
+            # if the index does not exist: this is impossible situation for UI but this should be in CURL
+            if index_name not in indices or not Index.objects.filter(name=index_name).exists():
+                template = loader.get_template('loaddata/loaderror.html')
+                context = {"indices_names": indices}
+                print("Error related to index.")
+                return HttpResponse(template.render(context, request))
+            
+            # check if the file is in the database. 
+            if not Musicdoc.objects.filter(doc_id=doc_id).exists():
+                template = loader.get_template('loaddata/loaderror.html')
+                context = {"indices_names": indices}
+                print("Doc is not in the database")
+                return HttpResponse(template.render(context, request))
+            
+            # check if the file is not in the index.
+            indexwrapper = IndexWrapper(index_name)
+            docMS = indexwrapper.get_MS_from_doc(index_name, doc_id)
+            if docMS == None:
+                template = loader.get_template('loaddata/loaderror.html')
+                context = {"indices_names": indices}
+                print("MusicSummary of the document is not indexed, considered as document is not indexed in ES")
+                return HttpResponse(template.render(context, request))
+            
+            # Save in the database.
+            musicdoc = MusicDoc.objects.get(doc_id = doc_id)
+            musicdoc.title = metainfo["title"]
+            musicdoc.composer = metainfo["composer"]
+            musicdoc.save()
+
+            # Save in the ES.
+            #TODO! indexwrapper.update_musicdoc_metadata(index_name, doc_id)
+
+            context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  metainfo["composer"]}
+            return HttpResponse(template.render(context, request))
+
+        except:
+            # The loading of json is causing error, call load error page
+            template = loader.get_template('loaddata/loaderror.html')
+            context = {"indices_names": indices}
+            return HttpResponse(template.render(context, request))
+
 @csrf_exempt
 def processdata(request):
 
