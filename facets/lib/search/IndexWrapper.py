@@ -6,6 +6,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Index
 from elasticsearch_dsl import Document, Integer, Text, Object, Nested, InnerDoc
 from elasticsearch_dsl import Q
+from elasticsearch_dsl import UpdateByQuery
 from elasticsearch.helpers import bulk
 
 import json
@@ -89,12 +90,16 @@ class IndexWrapper:
 
         return composer_names
 
+    def get_source_from_doc(self, index_name, doc_id):
+        search = Search(using=self.elastic_search)
+        search = search.query("match_phrase", _id=doc_id)
+        doc_info = search.execute()
+        return doc_info.hits.hits[0]['_source']
 
     def get_MS_from_doc(self, index_name, doc_id):
+        # Get MS of the doc
 
-        # Get musicsummary of the given doc_id
         search = Search(using=self.elastic_search)
-        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
         search = search.query("match_phrase", _id=doc_id)
         doc_info = search.execute()
         if 'summary' in doc_info.hits.hits[0]['_source']:
@@ -102,12 +107,58 @@ class IndexWrapper:
             return encodedMS
         else:
             return None
-    
-    def update_musicdoc_metadata(self, index_name, doc_id):
+
+    def get_descriptor_from_doc(self, index_name, doc_id):
+        # Get descriptor of the doc
+
         search = Search(using=self.elastic_search)
-        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
         search = search.query("match_phrase", _id=doc_id)
-        #TODO!!!!!!
+        doc_info = search.execute()
+        
+        descr_dict = {}
+        if 'chromatic' in doc_info.hits.hits[0]['_source']:
+            descr_dict["chromatic"] = doc_info.hits.hits[0]['_source']['chromatic']
+        if 'diatonic' in doc_info.hits.hits[0]['_source']:
+            descr_dict["diatonic"] = doc_info.hits.hits[0]['_source']['diatonic']
+        if 'rhythm' in doc_info.hits.hits[0]['_source']: 
+            # note that it's "rhythm" on ES, not rhythmic
+            descr_dict["rhythmic"] = doc_info.hits.hits[0]['_source']['rhythm'] 
+        if 'notes' in doc_info.hits.hits[0]['_source']:
+            descr_dict["notes"] = doc_info.hits.hits[0]['_source']['notes']
+        if 'lyrics' in doc_info.hits.hits[0]['_source']:
+            descr_dict["lyrics"] = doc_info.hits.hits[0]['_source']['lyrics']
+
+        return doc_info.hits.hits[0]['_source']
+
+    def update_musicdoc_metadata(self, index_name, doc_id, title, composer):
+        
+        # todo for templates: there should be an option for updating all the doc_id in all indexes in UI "all above"
+
+        """
+        ubq = UpdateByQuery(index = index_name).using(self.elastic_search)
+        ubq = ubq.query('match', __id=doc_id)
+        print(ubq.to_dict())
+        """
+        # get the stored MS
+        encodedMS = self.get_MS_from_doc(index_name, doc_id)
+        
+        musicdoc_index = MusicDocIndex(
+            meta={'id': doc_id, 'index': index_name},
+            title = title, 
+            composer = composer,
+            
+            summary = encodedMS
+        )
+
+        # TO DEBUG
+        # get the descriptors as well to not lose any info
+        descr_dict = self.get_descriptor_from_doc(index_name, doc_id)
+
+        musicdoc_index.add_descriptor(descr_dict)
+
+        # Save the updated index
+        musicdoc_index.save(using=self.elastic_search, id=doc_id)
+
         return
 
     def index_musicdoc(self, index_name, musicdoc, descr_dict, encodedMS):

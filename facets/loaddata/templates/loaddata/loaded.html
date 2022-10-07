@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="col-lg-7 mx-auto">
+<div class="col-lg-7 mx-auto" style="width: 600px;">
 
 {% if musicdoc %}
 <div class="text-center" >
@@ -11,15 +11,8 @@
 <h4>
 Sucessfully loaded the music score.
 <br/>
-
 "{{musicdoc}}" is now under index: {{index_name}}
 <br/>
-
-{%comment%}
-If you want to load another, keep loading!
-<br/>
-
-{%endcomment%}
 </h4>
 
 <br/>
@@ -41,7 +34,7 @@ View Dashboard
 <div class="card-header mx-auto">
 
 Successfully loaded the zip file.
-If you want to load another, just keep loading!
+<br/>
 
 Scores in {{zip_id}} is now under index: {{index_name}}
 

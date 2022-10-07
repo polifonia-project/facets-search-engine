@@ -22,6 +22,30 @@ except:
     print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
 
 @csrf_exempt
+def get_filename_and_format(full_filename):
+    # make sure to get the right filename
+
+    templist = full_filename.split(".")
+
+    if len(templist) < 2: 
+        # The full filename does not include format name, return error page.
+        template = loader.get_template('loaddata/loaderror.html')
+        context = {"indices_names": indices}
+        return HttpResponse(template.render(context, request))
+            
+    doc_id = templist[0] # normally the doc_id is the full string before the dot
+    real_format = templist[-1] # real format of the uploaded file
+
+    if len(templist) > 2:
+        # When there is one or more '.' in the filename, we have to get it right
+        lenfilename = len(full_filename) - len(real_format)
+        doc_id = full_filename[0:lenfilename-1]
+
+    real_format = real_format.lower()
+
+    return doc_id, real_format
+
+@csrf_exempt
 def uploaddata(request):
     template = loader.get_template('loaddata/index.html')
     try:
@@ -93,21 +117,20 @@ def add_metadata(request):
             context = {}
             return HttpResponse(template.render(context, request))
 
+        context = {"indices_names": indices}
+
         index_name = request.POST.get('indexname')
 
         try:
-            uploadrequest = {}
-            templist = request.FILES["myfile"].name.split(".")
-            doc_id = templist[0] # doc_id of the metadata is describing
-            real_format = templist[1] # real format of the uploaded file
+            full_filename = request.FILES["jsonfile"].name
 
+            doc_id, real_format = get_filename_and_format(full_filename)
             if real_format != "json":
                 # refer to error page if the actual file is not in json format
                 template = loader.get_template('loaddata/loaderror.html')
-                context = {"indices_names": indices}
                 return HttpResponse(template.render(context, request))         
             
-            uploadedfile = request.FILES["myfile"]
+            uploadedfile = request.FILES["jsonfile"]
 
             loadedfile = uploadedfile.read().decode('utf')
 
@@ -115,17 +138,21 @@ def add_metadata(request):
             metainfo = json.loads(loadedfile)
 
             # if the index does not exist: this is impossible situation for UI but this should be in CURL
-            if index_name not in indices or not Index.objects.filter(name=index_name).exists():
+            if index_name not in indices:
                 template = loader.get_template('loaddata/loaderror.html')
-                context = {"indices_names": indices}
                 print("Error related to index.")
                 return HttpResponse(template.render(context, request))
-            
-            # check if the file is in the database. 
-            if not Musicdoc.objects.filter(doc_id=doc_id).exists():
+
+            # if the index is in database
+            if not Index.objects.filter(name=index_name).exists():
                 template = loader.get_template('loaddata/loaderror.html')
-                context = {"indices_names": indices}
-                print("Doc is not in the database")
+                print("Error related to index.")
+                return HttpResponse(template.render(context, request))
+
+            # check if the file is in the database. 
+            if not MusicDoc.objects.filter(doc_id=doc_id).exists():
+                template = loader.get_template('loaddata/loaderror.html')
+                print("Doc is not in the database.")
                 return HttpResponse(template.render(context, request))
             
             # check if the file is not in the index.
@@ -133,26 +160,29 @@ def add_metadata(request):
             docMS = indexwrapper.get_MS_from_doc(index_name, doc_id)
             if docMS == None:
                 template = loader.get_template('loaddata/loaderror.html')
-                context = {"indices_names": indices}
-                print("MusicSummary of the document is not indexed, considered as document is not indexed in ES")
+                print("MusicSummary is not indexed, this document should be re-indexed so FACETS could search it")
                 return HttpResponse(template.render(context, request))
             
+            """
             # Save in the database.
             musicdoc = MusicDoc.objects.get(doc_id = doc_id)
             musicdoc.title = metainfo["title"]
             musicdoc.composer = metainfo["composer"]
             musicdoc.save()
+            """
 
+            print("haha")
             # Save in the ES.
-            #TODO! indexwrapper.update_musicdoc_metadata(index_name, doc_id)
+            indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=metainfo["composer"])
+            print("haha")
 
             context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  metainfo["composer"]}
             return HttpResponse(template.render(context, request))
 
-        except:
+        except Exception as ex:
+            print(ex)
             # The loading of json is causing error, call load error page
             template = loader.get_template('loaddata/loaderror.html')
-            context = {"indices_names": indices}
             return HttpResponse(template.render(context, request))
 
 @csrf_exempt
@@ -174,10 +204,9 @@ def processdata(request):
         try:
             uploadrequest = {}
             index_name = request.POST.get('indexname')
-            templist = request.FILES["myfile"].name.split(".")
-            doc_id = templist[0]
-            real_format = templist[1]
-            
+            full_filename = request.FILES["myfile"].name
+            doc_id, real_format = get_filename_and_format(full_filename)
+
             uploadrequest["fileformat"] = request.POST.get('fileformat').lower()
 
             # Check the file format, make sure it is supported.
