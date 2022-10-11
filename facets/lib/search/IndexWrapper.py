@@ -481,7 +481,6 @@ class MusicDocIndex(Document):
             #voice_id = dict_voice['voice']
             #print(voice_id)
             #print(dict_voice['value'])
-
         if 'diatonic' in descr_dict:
             for dict_voice in descr_dict["diatonic"]:
                 self.diatonic.append(dict_voice)

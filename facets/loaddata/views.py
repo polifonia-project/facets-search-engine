@@ -172,10 +172,6 @@ def add_metadata(request):
             # Save in the ES.
             indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=metainfo["composer"])
 
-            # test: make sure it is there
-            #testdes = indexwrapper.get_descriptor_from_doc(index_name, doc_id)
-            #print(testdes)
-
             context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  metainfo["composer"]}
             return HttpResponse(template.render(context, request))
 
