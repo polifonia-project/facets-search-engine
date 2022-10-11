@@ -128,7 +128,9 @@ class IndexWrapper:
         if 'lyrics' in doc_info.hits.hits[0]['_source']:
             descr_dict["lyrics"] = doc_info.hits.hits[0]['_source']['lyrics']
 
-        return doc_info.hits.hits[0]['_source']
+        temp_dict = doc_info.hits.hits[0]['_source'].to_dict()
+
+        return temp_dict
 
     def update_musicdoc_metadata(self, index_name, doc_id, title, composer):
         
@@ -141,23 +143,19 @@ class IndexWrapper:
         """
         # get the stored MS
         encodedMS = self.get_MS_from_doc(index_name, doc_id)
-        
         musicdoc_index = MusicDocIndex(
             meta={'id': doc_id, 'index': index_name},
             title = title, 
             composer = composer,
-            
             summary = encodedMS
         )
 
-        # TO DEBUG
         # get the descriptors as well to not lose any info
         descr_dict = self.get_descriptor_from_doc(index_name, doc_id)
-
-        musicdoc_index.add_descriptor(descr_dict)
+        musicdoc_index.preserve_descriptor(descr_dict)
 
         # Save the updated index
-        musicdoc_index.save(using=self.elastic_search, id=doc_id)
+        musicdoc_index.save(using=self.elastic_search, index=index_name, id=doc_id)
 
         return
 
@@ -474,3 +472,28 @@ class MusicDocIndex(Document):
             self.notes.append(descr_dict["notes"][voice_id])
         for voice_id in descr_dict["lyrics"]:
             self.lyrics.append(descr_dict["lyrics"][voice_id])
+
+    def preserve_descriptor(self, descr_dict):
+
+        if 'chromatic' in descr_dict:
+            for dict_voice in descr_dict["chromatic"]:
+                self.chromatic.append(dict_voice)
+            #voice_id = dict_voice['voice']
+            #print(voice_id)
+            #print(dict_voice['value'])
+
+        if 'diatonic' in descr_dict:
+            for dict_voice in descr_dict["diatonic"]:
+                self.diatonic.append(dict_voice)
+
+        if "rhythm" in descr_dict:
+            for dict_voice in descr_dict["rhythm"]:
+                self.rhythm.append(dict_voice)
+
+        if "notes" in descr_dict:
+            for dict_voice in descr_dict["notes"]:
+                self.notes.append(dict_voice)
+
+        if "lyrics" in descr_dict:
+            for dict_voice in descr_dict["lyrics"]:
+                self.lyrics.append(dict_voice)

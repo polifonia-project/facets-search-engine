@@ -128,7 +128,7 @@ def add_metadata(request):
             if real_format != "json":
                 # refer to error page if the actual file is not in json format
                 template = loader.get_template('loaddata/loaderror.html')
-                return HttpResponse(template.render(context, request))         
+                return HttpResponse(template.render(context, request))      
             
             uploadedfile = request.FILES["jsonfile"]
 
@@ -163,18 +163,18 @@ def add_metadata(request):
                 print("MusicSummary is not indexed, this document should be re-indexed so FACETS could search it")
                 return HttpResponse(template.render(context, request))
             
-            """
             # Save in the database.
             musicdoc = MusicDoc.objects.get(doc_id = doc_id)
             musicdoc.title = metainfo["title"]
             musicdoc.composer = metainfo["composer"]
             musicdoc.save()
-            """
 
-            print("haha")
             # Save in the ES.
             indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=metainfo["composer"])
-            print("haha")
+
+            # test: make sure it is there
+            #testdes = indexwrapper.get_descriptor_from_doc(index_name, doc_id)
+            #print(testdes)
 
             context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  metainfo["composer"]}
             return HttpResponse(template.render(context, request))
