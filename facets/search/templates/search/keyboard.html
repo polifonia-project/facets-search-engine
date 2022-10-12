@@ -1,9 +1,7 @@
  {% load i18n %}
-
+{%comment%}
 <script src="/static/js/verovio-toolkit.js"></script>
-
-<script src="/static/js/piano.js"></script>
-<script src="/static/js/soundmanager.js"></script>
+{%endcomment%}
 
 <div class="document keyboardWrap">
 	<!-- Pattern: {melodicPattern} <div> Champ dans lequel la mélodie 
@@ -155,10 +153,11 @@
 	</table>
 </div>
 
-
-
+<script src="/static/js/piano.js"></script>
 <script type="text/javascript">
+
 	//<![CDATA[
+
 	Piano.onChange = function(str) {
 		document.getElementById('pattern').value = str;
 	};
