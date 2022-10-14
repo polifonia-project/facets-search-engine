@@ -287,5 +287,3 @@ class search_results:
             "highlight_ids": highlight_ids
         }
         return HttpResponse(template.render(context, request))
-
-

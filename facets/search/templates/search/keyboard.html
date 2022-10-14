@@ -2,6 +2,7 @@
 {%comment%}
 <script src="/static/js/verovio-toolkit.js"></script>
 {%endcomment%}
+<script src="/static/js/verovio.js"></script>
 
 <div class="document keyboardWrap">
 	<!-- Pattern: {melodicPattern} <div> Champ dans lequel la mélodie 
@@ -166,7 +167,7 @@
 
 	// Pour donner une valeur initiale a la melodie 
 	if ('{}{pattern}')
-		Piano.getMelody('{% if searchinput.pianopattern %}{{ searchinput.pianopattern }}{% endif %}');
+		Piano.getMelody('');
 
 	// ]]>
 </script>
