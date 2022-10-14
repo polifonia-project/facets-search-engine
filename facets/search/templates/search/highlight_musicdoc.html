@@ -15,12 +15,17 @@
 
             <div class="card text-center">
                 <div class="card-header">
-                    URL of the score is <a href="{{ doc_url }}">URL</a>
                     <ul>
-                        <li>docid: {{ doc_id }} </li>
-                        <li>docurl: {{ doc_url }} </li>
-                        
-                        <li>doctype: {{ doc_type }} </li>
+                        <li>Document ID: {{ doc_id }} </li>
+                        {% if title != null and title != "" %}
+                        <li> Title: {{ title }} </li>
+                        {% else %}
+                        {% endif %}
+                        {% if composer != null and composer != ""%}
+                        <li> Composer: {{ composer }} </li>
+                        {% else %}
+                        {% endif %}
+                        <li>Score format: {{ doc_type }} </li>
                     </ul>
                 </div>
                 {% if doc_url %}

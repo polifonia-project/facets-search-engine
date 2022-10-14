@@ -1,0 +1,25 @@
+{% extends 'base.html'%}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container">
+
+  <div class="row mb-5">
+    <div class="col-lg-8 mx-auto">
+
+    <h1 class="text-center">Search Results</h1>
+
+    {% include 'search/form.html' %}
+    <br/>
+    
+    <div class="d-flex align-middle alert alert-warning" role="alert">
+    <h4 class="text-center">  Please re-enter your search! </h4>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+</div>
+{% endblock %}

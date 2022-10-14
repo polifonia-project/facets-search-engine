@@ -88,7 +88,7 @@ class search_results:
 
 
         if request.method == 'POST':
-            #try:
+            try:
                 searchinput = {}
                 searchinput["pattern"] = request.POST.get('pattern', False)
                 if request.POST.get('mirror', False):
@@ -207,11 +207,12 @@ class search_results:
                             return HttpResponse(str(ex))
 
                     # the idea is to get url for abc pattern display,
-                    # but the only way to do it is to save the query
-                    abcurl = "http://"+hostname+"/search/query/"#+searchinput["pattern"]+"/"
+                    # but the only way to do it is to save the query somewhere
+                    # maybe use request session instead?
+                    #abcurl = "http://"+hostname+"/search/query/"#+searchinput["pattern"]+"/"
 
                 else:
-                    # TODO: lyrics?
+                    # TODO: lyrics and text, right now just leave them empty
                     match_dict_display = {}
                     score_info = {}
                     num_matching_patterns = 0
@@ -220,6 +221,9 @@ class search_results:
                 #    print("Error occurred while searching on ES index:", str(ex))
 
                 #print("Matching documents are:", matching_doc_ids)
+
+                request.session["matching_locations"] = matching_locations
+                #request.session["score_info"] = score_info
 
                 template = loader.get_template('search/results.html')
                 context = {
@@ -234,35 +238,37 @@ class search_results:
                     "matching_composers": matching_composers,
                     "matching_locations": matching_locations,
                     "score_info": score_info,
-                    "query_url": abcurl
+                    #"query_url": abcurl
                 }
 
                 return HttpResponse(template.render(context, request))
+            except: 
+                template = loader.get_template('search/search_errorpage.html')
+                context = {"indices_names": indices}
+                return HttpResponse(template.render(context, request))
+
         elif request.method == 'GET':
             # should not be called at this moment
-            return HttpResponse("Please return and search again.")
+            template = loader.get_template('search/search_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
 
-    def HighlightMusicDocView(request, doc_id):
+    def HighlightMusicDocView(request, index_name, doc_id):
         # Highlight patterns while viewing a music document
         # not in use right now!!
 
-        """
-        TODO:
-        1. HOW to modify the code in results-list.html to redirect it with the attribute of index name?
-        2. HOW to get the ids to highlight from def result?
-
-        3. HOW to highlight with verovio toolkit?
+        #TODO: HOW to highlight with verovio toolkit?
     
-        #if request.method == 'GET':
-        #    highlight_ids = request.GET.get('matching_doc_ids')
-        #try:
-            # highlight_ids = matching_locations[doc_id]["matching_ids"]
-        #except Exception as ex:
-        #    print("Error occurred while getting ids to highlight:", str(ex))
-
-        """
         template = loader.get_template('search/highlight_musicdoc.html')
 
+        all_matching = request.session.get('matching_locations')
+        # Find the list of ids to highlight in this doc
+        for dict_i in all_matching:
+            if dict_i["doc"] == doc_id:
+                highlight_ids = dict_i["matching_ids"]
+        print(highlight_ids)
+
+        # Get url to display the doc
         try:
             musicdoc = MusicDoc.objects.get(doc_id=doc_id)
         except Exception as ex:
@@ -274,9 +280,11 @@ class search_results:
         context = {
             "index_name": index_name,
             "doc_type": musicdoc.doc_type,
+            "composer": musicdoc.composer,
+            "title": musicdoc.title,
             "doc_id": doc_id,
-            "doc_url": doc_url#,
-            #"highlight_ids": highlight_ids
+            "doc_url": doc_url,
+            "highlight_ids": highlight_ids
         }
         return HttpResponse(template.render(context, request))
 

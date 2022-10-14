@@ -33,8 +33,13 @@
             </br>
             Composer: {{v.3}}
             </br>
-            Click to see full score of the document: 
+            See full score of the document: 
+            {%comment%}
+            # this version is not highlighted
             <a href="/home/dashboard/{{index_name}}/{{i}}"> "{{i}}" </a>
+            {%endcomment%}
+            <a href="/search/results/{{index_name}}/{{i}}/"> "{{i}}" </a>
+
             </h6>
             </br>
             <script type="text/javascript">
@@ -90,7 +95,7 @@
     {% else %}
     <table class="preview"><tr>
         <td valign="top"> </td>
-        <td>     <div id="notation">Please re-enter your search!</div> </td>
+        <td>     <div>Please re-enter your search!</div> </td>
     </tr>
     </table>
     {% endif %}
