@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-twuznz#^r#ruluxbh)l9=zp%5(h%ndzuqxbju82f0w589cv-pl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 APPEND_SLASH = True
-ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', ]
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'neuma-dev.huma-num.fr', ]
 
 
 # Application definition
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'search',
     'loaddata',
-    'debug_toolbar',
+    # 'debug_toolbar',
     # 'django_elasticsearch_dsl',
     # 'django_elasticsearch_dsl_drf',
 ]
@@ -62,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'facets.urls'
@@ -169,21 +169,6 @@ ELASTIC_SEARCH = {"host": "localhost", "port": 9200}
 MAX_ITEMS_IN_RESULT = 1000
 
 INTERNAL_IPS = ['127.0.0.1', 'localhost', ]
-
-DEBUG_TOOLBAR_PANELS = [
-    'debug_toolbar.panels.versions.VersionsPanel',
-    'debug_toolbar.panels.timer.TimerPanel',
-    'debug_toolbar.panels.settings.SettingsPanel',
-    'debug_toolbar.panels.headers.HeadersPanel',
-    'debug_toolbar.panels.request.RequestPanel',
-    'debug_toolbar.panels.sql.SQLPanel',
-    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-    'debug_toolbar.panels.templates.TemplatesPanel',
-    'debug_toolbar.panels.cache.CachePanel',
-    'debug_toolbar.panels.signals.SignalsPanel',
-    'debug_toolbar.panels.logging.LoggingPanel',
-    'debug_toolbar.panels.redirects.RedirectsPanel',
-]
 
 # Maximum 500MB data for a single bulk loading request
 DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000
