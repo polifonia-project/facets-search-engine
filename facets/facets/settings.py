@@ -18,7 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # From Neuma:
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+# MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+MEDIA_ROOT = BASE_DIR.as_posix()+ "/media"
+
 MEDIA_URL = '/media/'
 
 NEUMA_ID_SEPARATOR = ":"
@@ -94,7 +96,7 @@ WSGI_APPLICATION = 'facets.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR.as_posix() + 'db.sqlite3',
     }
 }
 
@@ -133,8 +135,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = BASE_DIR.as_posix()+ "/static"
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'bootstrap')]
 
 # Default primary key field type
@@ -172,3 +175,10 @@ INTERNAL_IPS = ['127.0.0.1', 'localhost', ]
 
 # Maximum 500MB data for a single bulk loading request
 DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000
+
+try:
+    from facets.local_settings import *
+    print("local settings .... ok")
+except ImportError as error:
+    print(error)
+

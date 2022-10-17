@@ -42,7 +42,6 @@ urlpatterns = [
     path('index/<str:index_name>/<str:doc_id>/', views.document, name='document'),
     # path('admin/', admin.site.urls),
     # path('ui/', homeviews.urls),
-    path('__debug__/', include('debug_toolbar.urls')),
     # to be modified: currrently everything works under home/
 ]
 
