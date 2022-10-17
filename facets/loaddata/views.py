@@ -12,14 +12,13 @@ from django.views.decorators.csrf import csrf_exempt
 from rest.models import *
 
 try:
-    host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
-    es = Elasticsearch(hosts=[
-        {'host': host, 'port': settings.ELASTIC_SEARCH["port"]},
-        {'host': "FACETS-ES", 'port': 9200},
-        {'host': "0.0.0.0", 'port': 9200}
-    ])
+    # host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
+    hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+    host=hp["host"]
+    port=hp["port"]
+    es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
 except:
-    print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
+    print("\n\n**loaddata**** Error connecting to Elasticsearch, please check your if it is running.")
 
 @csrf_exempt
 def get_filename_and_format(full_filename):

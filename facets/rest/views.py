@@ -38,18 +38,15 @@ from elasticsearch import Elasticsearch
 logger = logging.getLogger(__name__)
 
 def establish_es_connection():
-    try:
-        print("\n\n   *** coucou *** \n\n")
-        host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
-        es = Elasticsearch(hosts=[
-            {'host': host, 'port': settings.ELASTIC_SEARCH["port"]},
-            {'host': "FACETS-ES", 'port': 9200},
-            {'host': "0.0.0.0", 'port': 9200},
-            {'host': "127.0.0.1", 'port': 9200}
-        ])
-    except:
-        print("\n\n******Error connecting to Elasticsearch, please check your if it is running.")
-    return es
+	try:
+		# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
+		hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+		host=hp["host"]
+		port=hp["port"]
+		es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
+	except:
+		print("\n\n**rest**** Error connecting to Elasticsearch, please check your if it is running.")
+	return es
 
 class JSONResponse(HttpResponse):
     """
