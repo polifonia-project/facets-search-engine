@@ -1,0 +1,196 @@
+ {% load i18n %}
+
+<div class="document keyboardWrap">
+	<!-- Pattern: {melodicPattern} <div> Champ dans lequel la mélodie 
+                                                            codée est placée : <input id="jejoue" type="text" size="64" value="" /><br/> 
+                                                            </div> -->
+	<div class="instructions">
+		<a href="#">Important.</a> {% trans "The melodic pattern must contain at least three intervals" %}
+	</div>
+
+	<input id="pattern" name="pattern" type="hidden" size="64" value="" />
+
+	<div id="seepartition" class="seepartition">
+		<!-- <p id="partition" class="partition"></p> <br class="clear"/> -->
+	</div>
+
+	<table width="100%">
+		<tbody>
+			<tr height="10px">
+				<td></td>
+			</tr>
+
+			<tr class="underlined">
+
+				<td class="withPadding">
+					<a href="#clearnote" onclick="return Piano.clear.last()"> {% trans "Clear last note"	%} </a> | 
+					<a href="#clearall" onclick="return Piano.clear.all()"> {% trans "Clear all" %}</a> 
+					<br /> 
+					{% trans "Exact search" %} 
+					<input id="exactSearch" name="searchType" 
+																	{% if searchType == 'exactSearch' %} checked="checked" {% endif %} 
+																	type="radio"
+																	value="exactSearch" /> | 
+					{% trans "Diatonic search" %} 
+					<input id="diatonicSearch" name="searchType" 
+																		 {% if searchType == 'diatonicSearch' %} checked="checked" {% endif %} 
+																		 type="radio"
+																		 value="diatonicSearch" /> | 
+					{% trans "Melodic search" %} 
+					<input id="melodicSearch" name="searchType" 
+																		{% if searchType == 'melodicSearch' %} checked="checked" {% endif %} 
+																		type="radio"
+																		value="melodicSearch" /> | 
+					{% trans "Rythmic search"%} 
+					<input id="rhythmicSearch" name="searchType" 
+																		{% if searchType == "rhythmicSearch" %} checked="checked" {% endif %} 
+																		type="radio"
+																		value="rhythmicSearch" /> 
+					<br /> 
+					{% trans "Mirror search"%}: 
+					{% trans "Yes"%}: 
+					<input id="true" name="mirror_search" type="radio" value="yes"/>
+					{% trans "No"%}: 
+					<input id="false" name="mirror_search" type="radio" value="no"/>
+					<br /> 
+					{% trans "Last note duration"%} : 
+					<a href="#4tps" class="4tps" onclick="return Piano.changeTime(1)">4 tps</a> | 
+					<a href="#2tps" class="2tps" onclick="return Piano.changeTime(2)">2 tps</a> | 
+					<a href="#1tps" class="1tps" onclick="return Piano.changeTime(4)">1 tps</a> | 
+					<a href="#1-2tps" class="1-2tps" onclick="return Piano.changeTime(8)">1/2 tps</a> | 
+					<a href="#1-4tps" class="1-4tps" onclick="return Piano.changeTime(16)">1/4 tps</a> | 
+					<a href="#1-16tps" class="1-16tps" onclick="return Piano.changeTime(32)">1/16 tps</a> | 
+					<a href="#dot" class="dot" onclick="return Piano.addDot()">note pointee</a> <!-- <input class="right" type="submit" value="Chercher"> -->
+
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div id="presentationPR" style="display: block;">
+						<!-- Piano -->
+						<div id="piano" class="piano">
+							<div id="c_0" class="whitetab"
+								style="position: absolute; top: 0px; left: 0px; width: 40px; height: 200px;"></div>
+							<div id="d_1" class="whitetab"
+								style="position: absolute; top: 0px; left: 42px; width: 40px; height: 200px;"></div>
+							<div id="e_2" class="whitetab"
+								style="position: absolute; top: 0px; left: 84px; width: 40px; height: 200px;"></div>
+							<div id="f_3" class="whitetab"
+								style="position: absolute; top: 0px; left: 126px; width: 40px; height: 200px;"></div>
+							<div id="g_4" class="whitetab"
+								style="position: absolute; top: 0px; left: 168px; width: 40px; height: 200px;"></div>
+							<div id="a_5" class="whitetab"
+								style="position: absolute; top: 0px; left: 210px; width: 40px; height: 200px;"></div>
+							<div id="b_6" class="whitetab"
+								style="position: absolute; top: 0px; left: 252px; width: 40px; height: 200px;"></div>
+							<div id="c_7" class="whitetab"
+								style="position: absolute; top: 0px; left: 294px; width: 40px; height: 200px;"></div>
+							<div id="d_8" class="whitetab"
+								style="position: absolute; top: 0px; left: 336px; width: 40px; height: 200px;"></div>
+							<div id="e_9" class="whitetab"
+								style="position: absolute; top: 0px; left: 378px; width: 40px; height: 200px;"></div>
+							<div id="f_10" class="whitetab"
+								style="position: absolute; top: 0px; left: 420px; width: 40px; height: 200px;"></div>
+							<div id="g_11" class="whitetab"
+								style="position: absolute; top: 0px; left: 462px; width: 40px; height: 200px;"></div>
+							<div id="a_12" class="whitetab"
+								style="position: absolute; top: 0px; left: 504px; width: 40px; height: 200px;"></div>
+							<div id="b_13" class="whitetab"
+								style="position: absolute; top: 0px; left: 546px; width: 40px; height: 200px;"></div>
+							<div id="c#_0" class="blacktab"
+								style="position: absolute; top: 0px; left: 29px; width: 24px; height: 140px;">
+								<div id="c-is_0" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="d-be_0" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="d#_1" class="blacktab"
+								style="position: absolute; top: 0px; left: 71px; width: 24px; height: 140px;">
+								<div id="d-is_1" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="e-be_1" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="f#_3" class="blacktab"
+								style="position: absolute; top: 0px; left: 155px; width: 24px; height: 140px;">
+								<div id="f-is_3" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="g-be_3" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="g#_4" class="blacktab"
+								style="position: absolute; top: 0px; left: 197px; width: 24px; height: 140px;">
+								<div id="g-is_4" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="a-be_4" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="a#_5" class="blacktab"
+								style="position: absolute; top: 0px; left: 239px; width: 24px; height: 140px;">
+								<div id="a-is_5" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="b-be_5" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="c#_7" class="blacktab"
+								style="position: absolute; top: 0px; left: 323px; width: 24px; height: 140px;">
+								<div id="c-is_7" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="d-be_7" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="d#_8" class="blacktab"
+								style="position: absolute; top: 0px; left: 365px; width: 24px; height: 140px;">
+								<div id="d-is_8" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="e-be_8" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="f#_10" class="blacktab"
+								style="position: absolute; top: 0px; left: 449px; width: 24px; height: 140px;">
+								<div id="f-is_10" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="g-be_10" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="g#_11" class="blacktab"
+								style="position: absolute; top: 0px; left: 491px; width: 24px; height: 140px;">
+								<div id="g-is_11" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="a-be_11" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+							<div id="a#_12" class="blacktab"
+								style="position: absolute; top: 0px; left: 533px; width: 24px; height: 140px;">
+								<div id="a-is_12" class="diese"
+									style="position: absolute; top: 0px; left: 0px; width: 11px; height: 138px;"></div>
+								<div id="b-be_12" class="bemol"
+									style="position: absolute; top: 0px; left: 11px; width: 11px; height: 138px;"></div>
+							</div>
+						</div>
+					</div> <!-- Fin Présentation -->
+				</td>
+
+			</tr>
+
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	Piano.onChange = function(str) {
+		document.getElementById('pattern').value = str;
+	};
+
+	Piano.init();
+
+	// Pour donner une valeur initiale a la melodie 
+	if ('{}{pattern}')
+		Piano.getMelody('{{request.session.search_context.pattern}}');
+
+	// ]]>
+</script>
+<!-- ajax content here -->
+
+

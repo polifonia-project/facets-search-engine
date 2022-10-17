@@ -10,7 +10,6 @@ urlpatterns = [
     path('dashboard/', views.OverviewDataView, name='OverviewDataView'),
     path('about/', views.AboutView.as_view(), name='about'),
     path('docs/', views.DocsView.as_view(), name='docs'),
-    # path('docs/', views.docs, name='docs'),
     path('dashboard/<str:index_name>/', views.IndexView, name='IndexView'),
     path('dashboard/<str:index_name>/<str:doc_id>/', views.MusicDocView, name='MusicDocView'),
     path('media/<str:index_name>/<str:doc_id>/', views.fetch_musicdoc, name='FetchMusicDoc')

@@ -4,8 +4,6 @@
 
 /**
  * Use Verovio to load and display a MEI doc.
- * 
- * TODO: either discard this or change this?
  */
 
 function displayWithVerovio(opusRef, meiUrl, target, highlights) {
@@ -306,6 +304,7 @@ function EventOverNotes(opus_ref) {
 function AddAnnotationAnchors(model_code, opusRef, annotations, show_annotation) {
 	console.log("AddAnnotationAnchors for model " + model_code + " opus "
 			+ opusRef + " show/hide " + show_annotation)
+	// Loop on the notes, search for annotations 
 	$(".note").each(
 			function(i) {
 				var note = document.getElementById($(this).attr("id"))
@@ -322,14 +321,14 @@ function AddAnnotationAnchors(model_code, opusRef, annotations, show_annotation)
 								+ '@' + annotation.id
 						
 						// Find the vertical offset
-						if (offsets[annotation.offset]) {
-							offsets[annotation.offset] += 180
+						if (offsets[note.id]) {
+							offsets[note.id] += 180
 						}
 						else {
-							offsets[annotation.offset] = 600
+							offsets[note.id] = 600
 						}
 						
-						var circle = CreateAnchor(note, annotation, offsets[annotation.offset])
+						var circle = CreateAnchor(note, annotation, offsets[note.id])
 						circle.setAttributeNS(null, 'id', annotation_id);
 						if (show_annotation == true) {
 							circle.onclick = function(event) {
@@ -357,9 +356,9 @@ function AddAnnotationAnchors(model_code, opusRef, annotations, show_annotation)
 // Function that creates an anchor for an annotation of a note
 function CreateAnchor(note, annotation, delta_y=0) {
 	// Get the offset info, which should be a score element that determines the anchor position
-	var scoreElement = document.getElementById(annotation.offset)
+	var scoreElement = document.getElementById(note.id)
 	if (scoreElement == null){
-		console.log ("No way to find the offset defined by " + annotation.offset)
+		console.log ("No way to find the offset defined by " + note.id)
 		scoreElement = note
 	}
 	
@@ -393,9 +392,9 @@ function CreateAnchor(note, annotation, delta_y=0) {
 	svg.setAttribute ("viewBox", "0 0 5 5");
 
 	var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-	path.setAttributeNS(null, 'd', annotation.icon);
+	path.setAttributeNS(null, 'd', annotation.style.icon);
 	path.setAttributeNS(null, 'fill-opacity', 0.6);
-	path.setAttributeNS(null, 'fill', annotation.display_options);
+	path.setAttributeNS(null, 'fill', annotation.style.color);
 	path.setAttributeNS(null, 'stroke', "none");
 
 	svg.appendChild(path)
