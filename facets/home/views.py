@@ -4,6 +4,7 @@ from django.conf import settings
 from pprint import pprint
 
 from django.http import HttpResponse
+from django.views.generic import TemplateView
 from rest_framework import renderers
 #from rest_framework.renderers import JSONRenderer
 #from rest_framework.parsers import JSONParser
@@ -14,6 +15,13 @@ from elasticsearch import Elasticsearch
 from lib.search.IndexWrapper import IndexWrapper
 
 from rest.models import *
+
+class AboutView(TemplateView):
+    template_name = "home/about.html"
+
+class DocsView(TemplateView):
+    template_name = "home/docs.html"
+
 try:
     host = getattr(settings, "ELASTIC_SEARCH", "localhost")["host"]
     es = Elasticsearch(hosts=[
@@ -26,11 +34,6 @@ except:
 
 def index(request):
     template = loader.get_template('home/index.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-def docs(request):
-    template = loader.get_template('home/docs.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
