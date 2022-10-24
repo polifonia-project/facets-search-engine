@@ -1,13 +1,17 @@
 {% block content %}
 
 
-<div id="keyboardZone">
+<div id="keyboardZone" class="bg-white p-3 rounded shadow" style="width: 800px;">
+<div class="d-flex align-middle">
 {% include 'search/keyboard.html' %}
 </div>
-
-
+<br/>
+{%comment%}
+</div>
 
 <div class="bg-white p-3 rounded shadow" style="width: 800px;">
+
+{%endcomment%}
   <!-- Custom rounded search bars with input group -->
   <form action="/search/results/" method="post">
 

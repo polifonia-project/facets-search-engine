@@ -41,14 +41,29 @@ class IndexWrapper:
            Connect to the ElasticSearch server, and open the index
         """
         if auth_login is None:
+            hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+            host = hp["host"]
+            port = hp["port"]
+            self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], index=index_name)
+            """
             self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
                                             port=settings.ELASTIC_SEARCH["port"],
                                             index=index_name)
+            """
         else:
+            """
             self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"],
                                             port=settings.ELASTIC_SEARCH["port"],
                                             index=index_name,
                                             http_auth=(auth_login, auth_password))
+            """
+            hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+            host = hp["host"]
+            port = hp["port"]
+            self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], 
+                                            index=index_name,
+                                            http_auth=(auth_login, auth_password))
+            
 
         # Open, and possibly create the index
         self.index = Index(index_name, using=self.elastic_search)

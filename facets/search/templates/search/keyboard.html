@@ -2,22 +2,29 @@
 {%comment%}
 <script src="/static/js/verovio-toolkit.js"></script>
 {%endcomment%}
+
+<link rel="stylesheet" href="/static/csstheme/piano.css" type="text/css" media="screen" />
+
+<script src="/static/js/piano.js"></script>
+<script src="/static/js/soundmanager.js"></script>
+
 <script src="/static/js/verovio.js"></script>
 
 <div class="document keyboardWrap">
 	<!-- Pattern: {melodicPattern} <div> Champ dans lequel la mélodie 
                                                             codée est placée : <input id="jejoue" type="text" size="64" value="" /><br/> 
                                                             </div> -->
+{%comment%}
 	<div class="instructions">
 		<a href="#">Instruction:</a> {% trans "Searched pattern must contain at least three intervals" %}
 	</div>
-
+{%endcomment%}
 	<input id="pattern" name="pattern" type="hidden" size="64" value="" />
-
+{%comment%}
 	<div id="seepartition" class="seepartition">
 		<!-- <p id="partition" class="partition"></p> <br class="clear"/> -->
 	</div>
-
+{%endcomment%}
 	<table width="100%">
 		<tbody>
 			<tr height="10px">
@@ -27,8 +34,10 @@
 			<tr class="underlined">
 
 				<td class="withPadding">
+{%comment%}
 					<a href="#clearnote" onclick="return Piano.clear.last()"> {% trans "Clear last note"	%} </a> | 
 					<a href="#clearall" onclick="return Piano.clear.all()"> {% trans "Clear all" %}</a> 
+{%endcomment%}					
         			<br/>
 					{% trans "Last note duration"%} : 
 					<a href="#4tps" class="4tps" onclick="return Piano.changeTime(1)">4 tps</a> | 
@@ -37,13 +46,14 @@
 					<a href="#1-2tps" class="1-2tps" onclick="return Piano.changeTime(8)">1/2 tps</a> | 
 					<a href="#1-4tps" class="1-4tps" onclick="return Piano.changeTime(16)">1/4 tps</a> | 
 					<a href="#1-16tps" class="1-16tps" onclick="return Piano.changeTime(32)">1/16 tps</a> | 
-					<a href="#dot" class="dot" onclick="return Piano.addDot()">note pointee</a> <!-- <input class="right" type="submit" value="Chercher"> -->
-
+					<a href="#dot" class="dot" onclick="return Piano.addDot()">dotted note</a> <!-- <input class="right" type="submit" value="Chercher"> -->
 				</td>
+			
 			</tr>
 			<tr>
 				<td>
 					<div id="presentationPR" style="display: block;">
+						<br/>
 						<!-- Piano -->
 						<div id="piano" class="piano">
 							<div id="c_0" class="whitetab"

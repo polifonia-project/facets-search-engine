@@ -111,7 +111,6 @@ class search_results:
                 print("piano pattern:", searchinput["pianopattern"])
 
                 if searchinput["pattern"] or searchinput["pianopattern"]:
-
                     #print(searchinput)
                     searchcontext = SearchContext()
                     # json -> searchcontext
@@ -151,6 +150,7 @@ class search_results:
                     matching_composers = []
                     matching_info_dict = {}
                     # Get a list of doc_id and composer names
+
                     for hit in matching_docs.hits.hits:
                         if 'composer' in hit['_source']:
                             matching_composers.append(hit['_source']['composer'])
@@ -190,20 +190,28 @@ class search_results:
                     for doc_id in matching_doc_ids:
                         try:
                             musicdoc = MusicDoc.objects.get(doc_id=doc_id)
-                            score_info[doc_id] = []
-                            score_info[doc_id].append(musicdoc.doc_type)
-                            docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
-                            score_info[doc_id].append(docurl)
-                            if musicdoc.title:
-                                score_info[doc_id].append(musicdoc.title)
-                            else:
-                                score_info[doc_id].append("Unknown title")
-                            if musicdoc.composer:
-                                score_info[doc_id].append(musicdoc.composer)
-                            else:
-                                score_info[doc_id].append("Unknown composer")
                         except Exception as ex:
-                            return HttpResponse(str(ex))
+                            # There's something indexed on ES but not in database. 
+                            # 1. Need to re-upload documents to fix that 2. optional(TODO): need to give a list of all unsync documents
+                            template = loader.get_template('error.html')
+                            error_message = str(ex)+'\n'
+                            error_message += "Please re-upload document:"+doc_id+" to make sure all documents indexed ES are stored in database."
+                            context = {"message": error_message}
+                            return HttpResponse(template.render(context, request))
+
+                        score_info[doc_id] = []
+                        score_info[doc_id].append(musicdoc.doc_type)
+                        docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
+
+                        score_info[doc_id].append(docurl)
+                        if musicdoc.title:
+                            score_info[doc_id].append(musicdoc.title)
+                        else:
+                            score_info[doc_id].append("Unknown title")
+                        if musicdoc.composer:
+                            score_info[doc_id].append(musicdoc.composer)
+                        else:
+                            score_info[doc_id].append("Unknown composer")
 
                     # the idea is to get url for abc pattern display,
                     # but the only way to do it is to save the query somewhere
@@ -241,9 +249,11 @@ class search_results:
                 }
 
                 return HttpResponse(template.render(context, request))
-            except: 
+            except Exception as ex: 
+                print((str(ex)))
                 template = loader.get_template('search/search_errorpage.html')
                 context = {"indices_names": indices}
+                # to be improved: can user really re-input from here?
                 return HttpResponse(template.render(context, request))
 
         elif request.method == 'GET':

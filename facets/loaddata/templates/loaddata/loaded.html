@@ -32,12 +32,14 @@ View Dashboard
 
 {% if zip_id %}
 <div class="card-header mx-auto">
-
+<h4>
 Successfully loaded the zip file.
 <br/>
 
 Scores in {{zip_id}} is now under index: {{index_name}}
-
+<br/>
+</h4>
+<br/>
 <button onclick="window.location.href='/home/dashboard/{{index_name}}';" class="mx-auto">
 View {{index_name}}
 </button>
