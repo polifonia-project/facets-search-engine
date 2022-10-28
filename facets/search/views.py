@@ -275,7 +275,6 @@ class search_results:
         for dict_i in all_matching:
             if dict_i["doc"] == doc_id:
                 highlight_ids = dict_i["matching_ids"]
-        print(highlight_ids)
 
         # Get url to display the doc
         try:

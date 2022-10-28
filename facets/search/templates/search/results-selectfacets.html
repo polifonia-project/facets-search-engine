@@ -1,8 +1,9 @@
 
 <div class="bg-white p-3 rounded shadow" style="width: 800px;">
 <form action="/search/results/" method="post">
+{%comment%}
 <h4>Facets</h4>
-    
+{%endcomment%}
 <select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 200px;">
     {% if searchinput.composer %}
     <option selected>{{ searchinput.composer | title }}</option>
@@ -13,6 +14,15 @@
   {% endfor %}
   {% endif %}
 </select>
+
+
+<select name="rankby" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 200px;">
+  <option selected>Rank by</option>
+  <option value="relevancy">Relevancy</option>
+  <option value="similarity">Similarity</option>
+</select>
+
+
   {%comment%}
         <div class="input-group-append">
           <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
@@ -21,4 +31,3 @@
 
 </div>
 
-<br/><br/>

@@ -27,6 +27,7 @@
 {%endcomment%}
 	<table width="100%">
 		<tbody>
+{%comment%}
 			<tr height="10px">
 				<td></td>
 			</tr>
@@ -34,12 +35,12 @@
 			<tr class="underlined">
 
 				<td class="withPadding">
-{%comment%}
+
 					<a href="#clearnote" onclick="return Piano.clear.last()"> {% trans "Clear last note"	%} </a> | 
 					<a href="#clearall" onclick="return Piano.clear.all()"> {% trans "Clear all" %}</a> 
-{%endcomment%}					
+				
         			<br/>
-					{% trans "Last note duration"%} : 
+					{% trans "Last note duration"%}: 
 					<a href="#4tps" class="4tps" onclick="return Piano.changeTime(1)">4 tps</a> | 
 					<a href="#2tps" class="2tps" onclick="return Piano.changeTime(2)">2 tps</a> | 
 					<a href="#1tps" class="1tps" onclick="return Piano.changeTime(4)">1 tps</a> | 
@@ -48,8 +49,8 @@
 					<a href="#1-16tps" class="1-16tps" onclick="return Piano.changeTime(32)">1/16 tps</a> | 
 					<a href="#dot" class="dot" onclick="return Piano.addDot()">dotted note</a> <!-- <input class="right" type="submit" value="Chercher"> -->
 				</td>
-			
 			</tr>
+{%endcomment%}	
 			<tr>
 				<td>
 					<div id="presentationPR" style="display: block;">
@@ -157,9 +158,27 @@
 						</div>
 					</div> <!-- Fin Présentation -->
 				</td>
+				<br/>
 
 			</tr>
+				<tr class="underlined">
+				<td class="withPadding">
+					{%comment%}
+					<a href="#clearnote" onclick="return Piano.clear.last()"> {% trans "Clear last note"	%} </a> | 
+					<a href="#clearall" onclick="return Piano.clear.all()"> {% trans "Clear all" %}</a> 
+					<br/>
+					{%endcomment%}
 
+					{% trans "Last note duration"%}: 
+					<a href="#4tps" class="4tps" onclick="return Piano.changeTime(1)">4 tps</a> | 
+					<a href="#2tps" class="2tps" onclick="return Piano.changeTime(2)">2 tps</a> | 
+					<a href="#1tps" class="1tps" onclick="return Piano.changeTime(4)">1 tps</a> | 
+					<a href="#1-2tps" class="1-2tps" onclick="return Piano.changeTime(8)">1/2 tps</a> | 
+					<a href="#1-4tps" class="1-4tps" onclick="return Piano.changeTime(16)">1/4 tps</a> | 
+					<a href="#1-16tps" class="1-16tps" onclick="return Piano.changeTime(32)">1/16 tps</a> | 
+					<a href="#dot" class="dot" onclick="return Piano.addDot()">dotted note</a> <!-- <input class="right" type="submit" value="Chercher"> -->
+				</td>
+				</tr>
 		</tbody>
 	</table>
 </div>

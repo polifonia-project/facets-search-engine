@@ -12,7 +12,6 @@ function displayWithVerovio(opusRef, meiUrl, target, highlights) {
 	/* Create the Vevorio toolkit instance */
 	var vrvToolkit = new verovio.toolkit();
 	var vrvOptions = {
-		inputFormat : 'mei',
 		scale : 35,
 		pageHeight : 20000,
 		adjustPageHeight : 1,
@@ -34,9 +33,8 @@ function displayWithVerovio(opusRef, meiUrl, target, highlights) {
 		return;
 	} else {
 		// Get all XML fragments
-		alter = GetAnnotations(opusRef, "quality",  "composer") 
-
-		showScore(vrvToolkit, meiUrl, vrvDiv, alter)
+		//alter = GetAnnotations(doc_id, "quality",  "composer") 
+		//showScore(vrvToolkit, meiUrl, vrvDiv, alter)
 		
 		// Links to the pages produced by Verovio
 		var links = document.getElementById("links");
@@ -85,37 +83,6 @@ function displayWithVerovio(opusRef, meiUrl, target, highlights) {
 	}
 	return vrvToolkit
 }
-
-function compDisplayWithVerovio(meiUrl, target1,target2) {
-	/* Create the Vevorio toolkit instance */
-	var vrvToolkit = new verovio.toolkit();
-	var vrvOptions = {
-		inputFormat : 'mei',
-		scale : 35,
-		pageHeight : 20000,
-		adjustPageHeight : 1,
-		pageMarginLeft : 0,
-		breaks : "auto"
-	};
-	vrvToolkit.setOptions(vrvOptions);
-
-	/* Load the MEI file using HTTP GET */
-	$.ajax({
-		type: 'GET'
-		, url: meiUrl
-		, dataType: "json"
-		, success: function(data) {
-			var svg1 = vrvToolkit.renderData(data.score1_mei, {});
-			$(target1).html(svg1);
-			var svg2 = vrvToolkit.renderData(data.score2_mei, {});
-			$(target2).html(svg2);
-
-		}
-	});
-	highlights = ["d1e150","d1e262"]
-
-	return highlights
-}	
 
 function displayHighlights(highlights) {
 	/* Highlight the score elements */
