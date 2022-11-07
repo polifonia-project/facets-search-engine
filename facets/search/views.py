@@ -241,7 +241,7 @@ class search_results:
                 request.session["matching_doc_ids"] = matching_doc_ids
                 request.session["matching_composers"] = matching_composers
                 request.session["matching_locations"] = matching_locations
-                request.session["score_info"] = score_info
+                #request.session["score_info"] = score_info
                 request.session["match_dict_display"] = match_dict_display
 
                 template = loader.get_template('search/results.html')
@@ -326,26 +326,22 @@ class search_results:
 
             template = loader.get_template('search/filtered_result.html')
 
-            # for form to enter again... shouldn't be relevant here
             searchinput = request.session.get('searchinput')
-
-            chosen_composer = request.POST.get('composer', False)
-            if chosen_composer == False:
-                # DO NOT NEED TO FILTER BY COMPOSER
-                composers = searchinput["composer"]
-                # This should be a list and every name's first character should be formatted(lower/higher case)
-
-            index_name = searchinput["index_name"]
 
             # for stats display
             num_matching_patterns = request.session.get("num_matching_patterns")
             matching_doc_ids = request.session.get("matching_doc_ids")
             num_matching_docs = len(matching_doc_ids)
 
+            # for display in the composer facets
             matching_composers = request.session.get("matching_composers")
+            # for highlighting
             matching_locations = request.session.get("matching_locations")
-            #score_info = request.session.get(score_info)
+            # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")
+
+            # TODO: only one name at this moment but should be a list
+            searchinput["composer"] = request.POST.get('composer', False)
 
             searchinput["rankby"] = request.POST.get('rankby', False)
             print(searchinput["rankby"])
@@ -370,6 +366,11 @@ class search_results:
                     context = {"message": error_message}
                     return HttpResponse(template.render(context, request))
 
+                if searchinput["composer"] != False:
+                    # filter out the ones that is not selected composer, if there is a composer facet selected
+                    if musicdoc.composer != searchinput["composer"]:
+                        continue
+
                 score_info[doc_id] = []
                 score_info[doc_id].append(musicdoc.doc_type)
                 docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
@@ -386,7 +387,7 @@ class search_results:
 
             context = {
                     "searchinput": searchinput,
-                    "index_name": index_name,
+                    "index_name": searchinput["index_name"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
                     #"searchcontext": searchcontext,
@@ -399,4 +400,3 @@ class search_results:
             }
 
             return HttpResponse(template.render(context, request))
-
