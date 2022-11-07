@@ -85,7 +85,6 @@ class search_results:
             context = {}
             return HttpResponse(template.render(context, request))
 
-
         if request.method == 'POST':
             try:
                 searchinput = {}
@@ -96,6 +95,7 @@ class search_results:
                     searchinput["mirror"] = False
 
                 searchinput["pianopattern"] = request.POST.get('pianopattern', False)
+                searchinput["rankby"] = request.POST.get('rankby', False)
 
                 searchinput["type"] = request.POST.get('searchtype', False)
                 # The search type names for ES should be all in lower case
@@ -157,6 +157,24 @@ class search_results:
                             matching_info_dict[hit['_id']] = hit['_source']['composer']
                         matching_doc_ids.append(hit['_id'])
 
+                    # Get matching ids(positions) of patterns in MusicSummary for highlighting
+                    matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
+
+                    # Display the list: number of pattern occurrences in every matching doc
+                    # For rank by relevancy
+                    match_dict_display = {}
+                    num_matching_patterns = 0
+                    for mat_doc in matching_locations:
+                        num_matching_patterns += mat_doc["num_occu"]
+                        print("There are", mat_doc["num_occu"]," matching patterns in doc id:", mat_doc["doc"])
+                        print("ids of all matching notes are:", mat_doc["matching_ids"], "\n")
+                        match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
+
+                    if searchinput["rankby"] == "relevancy":
+                        print("Before re-rank, matching docs are:", matching_doc_ids)
+                        matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
+                        print("After re-rank, matching docs are:", matching_doc_ids)
+
                     # Get rid of duplicates
                     invalid_name = [""]
                     matching_composers = list(set(matching_composers)-set(invalid_name))
@@ -170,19 +188,6 @@ class search_results:
                                 filtered_doc_ids.append(i)
                         # only match the filtered ones, discard others
                         matching_doc_ids = filtered_doc_ids
-                
-                    # Get matching ids(positions) of patterns in MusicSummary for highlighting
-                    matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
-
-                    # Display the list: number of pattern occurrences in every matching doc
-                    # This should not be useful in final result view
-                    match_dict_display = {}
-                    num_matching_patterns = 0
-                    for mat_doc in matching_locations:
-                        num_matching_patterns += mat_doc["num_occu"]
-                        print("There are", mat_doc["num_occu"]," matching patterns in doc id:", mat_doc["doc"])
-                        print("ids of all matching notes are:", mat_doc["matching_ids"], "\n")
-                        match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
 
                     hostname = request.get_host()
                     score_info = {}
@@ -218,6 +223,7 @@ class search_results:
                     # maybe use request session instead?
                     #abcurl = "http://"+hostname+"/search/query/"#+searchinput["pattern"]+"/"
 
+
                 else:
                     # TODO: lyrics and text, right now just leave them empty
                     match_dict_display = {}
@@ -230,13 +236,19 @@ class search_results:
                 #print("Matching documents are:", matching_doc_ids)
 
                 request.session["matching_locations"] = matching_locations
-                #request.session["score_info"] = score_info
+                request.session["searchinput"] = searchinput
+                request.session["num_matching_patterns"] = num_matching_patterns
+                request.session["matching_doc_ids"] = matching_doc_ids
+                request.session["matching_composers"] = matching_composers
+                request.session["matching_locations"] = matching_locations
+                request.session["score_info"] = score_info
+                request.session["match_dict_display"] = match_dict_display
 
                 template = loader.get_template('search/results.html')
                 context = {
                     "searchinput": searchinput,
                     "index_name": searchinput["index_name"],
-                    "results": match_dict_display,
+                    "match_dict_display": match_dict_display,
                     "indices_names": indices,
                     "searchcontext": searchcontext,
                     "num_matching_docs": len(matching_doc_ids),
@@ -295,3 +307,96 @@ class search_results:
             "highlight_ids": highlight_ids
         }
         return HttpResponse(template.render(context, request))
+
+    def FilteredResultView(request):
+        # Ideally, this page does not display the search input anymore 
+        # because the user should not submit a new search input from this page
+        # but it's kept for now for information, should be removed once there's score display for search input
+
+        es = Elasticsearch()
+        try:
+            indices = es.indices.get_alias().keys()
+        except:
+            # if ES is not connected, it should be warned
+            template = loader.get_template('home/es_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
+
+        if request.method == 'POST':
+
+            template = loader.get_template('search/filtered_result.html')
+
+            # for form to enter again... shouldn't be relevant here
+            searchinput = request.session.get('searchinput')
+
+            chosen_composer = request.POST.get('composer', False)
+            if chosen_composer == False:
+                # DO NOT NEED TO FILTER BY COMPOSER
+                composers = searchinput["composer"]
+                # This should be a list and every name's first character should be formatted(lower/higher case)
+
+            index_name = searchinput["index_name"]
+
+            # for stats display
+            num_matching_patterns = request.session.get("num_matching_patterns")
+            matching_doc_ids = request.session.get("matching_doc_ids")
+            num_matching_docs = len(matching_doc_ids)
+
+            matching_composers = request.session.get("matching_composers")
+            matching_locations = request.session.get("matching_locations")
+            #score_info = request.session.get(score_info)
+            match_dict_display = request.session.get("match_dict_display")
+
+            searchinput["rankby"] = request.POST.get('rankby', False)
+            print(searchinput["rankby"])
+            if searchinput["rankby"] == "relevancy" or searchinput["rankby"] == "Relevancy":
+                print("Before re-rank, matching docs are:", matching_doc_ids)
+                matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
+                matching_doc_ids = list(reversed(matching_doc_ids))
+                print("After re-rank, matching docs are:", matching_doc_ids)
+
+            hostname = request.get_host()
+            score_info = {}
+            # Score info(type, media link) for score display:
+            for doc_id in matching_doc_ids:
+                try:
+                    musicdoc = MusicDoc.objects.get(doc_id=doc_id)
+                except Exception as ex:
+                    # There's something indexed on ES but not in database. 
+                    # 1. Need to re-upload documents to fix that 2. optional(TODO): need to give a list of all unsync documents
+                    template = loader.get_template('error.html')
+                    error_message = str(ex)+'\n'
+                    error_message += "Please re-upload document:"+doc_id+" to make sure all documents indexed ES are stored in database."
+                    context = {"message": error_message}
+                    return HttpResponse(template.render(context, request))
+
+                score_info[doc_id] = []
+                score_info[doc_id].append(musicdoc.doc_type)
+                docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
+
+                score_info[doc_id].append(docurl)
+                if musicdoc.title:
+                    score_info[doc_id].append(musicdoc.title)
+                else:
+                    score_info[doc_id].append("Unknown title")
+                if musicdoc.composer:
+                    score_info[doc_id].append(musicdoc.composer)
+                else:
+                    score_info[doc_id].append("Unknown composer")
+
+            context = {
+                    "searchinput": searchinput,
+                    "index_name": index_name,
+                    "match_dict_display": match_dict_display,
+                    "indices_names": indices,
+                    #"searchcontext": searchcontext,
+                    "num_matching_docs": num_matching_docs,
+                    "num_matching_patterns": num_matching_patterns,
+                    "matching_doc_ids": matching_doc_ids,
+                    "matching_composers": matching_composers,
+                    "matching_locations": matching_locations,
+                    "score_info": score_info
+            }
+
+            return HttpResponse(template.render(context, request))
+

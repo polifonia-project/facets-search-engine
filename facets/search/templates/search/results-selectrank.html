@@ -1,0 +1,16 @@
+<form action="/search/filtered_result/" method="post">
+<div class="bg-white p-3 rounded shadow" style="width: 800px;">
+
+{% csrf_token %}
+
+<select name="rankby" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 200px;">
+  <option selected>Rank by</option>
+  <option value="relevancy">Relevancy</option>
+  <option value="similarity">Similarity</option>
+</select>
+
+<input type="submit" value="Re-rank">
+
+</div>
+</form>
+

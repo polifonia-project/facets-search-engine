@@ -43,29 +43,6 @@
             success: function(data) {
                 let svg = vrvToolkit.renderData(data);
                 document.getElementById("notation").innerHTML = svg;
-                var todecode = "{{highlight_ids}}"
-                // decode html so " symbol can be read
-                var decoded = decodeHTMLEntities(todecode)
-                var highlightids = [];
-                highlightids = decoded.split(", ");
-                //get rid of "[" and "]" in the first and last item of the list
-                highlightids[0] = highlightids[0].split('[')[1]
-                numids = highlightids.length
-                highlightids[numids-1] = highlightids[numids-1].split(']')[0]
-                console.log(highlightids);
-
-                for (var i = 0; i < highlightids.length; i++) {
-                    // TODO: should we also get rid of "" in each item to highlight?
-                    // TODO: this does not seem to work now
-                    match = document.getElementById(highlightids[i]);
-                    if (match != null) {
-                        match.style.stroke = "#ff0487";
-                    ;
-                    match.style.fill = "#ff0000";
-                    ;
-                    match.style.fillOpacity = 1.0;
-                    }
-                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 console.log("Error with document {{doc_url}} " + xhr.status);
@@ -75,25 +52,25 @@
     </script>
 
 {%comment%}
-    <script type="text/javascript">
         function displayWithVerovio(highlights) {
             /* Highlight the score elements */
             for (var i = 0; i < highlights.length; i++) {
                 match = document.getElementById(highlights[i]);
                 if (match != null) {
                     match.style.stroke = "#ff0487";
-                    ;
                     match.style.fill = "#ff0000";
-                    ;
                     match.style.fillOpacity = 1.0;
                 }
             }
-    </script>
 {%endcomment%}
 
     <table class="preview"><tr>
         <td valign="top"> </td>
-        <td>     <div id="notation">score placeholder</div> </td>
+        <td>
+            <div id="notation">
+                    score placeholder
+            </div>
+        </td>
 
     </tr>
     </table>
@@ -106,7 +83,45 @@
         <div class="col-lg-2 mx-auto">
         </div>
 
+
     </div> <!-- row -->
 </div> <!-- container -->
 
+
+    <script type="text/javascript">
+        /* Highlight the score elements */
+
+        var todecode = "{{highlight_ids}}"
+        // decode html so " symbol can be read
+        var decoded = decodeHTMLEntities(todecode)
+        
+        var highlightids = [];
+        highlightids = decoded.split(", ");
+        
+        //get rid of "[" and "]" in the first and last item of the list
+        highlightids[0] = highlightids[0].split('[')[1];
+        numids = highlightids.length;
+        highlightids[numids-1] = highlightids[numids-1].split(']')[0];
+        
+        for (var i = 0; i < highlightids.length; i++) {
+                // finally, get rid of quote symbol in each highlightid
+                temp = highlightids[i].split('"');
+                highlightids[i] = temp[1];
+                console.log(highlightids[i]);
+                // TODO: this gets null. getElementById does not work properly!!
+                match = document.getElementById(highlightids[i]);
+                if (match != null) {
+                        console.log(match);
+                        match.strokeStyle = "#ff0487";
+                        match.fillStyle = "#ff0000";
+                        match.fillOpacityStyle = 1.0;
+                }
+        }
+        // TODO: in the following test code, the id of a displayed note from the html page is used, yet getElementById still returns null.
+        testforbwv48 = 'dle1498';
+        testelement = document.getElementById(testforbwv48);
+        console.log(testelement);
+        testelement.strokeStyle = "#ff0487";
+
+    </script>
 {% endblock %}
