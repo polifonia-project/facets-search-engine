@@ -74,21 +74,8 @@
 
     </tr>
     </table>
-                {% else %}
-                no score to display
-                {% endif %}
-            </div>
-        </div>
 
-        <div class="col-lg-2 mx-auto">
-        </div>
-
-
-    </div> <!-- row -->
-</div> <!-- container -->
-
-
-    <script type="text/javascript">
+        <script type="text/javascript">
         /* Highlight the score elements */
 
         var todecode = "{{highlight_ids}}"
@@ -124,4 +111,20 @@
         testelement.strokeStyle = "#ff0487";
 
     </script>
+    
+                {% else %}
+                no score to display
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-2 mx-auto">
+        </div>
+
+
+    </div> <!-- row -->
+</div> <!-- container -->
+
+
+
 {% endblock %}

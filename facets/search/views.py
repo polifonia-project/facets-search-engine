@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+from django.core.paginator import Paginator
 from django.template import loader
 import json
 
@@ -64,7 +64,6 @@ def fetch_query(request):
         return HttpResponse("No query for display.")
     return HttpResponse(abcpattern)
     """
-
     return
 
 
@@ -130,8 +129,11 @@ class search_results:
                         if searchcontext.keywords != "":
                             print("Pattern not valid, we are in keyword search mode.")
                         else:
-                            print ("Please re-enter a valid pattern: it must contain at least three intervals")
-
+                            print("Please re-enter a valid pattern: it must contain at least three intervals")
+                            template = loader.get_template('search/search_errorpage.html')
+                            context = {"indices_names": indices}
+                            return HttpResponse(template.render(context, request))
+                            
                     if searchcontext.text:
                         print("Text: ", searchcontext.text)
                     if searchcontext.facet_composers != [] and searchinput["composer"] != False:
@@ -149,8 +151,8 @@ class search_results:
                     matching_doc_ids = []
                     matching_composers = []
                     matching_info_dict = {}
-                    # Get a list of doc_id and composer names
 
+                    # Get a list of doc_id and composer names
                     for hit in matching_docs.hits.hits:
                         if 'composer' in hit['_source']:
                             matching_composers.append(hit['_source']['composer'])
@@ -171,17 +173,14 @@ class search_results:
                         match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
 
                     if searchinput["rankby"] == "relevancy":
-                        print("Before re-rank, matching docs are:", matching_doc_ids)
                         matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
-                        print("After re-rank, matching docs are:", matching_doc_ids)
-
+                        
                     # Get rid of duplicates
                     invalid_name = [""]
                     matching_composers = list(set(matching_composers)-set(invalid_name))
 
-                    # TODO: Faceted filter(only composer for the moment)
                     filtered_doc_ids = []
-                    # only one name at this moment but should be a list
+                    # TODO not urgent: only one name at this moment but should be a list
                     if searchinput["composer"]:
                         for i in matching_doc_ids:
                            if matching_info_dict[i] == searchinput["composer"]: # later change to "in" when searchinput["composer"] becomes a list
@@ -196,8 +195,7 @@ class search_results:
                         try:
                             musicdoc = MusicDoc.objects.get(doc_id=doc_id)
                         except Exception as ex:
-                            # There's something indexed on ES but not in database. 
-                            # 1. Need to re-upload documents to fix that 2. optional(TODO): need to give a list of all unsync documents
+                            # If exception raised here, there's something indexed on ES but not in database. 
                             template = loader.get_template('error.html')
                             error_message = str(ex)+'\n'
                             error_message += "Please re-upload document:"+doc_id+" to make sure all documents indexed ES are stored in database."
@@ -219,21 +217,14 @@ class search_results:
                             score_info[doc_id].append("Unknown composer")
 
                     # the idea is to get url for abc pattern display,
-                    # but the only way to do it is to save the query somewhere
-                    # maybe use request session instead?
                     #abcurl = "http://"+hostname+"/search/query/"#+searchinput["pattern"]+"/"
-
+                    #request.session["abcpattern"] = searchinput["pattern"]
 
                 else:
                     # TODO: lyrics and text, right now just leave them empty
                     match_dict_display = {}
                     score_info = {}
                     num_matching_patterns = 0
-
-                #except Exception as ex:
-                #    print("Error occurred while searching on ES index:", str(ex))
-
-                #print("Matching documents are:", matching_doc_ids)
 
                 request.session["matching_locations"] = matching_locations
                 request.session["searchinput"] = searchinput
@@ -257,6 +248,7 @@ class search_results:
                     "matching_composers": matching_composers,
                     "matching_locations": matching_locations,
                     "score_info": score_info,
+                    "abcpattern": searchinput["pattern"]
                     #"query_url": abcurl
                 }
 
@@ -265,20 +257,15 @@ class search_results:
                 print((str(ex)))
                 template = loader.get_template('search/search_errorpage.html')
                 context = {"indices_names": indices}
-                # to be improved: can user really re-input from here?
                 return HttpResponse(template.render(context, request))
 
         elif request.method == 'GET':
-            # should not be called at this moment
             template = loader.get_template('search/search_errorpage.html')
             context = {}
             return HttpResponse(template.render(context, request))
 
     def HighlightMusicDocView(request, index_name, doc_id):
         # Highlight patterns while viewing a music document
-        # not in use right now!!
-
-        #TODO: HOW to highlight with verovio toolkit?
     
         template = loader.get_template('search/highlight_musicdoc.html')
 
@@ -311,7 +298,7 @@ class search_results:
     def FilteredResultView(request):
         # Ideally, this page does not display the search input anymore 
         # because the user should not submit a new search input from this page
-        # but it's kept for now for information, should be removed once there's score display for search input
+        # kept for now for information, should be removed once there's score display for search input
 
         es = Elasticsearch()
         try:
@@ -390,7 +377,6 @@ class search_results:
                     "index_name": searchinput["index_name"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
-                    #"searchcontext": searchcontext,
                     "num_matching_docs": num_matching_docs,
                     "num_matching_patterns": num_matching_patterns,
                     "matching_doc_ids": matching_doc_ids,

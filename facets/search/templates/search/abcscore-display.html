@@ -1,21 +1,21 @@
-{%if query_url %}
 <div width="400">
 <div class="bg-white p-3 rounded shadow" style="width: 800px;">
-<script src="/static/js/verovio-toolkit.js"></script>
-{% if query_url %}
+{% if abcpattern %}
                 <script type="text/javascript">
+                var vrvOptions = {
+                    inputFormat : 'abc'
+                };
                 /* Load the file using HTTP GET */
-                console.log ("we got url of query in ABC format!");
                 document.addEventListener('DOMContentLoaded', (event) => {
                     $.ajax({
-                        url: "{{query_url}}", 
+                        ABC pattern: "{{abcpattern}}", 
                         dataType: "text", 
                         success: function(data) {
                             let svg = vrvToolkit.renderData(data);
                             document.getElementById("notation_abcquery").innerHTML = svg;
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
-                            console.log("Error with document {{query_url}} " + xhr.status);
+                            console.log("Error with {{abcpattern}} " + xhr.status);
                         }
                     });
                 });
@@ -28,8 +28,6 @@
                 </table>
                 {% else %}
                 no score to display
-                {% endif %}
-
-</div>
-</div>
 {%endif%}
+</div>
+</div>
