@@ -24,7 +24,9 @@
                         {% else %}
                         {% endif %}
                         <li>Score format: {{ doc_type }} </li>
+                        {%comment%}
                         <li>Matching locations: {{ highlight_ids }} </li>
+                        {%endcomment%}
                     </ul>
                 </div>
                 {% if doc_url %}
@@ -105,10 +107,12 @@
                 }
         }
         // TODO: in the following test code, the id of a displayed note from the html page is used, yet getElementById still returns null.
-        testforbwv48 = 'dle1498';
-        testelement = document.getElementById(testforbwv48);
-        console.log(testelement);
-        testelement.strokeStyle = "#ff0487";
+        window.onload = function(){
+            testforbwv48 = "dle1498";
+            testelement = document.getElementById(testforbwv48);
+            console.log(testelement);
+            testelement.strokeStyle = "#ff0487";
+        }
 
     </script>
     

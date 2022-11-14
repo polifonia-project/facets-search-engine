@@ -1,6 +1,23 @@
-<div width="400">
-<div class="bg-white p-3 rounded shadow" style="width: 800px;">
+<div class="rounded shadow alert" style="width: 800px;">
+<h4 class="alert-heading ">Search content</h4>
 {% if abcpattern %}
+<script src="/static/js/abcjs-basic-min.js" type="text/javascript"></script>
+                
+<script type="text/javascript">
+                var ABCpattern = "{{abcpattern}}";
+                
+                function load() {
+                    ABCJS.renderAbc('paper', ABCpattern);
+                }
+</script>
+
+<body onload="load()">
+                <div class="container">
+                <div id="paper"></div>
+                </div>
+</body>
+
+{%comment%}
                 <script type="text/javascript">
                 var vrvOptions = {
                     inputFormat : 'abc'
@@ -26,8 +43,8 @@
                     <td>     <div id="notation_abcquery">ABC query placeholder</div> </td>
                 </tr>
                 </table>
+{%endcomment%}
                 {% else %}
                 no score to display
 {%endif%}
-</div>
 </div>
