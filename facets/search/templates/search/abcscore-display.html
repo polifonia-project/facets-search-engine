@@ -17,33 +17,6 @@
                 </div>
 </body>
 
-{%comment%}
-                <script type="text/javascript">
-                var vrvOptions = {
-                    inputFormat : 'abc'
-                };
-                /* Load the file using HTTP GET */
-                document.addEventListener('DOMContentLoaded', (event) => {
-                    $.ajax({
-                        ABC pattern: "{{abcpattern}}", 
-                        dataType: "text", 
-                        success: function(data) {
-                            let svg = vrvToolkit.renderData(data);
-                            document.getElementById("notation_abcquery").innerHTML = svg;
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            console.log("Error with {{abcpattern}} " + xhr.status);
-                        }
-                    });
-                });
-                </script>       
-
-                <table class="preview"><tr>
-                    <td valign="top"> </td>
-                    <td>     <div id="notation_abcquery">ABC query placeholder</div> </td>
-                </tr>
-                </table>
-{%endcomment%}
                 {% else %}
                 no score to display
 {%endif%}

@@ -52,21 +52,6 @@ def index(request):
     template = loader.get_template('search/index.html')
     return HttpResponse(template.render(context, request))
 
-def fetch_query(request):
-    # Fetch query in abc format
-
-    """
-    #the commented code does not work, has to save it as file then open
-    tempcontext = SearchContext()
-    tempcontext.pattern = pattern
-    abcpattern = tempcontext.check_default_meter()
-    if pattern == None:
-        return HttpResponse("No query for display.")
-    return HttpResponse(abcpattern)
-    """
-    return
-
-
 class search_results:
 
     def __init__(self):
@@ -216,10 +201,6 @@ class search_results:
                         else:
                             score_info[doc_id].append("Unknown composer")
 
-                    # the idea is to get url for abc pattern display,
-                    #abcurl = "http://"+hostname+"/search/query/"#+searchinput["pattern"]+"/"
-                    #request.session["abcpattern"] = searchinput["pattern"]
-
                 else:
                     # TODO: lyrics and text, right now just leave them empty
                     match_dict_display = {}
@@ -249,7 +230,6 @@ class search_results:
                     "matching_locations": matching_locations,
                     "score_info": score_info,
                     "abcpattern": searchinput["pattern"]
-                    #"query_url": abcurl
                 }
 
                 return HttpResponse(template.render(context, request))
@@ -304,7 +284,7 @@ class search_results:
         try:
             indices = es.indices.get_alias().keys()
         except:
-            # if ES is not connected, it should be warned
+            # If ES is not connected, it should be warned
             template = loader.get_template('home/es_errorpage.html')
             context = {}
             return HttpResponse(template.render(context, request))
@@ -340,13 +320,13 @@ class search_results:
 
             hostname = request.get_host()
             score_info = {}
-            # Score info(type, media link) for score display:
+            # Score info(type & media link) for preview of matching scores in result page:
             for doc_id in matching_doc_ids:
                 try:
                     musicdoc = MusicDoc.objects.get(doc_id=doc_id)
                 except Exception as ex:
-                    # There's something indexed on ES but not in database. 
-                    # 1. Need to re-upload documents to fix that 2. optional(TODO): need to give a list of all unsync documents
+                    # There's something indexed on ES but not in database.
+                    # Solution of this error is: re-upload unsync document(s)
                     template = loader.get_template('error.html')
                     error_message = str(ex)+'\n'
                     error_message += "Please re-upload document:"+doc_id+" to make sure all documents indexed ES are stored in database."

@@ -6,6 +6,5 @@ urlpatterns = [
     path('', views.index, name="index"),
     path('results/', views.search_results.results, name='results'),
     path('filtered_result/', views.search_results.FilteredResultView, name='filtered_result'),
-    path('query/', views.fetch_query, name="getabcquery"),
     path('results/<str:index_name>/<str:doc_id>/', views.search_results.HighlightMusicDocView, name='highlight_musicdoc')
 ]
