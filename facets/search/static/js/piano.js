@@ -153,6 +153,7 @@ var Piano = window.Piano =
       '</p></form>'+
       '<p><a href="#validate" onclick="return Piano.sendMelody()" class="bvalidate">Chercher</a></p>';
     }
+    // this is for display notes but currently only display the pattern in plain and easy
     else {
       melody.innerHTML = '<p id="notes"></p>';
     }

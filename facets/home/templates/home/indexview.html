@@ -13,6 +13,26 @@
       <h1 class="text-center">Index {{ index_name }}: overview</h1>
 
       <div class="card text-center">
+      	<ul class="paginator">
+      		<li class="leftend"><a
+			href="/home/dashboard/{{index_name}}?page=1" title="First"></a></li>
+		{%if pg.has_previous %}
+		<li class="left"><a
+			href="/home/dashboard/{{index_name}}?page={{pg.previous_page_number}}"
+			title="Previous"></a></li> 
+			{% endif %} 
+			{% for page_i in pg.paginator.page_range %}
+		<li><a href="/home/dashboard/{{index_name}}?page={{page_i}}">{{i}}</a></li>6
+		{% endfor %} 
+		{%if pg.has_next %}
+		<li class="nextRight"><a
+			href="/home/dashboard/{{index_name}}?page={{pg.next_page_number}}"></a>
+		</li> {% endif %}
+		<li class="lastRight"><a
+			href="/home/dashboard/{{index_name}}?page={{pg.paginator.num_pages}}"
+			title="last page"></a></li>
+      	</ul>
+
         <div class="card-header">
             Index <span style="color:#00bb00;">{{ index_name }}</span> contains {{ info.docs_number }} docs.
         </div>

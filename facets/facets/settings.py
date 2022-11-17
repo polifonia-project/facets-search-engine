@@ -168,6 +168,8 @@ ELASTIC_SEARCH = {
     "hosts": [{'host': "localhost", 'port': 9200}]
 }
 
+ITEMS_PER_PAGE = 20
+
 MAX_ITEMS_IN_RESULT = 1000
 
 INTERNAL_IPS = ['127.0.0.1', 'localhost', ]

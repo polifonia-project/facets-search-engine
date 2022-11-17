@@ -92,10 +92,7 @@ class search_results:
 
                 searchinput["composer"] = request.POST.get('composer', False)
 
-                print("piano pattern:", searchinput["pianopattern"])
-
                 if searchinput["pattern"] or searchinput["pianopattern"]:
-                    #print(searchinput)
                     searchcontext = SearchContext()
                     # json -> searchcontext
                     searchcontext.read(searchinput)
@@ -105,7 +102,7 @@ class search_results:
                     if searchcontext.pattern:
                         print("ABC encoded pattern: ", searchcontext.pattern)
                     elif searchcontext.pianopattern:
-                        print("Pattern from piano", searchcontext.pianopattern)
+                        print("Pattern from piano: ", searchcontext.pianopattern)
 
                     if not searchcontext.check_pattern_length():
                         # TODO: test this and show render in htmlresponse if pattern is too short

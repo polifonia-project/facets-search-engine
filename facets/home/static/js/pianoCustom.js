@@ -1,10 +1,12 @@
-	var baseUrl = '/static/images/'; // baseUrl = 'http://195.138.202.66:8080/piano/';
+
+  var baseUrl = '/static/images/piano/partition/'; // baseUrl = 'http://195.138.202.66:8080/piano/';
 	ham: null, //position de la hampe
 	
 	
 	// Personnalisation de l'affichage de la partition
   Piano.drawPartition = function(note, time, octave)
   {
+    
 	  // On indique l'octave de la ligne basse de la portéee
 	  var octaveBasis = 4;
 	  
@@ -35,15 +37,15 @@
     	     : (std == 'd' && octave == octaveBasis ? 'top:0' : 'top:36px'))
     	  + ';left:10px;width:20px;height:'
     	  + height // (Math.abs(pos)  - 3 - (octave > octaveBasis ? 2 : 0))
-    	  + 'px;background:url('+baseUrl +'part_bg.gif) '
+    	  + 'px;background:url('+'/static/images/piano/partition/' +'part_bg.gif) '
     	  + (octave > octaveBasis ? '0 100%' : '0 0')+'"></div>';
-    var dse = note.indexOf('#') != -1 ? '<img src="'+baseUrl +'diese.gif" alt="diese" style="position:absolute;top:0;left:0;margin-left:5px;margin-top:'+pos+'px" />' : '';
-    var bml = note.indexOf('b') != -1 ? '<img src="'+baseUrl +'bemol.gif" alt="bemol" style="position:absolute;top:0;left:0;margin-left:5px;margin-top:'+pos+'px" />' : '';
+    var dse = note.indexOf('#') != -1 ? '<img src="'+'/static/images/piano/partition/' +'diese.gif" alt="diese" style="position:absolute;top:0;left:0;margin-left:5px;margin-top:'+pos+'px" />' : '';
+    var bml = note.indexOf('b') != -1 ? '<img src="'+'/static/images/piano/partition/' +'bemol.gif" alt="bemol" style="position:absolute;top:0;left:0;margin-left:5px;margin-top:'+pos+'px" />' : '';
     var crh = octave > octaveBasis || (octave == octaveBasis && note == 'B') ? '_2' : '_1';
    
     //alert ("SBG = " + sbg);
     
-    img.innerHTML = sbg+bml+dse+'<img src="'+baseUrl +'key'+time+crh+'.gif" alt="'+note + octave + ',' +time+'" style="margin-top:'+pos+'px" />';
+    img.innerHTML = sbg+bml+dse+'<img src="'+'/static/images/piano/partition/' +'key'+time+crh+'.gif" alt="'+note + octave + ',' +time+'" style="margin-top:'+pos+'px" />';
  //  alert ("Draw" + img.innerHTML);
     return img;
   };
@@ -58,7 +60,7 @@
     var res = src[1];
     var g = res.split('.',1);
     if (this.ham==null) this.ham = g ;
-    img[len].src = baseUrl +'key'+t+'_'+this.ham+d+'.gif';
+    img[len].src = '/static/images/piano/partition/' +'key'+t+'_'+this.ham+d+'.gif';
     //img[len].src = baseUrl +'css/partition/key'+t+'_'+g+'dot.gif';
   };
   

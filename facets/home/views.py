@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.template import loader
 from django.conf import settings
 from pprint import pprint
-
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from rest_framework import renderers
@@ -37,9 +37,6 @@ def index(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
-# def LoadDataView(request):
-    # return HttpResponse("Load a single music score or zip, with instruction displayed")
-
 def fetch_musicdoc(request, index_name, doc_id):
 
     try:
@@ -68,7 +65,7 @@ def fetch_musicdoc(request, index_name, doc_id):
 
     return HttpResponse(doc)
 
-# dashboard
+# Dashboard
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')
     try:
@@ -87,6 +84,7 @@ def OverviewDataView(request):
     context = {"indices_number": len(indices_stats), "indices_stats": indices_stats}
     return HttpResponse(template.render(context, request))
 
+# View index by name
 def IndexView(request, index_name):
 
     if request.method == "GET":
@@ -102,26 +100,38 @@ def IndexView(request, index_name):
             return HttpResponse(template.render(context, request))
 
         if index_name in indices:
-            # TODO: info should be a list of documents under this index!! Not just document number.
-            # info = {"aa" : 2, "bb": 3}
             info = {}
             info["docs_number"] = es.indices.stats(index_name).get('_all').get('primaries').get('docs').get('count')
+            
             doc_results = {}
-            # print(es.indices.stats(index_name).get('_all').get('primaries').get('docs'))
-            # here we need to run a query to retrieve some ids
-            # important: size 30 should be changed here when pagination is done
-            res = es.search(index=index_name, body={"query": {"match_all": {}}},
-                            size = 30)
-            # print("----- Got %d Hits:" % res['hits']['total']['value'])
+            # Here we run a query to retrieve some ids
+            # important: size is 1000 for now, to adjust put a new number it in settings.
+            res = es.search(index=index_name, body={"query": {"match_all": {}}}, size = settings.MAX_ITEMS_IN_RESULT)
+
             for hit in res['hits']['hits']:
                 doc_results[hit["_id"]] = {}
                 doc_results[hit["_id"]]["source"] = hit["_source"]
-                # doc_results[hit["_id"]]["path"] = hit["_source"]
-                # make a check here for the keys to display
-                # print("%(corpus_ref)s %(ref)s: %(composer)s - %(title)s" % hit["_source"])
-                # print(hit["_source"])
 
-            context = {"index_name": index_name, "info": info, "documents": doc_results}
+            request.session["doc_results"] = doc_results
+
+            print(len(doc_results))
+
+            p = Paginator(tuple(doc_results), settings.ITEMS_PER_PAGE)
+            #the number of items to display in total: #print(p.count)
+            print(p.num_pages)
+
+            callpage = request.GET.get('page', False)
+            if callpage != False:
+                try:
+                    pg = p.get_page(callpage)
+                except PageNotAnInteger:
+                    pg = p.get_page(1)
+                except EmptyPage:
+                    pg = p.get_page(p.num_pages)
+            else:
+                pg = p.get_page(1)
+
+            context = {"index_name": index_name, "info": info, "documents": doc_results, "pg":pg}
         else:
             return HttpResponse("This index does not exist on ES.")
     
@@ -129,8 +139,6 @@ def IndexView(request, index_name):
 
 def MusicDocView(request, index_name, doc_id):
     template = loader.get_template('home/musicdocview.html')
-    # this "verovio_test.html" template is for testing only!!
-    # template = loader.get_template('home/verovio_test.html')
 
     try:
         musicdoc = MusicDoc.objects.get(doc_id=doc_id)
