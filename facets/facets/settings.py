@@ -168,7 +168,7 @@ ELASTIC_SEARCH = {
     "hosts": [{'host': "localhost", 'port': 9200}]
 }
 
-ITEMS_PER_PAGE = 20
+ITEMS_PER_PAGE = 30
 
 MAX_ITEMS_IN_RESULT = 1000
 

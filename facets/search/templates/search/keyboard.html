@@ -21,9 +21,9 @@
 
 	<div id="seepartition" class="seepartition">
 		<!-- <p id="partition" class="partition"></p> <br class="clear"/> -->
-		<div id="search_partition"></div>
+	<div id="search_partition"></div>
 	</div>
-
+	
 
 	<table width="100%">
 		<tbody>
@@ -182,7 +182,7 @@
 	</table>
 </div>
 
-
+<script src="/static/js/neuma.js"></script>
 <script type="text/javascript">
 	var patternstring = ""
 	Piano.onChange = function(str) {
@@ -199,13 +199,11 @@
 	if ('{}{pianopattern}')
 		Piano.getMelody('{{pianopattern}}');
 	
-</script>
 
-<script src="/static/js/neuma.js"></script>
-<script type="text/javascript">
-		// code migrated from neuma, perhaps for showing the pattern in score but not working yet
-        // TabClick(tabNames, 0);
-        clonePattern("seepartition", "search_partition")
+	// code migrated from neuma, perhaps for showing the pattern in score but not working yet
+    // TabClick(tabNames, 0);
+    clonePattern("seepartition", "search_partition")
+
 </script>
 
 <!-- ajax content here -->
