@@ -38,8 +38,8 @@
     	  + height // (Math.abs(pos)  - 3 - (octave > octaveBasis ? 2 : 0))
     	  + 'px;background:url('+baseUrl +'part_bg.gif) '
     	  + (octave > octaveBasis ? '0 100%' : '0 0')+'"></div>';
-    var dse = note.indexOf('#') != -1 ? '<img src="'+baseUrl +'diese.gif" alt="diese" style="position:absolute;top:0;left:0;margin-left:5px;margin-top:'+pos+'px" />' : '';
-    var bml = note.indexOf('b') != -1 ? '<img src="'+baseUrl +'bemol.gif" alt="bemol" style="position:absolute;top:0;left:0;margin-left:5px;margin-top:'+pos+'px" />' : '';
+    var dse = note.indexOf('#') != -1 ? '<img src="'+baseUrl +'diese.gif" alt="diese" style="position:absolute;top:0;left:0px;margin-left:5px;margin-top:'+pos+'px" />' : '';
+    var bml = note.indexOf('b') != -1 ? '<img src="'+baseUrl +'bemol.gif" alt="bemol" style="position:absolute;top:0;left:0px;margin-left:5px;margin-top:'+pos+'px" />' : '';
     var crh = octave > octaveBasis || (octave == octaveBasis && note == 'B') ? '_2' : '_1';
    
     //alert ("SBG = " + sbg);
