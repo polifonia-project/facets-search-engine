@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.template import loader
 from django.conf import settings
 from pprint import pprint
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from rest_framework import renderers
@@ -11,6 +11,7 @@ from rest_framework import renderers
 import json
 
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
 
 from lib.search.IndexWrapper import IndexWrapper
 
@@ -105,33 +106,57 @@ def IndexView(request, index_name):
             
             doc_results = {}
             # Here we run a query to retrieve some ids
-            # important: size is 1000 for now, to adjust put a new number it in settings.
-            res = es.search(index=index_name, body={"query": {"match_all": {}}}, size = settings.MAX_ITEMS_IN_RESULT)
+            body = {"query": {"match_all": {}}}
+            
+            # all docs in this index
+            res = es.search(index=index_name, body=body, size = settings.MAX_ITEMS_IN_RESULT)
 
-            for hit in res['hits']['hits']:
-                doc_results[hit["_id"]] = {}
-                doc_results[hit["_id"]]["source"] = hit["_source"]
-
+            hits = res['hits']['hits']
+            
+            for hit in hits:
+                doc_results[hit['_id']] = {}
+                # record the source of each id
+                doc_results[hit['_id']]['source'] = hit['_source']
+            
             request.session["doc_results"] = doc_results
 
-            print(len(doc_results))
+            # if directly use scroll, the paginator won't work, it needs to know item numbers
+            #res = es.search(index=index_name, body=body, scroll='1s', size = settings.ITEMS_PER_PAGE)
+            #scroll_ids = res['_scroll_id']
 
             p = Paginator(tuple(doc_results), settings.ITEMS_PER_PAGE)
-            #the number of items to display in total: #print(p.count)
-            print(p.num_pages)
+            # number of items to display in total: #print(p.count)
+            #print(p.num_pages)
 
             callpage = request.GET.get('page', False)
             if callpage != False:
+                callpage = int(callpage)
                 try:
                     pg = p.get_page(callpage)
+                    startfrom = (callpage-1)*settings.ITEMS_PER_PAGE
+                    endby = min(callpage*settings.ITEMS_PER_PAGE, p.count)
+                    present_doc = dict(list(doc_results.items())[startfrom:endby])
+                    print("startfrom", startfrom)
+                    print("endby", endby)
                 except PageNotAnInteger:
                     pg = p.get_page(1)
+                    startfrom = 0
+                    endby = min(settings.ITEMS_PER_PAGE, p.count)
+                    present_doc = dict(list(doc_results.items())[startfrom:endby])
+                    print("endby", endby)
                 except EmptyPage:
+                    startfrom = (p.num_pages-1)*settings.ITEMS_PER_PAGE
+                    present_doc = dict(list(doc_results.items())[startfrom:p.count])
                     pg = p.get_page(p.num_pages)
+                    print("startfrom", startfrom)
             else:
                 pg = p.get_page(1)
+                startfrom = 0
+                endby = min(settings.ITEMS_PER_PAGE, p.count)
+                present_doc = dict(list(doc_results.items())[startfrom:endby])
+                print("endby", endby)
 
-            context = {"index_name": index_name, "info": info, "documents": doc_results, "pg":pg}
+            context = {"index_name": index_name, "info": info, "documents": present_doc, "pg":pg, "startfrom":startfrom}
         else:
             return HttpResponse("This index does not exist on ES.")
     
