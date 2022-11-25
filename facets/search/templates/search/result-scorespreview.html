@@ -68,7 +68,7 @@
                     }
                 });
             });
-            </script>       
+            </script>
 
             <div>
             <table class="preview"><tr>
@@ -77,7 +77,6 @@
             </tr>
             </table>
             </div>
-
 
             {%comment%}
             <table class="preview"><tr>
@@ -91,6 +90,29 @@
             <br/>
     {% endfor %}
 
+            <div class="pagination justify-content-center" style="font-size:1vw">
+            <span class="step-links">
+            {%if pg.has_previous %}
+            <a href="?page=1">First</a>
+            {% endif %} 
+            {%if pg.previous_page_number != 1%}
+            <a href="?page={{pg.previous_page_number}}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{pg.number}} of {{pg.paginator.num_pages}}
+            </span>
+            
+            {%if pg.has_next %}
+            <a href="?page={{pg.next_page_number}}">Next</a>
+            {% endif %}
+            {%if pg.next_page_number != pg.paginator.num_pages%}
+            <a href="?page={{pg.paginator.num_pages}}">Last</a>
+            {% endif %}
+            </span>
+            <br/><br/>
+            </div>
+            
     {% else %}
     <table class="preview"><tr>
         <td valign="top"> </td>

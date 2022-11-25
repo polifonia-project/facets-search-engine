@@ -6,8 +6,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from rest_framework import renderers
-#from rest_framework.renderers import JSONRenderer
-#from rest_framework.parsers import JSONParser
 import json
 
 from elasticsearch import Elasticsearch
@@ -126,7 +124,6 @@ def IndexView(request, index_name):
 
             p = Paginator(tuple(doc_results), settings.ITEMS_PER_PAGE)
             # number of items to display in total: #print(p.count)
-            #print(p.num_pages)
 
             callpage = request.GET.get('page', False)
             if callpage != False:
@@ -136,25 +133,21 @@ def IndexView(request, index_name):
                     startfrom = (callpage-1)*settings.ITEMS_PER_PAGE
                     endby = min(callpage*settings.ITEMS_PER_PAGE, p.count)
                     present_doc = dict(list(doc_results.items())[startfrom:endby])
-                    print("startfrom", startfrom)
-                    print("endby", endby)
+
                 except PageNotAnInteger:
                     pg = p.get_page(1)
                     startfrom = 0
                     endby = min(settings.ITEMS_PER_PAGE, p.count)
                     present_doc = dict(list(doc_results.items())[startfrom:endby])
-                    print("endby", endby)
                 except EmptyPage:
                     startfrom = (p.num_pages-1)*settings.ITEMS_PER_PAGE
                     present_doc = dict(list(doc_results.items())[startfrom:p.count])
                     pg = p.get_page(p.num_pages)
-                    print("startfrom", startfrom)
             else:
                 pg = p.get_page(1)
                 startfrom = 0
                 endby = min(settings.ITEMS_PER_PAGE, p.count)
                 present_doc = dict(list(doc_results.items())[startfrom:endby])
-                print("endby", endby)
 
             context = {"index_name": index_name, "info": info, "documents": present_doc, "pg":pg, "startfrom":startfrom}
         else:

@@ -20,6 +20,7 @@
             Index <span style="color:#00bb00;">{{ index_name }}</span> contains {{ info.docs_number }} docs.
         </div>
 
+
 			<table class="table">
 				<thead>
 					<tr>
@@ -35,8 +36,12 @@
 						{% if pg.number == 1 %}
 						<th scope="row">{{ forloop.counter }}</th>
 						{% else %}
-						let numval = forloop.counter+startfrom;
-						<th scope="row">{{ numval }}</th>
+						<th scope="row"><p id="numval{{forloop.counter}}"></p></th>
+						<script type="text/javascript">
+							var a = {{forloop.counter}};
+							var b = {{startfrom}};
+							document.getElementById("numval{{forloop.counter}}").innerHTML = a+b;
+						</script>
 						{% endif %}
                         <td><a href="{{ k }}">{{ k }}</a></td>
                         <td>{{ v.source.title }}</td>
@@ -53,25 +58,8 @@
 				</tbody>
 			</table>
       </div>
-    </div>
 
-    <div class="col-lg-1 mx-auto">
-    </div>
-
-  </div> <!-- row -->
-</div> <!-- container -->
-
-<script type="text/javascript">
-    function toggle_visibility(id) {
-       var e = document.getElementById(id);
-       if(e.style.display == 'block')
-          e.style.display = 'none';
-       else
-          e.style.display = 'block';
-    }
-</script>
-
-		<div class="pagination justify-content-center">
+		<div class="pagination justify-content-center" style="font-size:20px">
       	<span class="step-links">
       	{%if pg.has_previous %}
       	<a href="?page=1">First</a>
@@ -91,6 +79,25 @@
 		<a href="?page={{pg.paginator.num_pages}}">Last</a>
 		{% endif %}
 		</span>
+		<br/><br/>
       	</div>
+    </div>
+
+    <div class="col-lg-1 mx-auto">
+    </div>
+
+  </div> <!-- row -->
+</div> <!-- container -->
+
+<script type="text/javascript">
+    function toggle_visibility(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+</script>
+
 
 {% endblock %}

@@ -69,8 +69,16 @@ class search_results:
             context = {}
             return HttpResponse(template.render(context, request))
 
+        if request.method == 'GET':
+            template = loader.get_template('search/results.html')
+            callpage = request.GET.get('page', False)
+            context = search_results.paginate_search_result(request, callpage)
+            return HttpResponse(template.render(context, request))
+
         if request.method == 'POST':
             try:
+                callpage = request.POST.get('page', False)
+
                 searchinput = {}
                 searchinput["pattern"] = request.POST.get('pattern', False)
                 if request.POST.get('mirror', False):
@@ -198,6 +206,14 @@ class search_results:
                         else:
                             score_info[doc_id].append("Unknown composer")
 
+                    # paginator for the first page.
+                    if callpage == False or callpage == 0 or callpage == 1:
+                        p = Paginator(tuple(score_info), settings.SCORES_PER_PAGE )
+                        pg = p.get_page(1)
+                        startfrom = 0
+                        endby = min(settings.SCORES_PER_PAGE , p.count)
+                        scores_thispg = dict(list(score_info.items())[startfrom:endby])
+
                 else:
                     # TODO: lyrics and text, right now just leave them empty
                     match_dict_display = {}
@@ -210,7 +226,7 @@ class search_results:
                 request.session["matching_doc_ids"] = matching_doc_ids
                 request.session["matching_composers"] = matching_composers
                 request.session["matching_locations"] = matching_locations
-                #request.session["score_info"] = score_info
+                request.session["score_info"] = score_info
                 request.session["match_dict_display"] = match_dict_display
 
                 template = loader.get_template('search/results.html')
@@ -225,8 +241,10 @@ class search_results:
                     "matching_doc_ids": matching_doc_ids,
                     "matching_composers": matching_composers,
                     "matching_locations": matching_locations,
-                    "score_info": score_info,
-                    "abcpattern": searchinput["pattern"]
+                    "score_info": scores_thispg,
+                    "abcpattern": searchinput["pattern"],
+                    "pg": pg, 
+                    "startfrom":startfrom
                 }
 
                 return HttpResponse(template.render(context, request))
@@ -236,10 +254,72 @@ class search_results:
                 context = {"indices_names": indices}
                 return HttpResponse(template.render(context, request))
 
-        elif request.method == 'GET':
-            template = loader.get_template('search/search_errorpage.html')
+    def paginate_search_result(request, callpage):
+        # Pagination for the search results
+
+        es = Elasticsearch()
+        try:
+            indices = es.indices.get_alias().keys()
+        except:
+            # if ES is not connected, it should be warned
+            template = loader.get_template('home/es_errorpage.html')
             context = {}
             return HttpResponse(template.render(context, request))
+
+        score_info = request.session.get('score_info')
+        searchinput = request.session.get('searchinput')
+        match_dict_display = request.session.get("match_dict_display")
+        matching_doc_ids = request.session.get("matching_doc_ids")
+        num_matching_docs = len(score_info) #len(matching_doc_ids)
+        num_matching_patterns = request.session.get("num_matching_patterns")
+        matching_composers = request.session.get("matching_composers")
+        matching_locations = request.session.get("matching_locations")
+
+        p = Paginator(tuple(score_info), settings.SCORES_PER_PAGE)
+
+        callpage = int(callpage)
+        if callpage != False:
+            try:
+                pg = p.get_page(callpage)
+                if callpage == 0:
+                    callpage = 1
+                startfrom = (callpage-1)*settings.SCORES_PER_PAGE 
+                endby = min(callpage*settings.SCORES_PER_PAGE , p.count)
+                scores_thispg = dict(list(score_info.items())[startfrom:endby])
+            except PageNotAnInteger:
+                pg = p.get_page(1)
+                startfrom = 0
+                endby = min(settings.SCORES_PER_PAGE , p.count)
+                scores_thispg = dict(list(score_info.items())[startfrom:endby])
+            except EmptyPage:
+                startfrom = (p.num_pages-1)*settings.SCORES_PER_PAGE 
+                scores_thispg = dict(list(score_info.items())[startfrom:p.count])
+                pg = p.get_page(p.num_pages)
+        else:
+            pg = p.get_page(1)
+            startfrom = 0
+            endby = min(settings.SCORES_PER_PAGE, p.count)
+            scores_thispg = dict(list(score_info.items())[startfrom:endby])
+        
+        print("scoreinfo:",score_info)
+        print(startfrom, endby)
+        print(scores_thispg)
+        context = {
+                    "searchinput": searchinput,
+                    "index_name": searchinput["index_name"],
+                    "match_dict_display": match_dict_display,
+                    "indices_names": indices,
+                    "num_matching_docs": num_matching_docs,
+                    "num_matching_patterns": num_matching_patterns,
+                    "matching_doc_ids": matching_doc_ids,
+                    "matching_composers": matching_composers,
+                    "matching_locations": matching_locations,
+                    "score_info": scores_thispg,
+                    "abcpattern": searchinput["pattern"],
+                    "pg": pg,
+                    "startfrom": startfrom
+        }
+        return context
 
     def HighlightMusicDocView(request, index_name, doc_id):
         # Highlight patterns while viewing a music document
@@ -277,6 +357,11 @@ class search_results:
         # because the user should not submit a new search input from this page
         # kept for now for information, should be removed once there's score display for search input
 
+        # Here score_info is changed for filtered or re-ranked display, 
+        # statitstics(number of patterns and docs) are also changed.
+
+        # TO-SOLVE(minor): if re-rank, the composer facet will be reset
+
         es = Elasticsearch()
         try:
             indices = es.indices.get_alias().keys()
@@ -293,9 +378,7 @@ class search_results:
             searchinput = request.session.get('searchinput')
 
             # for stats display
-            num_matching_patterns = request.session.get("num_matching_patterns")
             matching_doc_ids = request.session.get("matching_doc_ids")
-            num_matching_docs = len(matching_doc_ids)
 
             # for display in the composer facets
             matching_composers = request.session.get("matching_composers")
@@ -303,20 +386,22 @@ class search_results:
             matching_locations = request.session.get("matching_locations")
             # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")
-
+            
             # TODO: only one name at this moment but should be a list
             searchinput["composer"] = request.POST.get('composer', False)
 
             searchinput["rankby"] = request.POST.get('rankby', False)
             print(searchinput["rankby"])
             if searchinput["rankby"] == "relevancy" or searchinput["rankby"] == "Relevancy":
-                print("Before re-rank, matching docs are:", matching_doc_ids)
                 matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
                 matching_doc_ids = list(reversed(matching_doc_ids))
-                print("After re-rank, matching docs are:", matching_doc_ids)
+                #print("After re-rank, matching docs are:", matching_doc_ids)
+                # Remember this re-ranked order
+                request.session["matching_doc_ids"] = matching_doc_ids
 
             hostname = request.get_host()
             score_info = {}
+            num_matching_patterns = 0
             # Score info(type & media link) for preview of matching scores in result page:
             for doc_id in matching_doc_ids:
                 try:
@@ -349,17 +434,43 @@ class search_results:
                 else:
                     score_info[doc_id].append("Unknown composer")
 
+                # Re-calculate the number of matching patterns
+                num_matching_patterns += match_dict_display[doc_id]
+
+            # Remember the filtered results and stats
+            request.session["score_info"] = score_info
+            request.session["num_matching_docs"] = len(score_info)
+            request.session["num_matching_patterns"] =  num_matching_patterns
+
+            # Pagination for filtered view:
+            callpage = request.POST.get('page', False)
+            p = Paginator(tuple(score_info), settings.SCORES_PER_PAGE)
+            callpage = int(callpage)
+            if callpage == False or callpage == 0 or callpage == 1:
+                pg = p.get_page(1)
+                startfrom = 0
+                endby = min(settings.SCORES_PER_PAGE , p.count)
+                scores_thispg = dict(list(score_info.items())[startfrom:endby])
+
             context = {
                     "searchinput": searchinput,
                     "index_name": searchinput["index_name"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
-                    "num_matching_docs": num_matching_docs,
+                    "num_matching_docs": len(score_info),
                     "num_matching_patterns": num_matching_patterns,
                     "matching_doc_ids": matching_doc_ids,
                     "matching_composers": matching_composers,
                     "matching_locations": matching_locations,
-                    "score_info": score_info
+                    "score_info": scores_thispg,
+                    "pg": pg,
+                    "startfrom": startfrom
             }
 
+            return HttpResponse(template.render(context, request))
+
+        elif request.method == 'GET':
+            template = loader.get_template('search/filtered_result.html')
+            callpage = request.GET.get('page', False)
+            context = search_results.paginate_search_result(request, callpage)
             return HttpResponse(template.render(context, request))
