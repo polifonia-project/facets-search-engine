@@ -15,11 +15,21 @@ from lib.search.IndexWrapper import IndexWrapper
 
 from rest.models import *
 
-class AboutView(TemplateView):
-    template_name = "home/about.html"
 
 class DocsView(TemplateView):
     template_name = "home/docs.html"
+
+
+def AboutView(request):
+    template = loader.get_template('home/about.html')
+    f = open('./VERSION', 'r')
+    file_string = f.read()
+    commit = file_string.split()[0]
+    date = file_string.split()[1]
+    f.close()
+    context = {'commit': commit, 'date': date}
+    return HttpResponse(template.render(context, request))
+
 
 try:
     # host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
