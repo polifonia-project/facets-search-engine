@@ -1,21 +1,23 @@
-
 {% if searchinput.pianopattern == False %}
 {% include 'search/abcscore-display.html' %}
-<br/>
 {% endif %}
 
 
+<div class="row"> <!-- row -->
+    <div class="col-lg-2 mx-auto">
 {% include 'search/results-stats.html' %}
-<br/>
+    </div>
 
-{% include 'search/results-selectfacets.html'%}
-
-{% include 'search/results-selectrank.html'%}
-<br/>
-
-{%comment%}
-{% include 'search/results-list-list.html'%}
-{%endcomment%}
-
+    <div class="col-lg-8 mx-auto">
 {% include 'search/result-scorespreview.html' %}
-<br/>
+    </div>
+    <div class="col-lg-2 mx-auto">
+{% include 'search/results-selectfacets.html'%}
+{% include 'search/results-selectrank.html'%}
+    </div>
+
+
+{%comment%} {% include 'search/results-list-list.html'%} {%endcomment%}
+
+
+</div> <!-- row -->

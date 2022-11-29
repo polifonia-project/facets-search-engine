@@ -9,109 +9,81 @@
 
 <div class="d-flex flex-column">
 
-    {% if score_info %}
+{% if score_info %}
+{% for i, v in score_info.items %}
 
-        {% for i, v in score_info.items %}
+<div class="mb-2 p-3 shadow resultitem" >
+{% comment %}<div class="p-3 rounded shadow resultitem" >{% endcomment %}
+{% comment %}<div class="resultitem p-3" >{% endcomment %}
+    <h6>
+    Title: {{v.2}} </br>
+    Composer: {{v.3}} </br>
+    See full score of the document: 
+    <a href="/search/results/{{index_name}}/{{i}}/"> "{{i}}" </a>
+    </h6>
+    <br/>
 
-        <div class="bg-white p-3 rounded shadow" style="width: 800px;">
-            {%comment%}
-            {% if v.0 == "mei" %}
-            <li class="mei"><a target="_blank" href="{{v.1}}"
-                           title="{% trans 'Download MEI' %}"> <span class="accessibility">{% trans 'Download MEI' %}</span>
-            </a></li>
-            {% endif  %}
+    <script type="text/javascript">
+        /* Load the file using HTTP GET */
+        console.log ("Get url for {{i}}")
+        var vrvOptions = {
+            scale : 33,
+            pageHeight : 100,
+            adjustPageHeight : 1,
+        };
 
-            {% if v.0 == "musicxml" or v.0 == "xml"%}
-            <li class="download"><a target="_blank" href="{{v.1}}"
-                                title="{% trans 'Download MusicXML'%}" target="_blank"> <span class="accessibility">{% trans 'Download MusicXML' %}</span>
-            </a></li>
-            {% endif %}
-            {%endcomment%}
+        vrvToolkit.setOptions(vrvOptions);
 
-
-            <h6>
-            Title: {{v.2}}
-            </br>
-            Composer: {{v.3}}
-            </br>
-            See full score of the document: 
-            {%comment%}
-            # this version is not highlighted
-            <a href="/home/dashboard/{{index_name}}/{{i}}"> "{{i}}" </a>
-            {%endcomment%}
-            <a href="/search/results/{{index_name}}/{{i}}/"> "{{i}}" </a>
-
-            </h6>
-            </br>
-            <script type="text/javascript">
-            /* Load the file using HTTP GET */
-            console.log ("Get url for {{i}}")
-                var vrvOptions = {
-                scale : 35,
-                pageHeight : 100,
-                adjustPageHeight : 1,
-            };
-
-            vrvToolkit.setOptions(vrvOptions);
-
-            document.addEventListener('DOMContentLoaded', (event) => {
-                $.ajax({
-                    url: "{{v.1}}",
-                    dataType: "text",
-                    success: function(data) {
-                        var svg = vrvToolkit.renderData(data);
-                        document.getElementById("notation{{i}}").innerHTML = svg;
-                        $("#incipit{{i}}").html(svg);
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        console.log("Error with document {{i}} " + xhr.status);
-                    }
-                });
+        document.addEventListener('DOMContentLoaded', (event) => {
+            $.ajax({
+                url: "{{v.1}}",
+                dataType: "text",
+                success: function(data) {
+                    var svg = vrvToolkit.renderData(data);
+                    document.getElementById("notation{{i}}").innerHTML = svg;
+                    $("#incipit{{i}}").html(svg);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error with document {{i}} " + xhr.status);
+                }
             });
-            </script>
+        });
+    </script>
 
-            <div>
-            <table class="preview"><tr>
-            <td valign="10em"> </td>
-            <td>     <div id="notation{{i}}">score placeholder</div> </td>
-            </tr>
-            </table>
-            </div>
+    <div> <!-- for score preview -->
+<table class="preview"><tr>
+<td valign=""> </td>
+<td>     <div id="notation{{i}}">score placeholder</div> </td>
+</tr>
+</table>
+    </div> <!-- for score preview -->
 
-            {%comment%}
-            <table class="preview"><tr>
-                <td valign="middle">
-                </td><td>     <a href="home/dashboard/{{index_name}}/{{i}}'";><div id="incipit{{i}}"></div></a>
-            </td>
-            </tr>
-            </table>
-            {%endcomment%}
             </div>
             <br/>
     {% endfor %}
 
-            <div class="pagination justify-content-center" style="font-size:1vw">
-            <span class="step-links">
-            {%if pg.has_previous %}
-            <a href="?page=1">First</a>
-            {% endif %} 
-            {%if pg.previous_page_number != 1%}
-            <a href="?page={{pg.previous_page_number}}">Previous</a>
-            {% endif %}
+<div class="pagination justify-content-center mt-3" >
+<span class="step-links">
+{%if pg.has_previous %}
+<a href="?page=1">First</a>
+{% endif %} 
+{%if pg.previous_page_number != 1%}
+<a href="?page={{pg.previous_page_number}}">Previous</a>
+{% endif %}
 
-            <span class="current">
-                Page {{pg.number}} of {{pg.paginator.num_pages}}
-            </span>
-            
-            {%if pg.has_next %}
-            <a href="?page={{pg.next_page_number}}">Next</a>
-            {% endif %}
-            {%if pg.next_page_number != pg.paginator.num_pages%}
-            <a href="?page={{pg.paginator.num_pages}}">Last</a>
-            {% endif %}
-            </span>
-            <br/><br/>
-            </div>
+<span class="current">
+    Page {{pg.number}} of {{pg.paginator.num_pages}}
+</span>
+
+{%if pg.has_next %}
+<a href="?page={{pg.next_page_number}}">Next</a>
+{% endif %}
+{%if pg.next_page_number != pg.paginator.num_pages%}
+<a href="?page={{pg.paginator.num_pages}}">Last</a>
+{% endif %}
+</span>
+<br/><br/>
+</div>
             
     {% else %}
     <table class="preview"><tr>

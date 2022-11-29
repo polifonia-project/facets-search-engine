@@ -5,16 +5,17 @@
 
 <div class="container">
 
-  <div class="row mb-5">
-    <div class="col-lg-8 mx-auto">
+  <div class="row">
 
+    <div class="col-lg-8 mx-auto mb-3">
     <h1 class="text-center">Search Results</h1>
-
     {% include 'search/form.html' %}
-    <br/>
-    {% include 'search/results-list.html' %}
-
     </div>
+
+    <div class="col-lg-12 mx-auto">
+    {% include 'search/results-list.html' %}
+    </div>
+
   </div>
 </div>
 

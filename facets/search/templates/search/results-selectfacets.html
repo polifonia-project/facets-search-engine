@@ -1,14 +1,9 @@
 <form action="/search/filtered_result/" method="post">
-<div class="bg-white p-3 rounded shadow" style="width: 800px;">
-{%comment%}
-<h4>Facets</h4>
-<script src="jquery-3.6.0.min.js"></script>
-{%endcomment%}
+<div class="bg-white p-3 rounded shadow d-flex flex-column align-items-center">
 
 {% csrf_token %}
 
-
-<select name="composer" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 200px;">
+<select name="composer" class="px-4 mx-2 custom-select custom-select-sm">
     {% if searchinput.composer %}
     <option selected>{{ searchinput.composer | title }}</option>
   {% else %}
@@ -18,7 +13,7 @@
   {% endfor %}
   {% endif %}
 </select>
-<input type="submit" value="Filter">
+<input class="px-4 mx-2 my-1" type="submit" value="Filter">
 
 </div>
 </form>
