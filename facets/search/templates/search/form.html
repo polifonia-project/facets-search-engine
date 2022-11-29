@@ -1,72 +1,116 @@
 {% block content %}
 
+There are two modes: one with a piano keyboard to input a pattern, and another with an 'abc' text pattern. Pick the suitable tab below.
+<br/><br/>
+
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a id="pianobutton" class="nav-link active searchtablinks" onclick="openTab(event, 'Pianotab')" aria-current="page" href="#">Piano</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link searchtablinks" onclick="openTab(event, 'ABC')" aria-current="page" href="#">ABC</a>
+  </li>
+  {% comment %}<li class="nav-item">{% endcomment %}
+    {% comment %}<a class="nav-link" href="#">Link</a>{% endcomment %}
+    {% comment %}</li>{% endcomment %}
+</ul>
+
+<!-- Tab content -->
+{% comment %}<div id="Piano" class="searchtabcontent"> </div>{% endcomment %}
+
 <form action="/search/results/" method="post">
-<div id="keyboardZone" class="bg-white p-3 rounded shadow" style="width: 800px;">
-<div class="d-flex align-middle">
-{% include 'search/keyboard.html' %}
-</div>
-<br/>
-{%comment%}
-</div>
 
-<div class="bg-white p-3 rounded shadow" style="width: 800px;">
+  <div style="border: 1px solid #ccc; border-top: 0px;"> <!-- wrapper div -->
 
-{%endcomment%}
-  <!-- Custom rounded search bars with input group -->
+  <div class="my-2 mx-auto d-flex justify-content-center">
 
-	{% csrf_token %}
+    <select name="indexname" class="px-4 mr-2 my-auto custom-select custom-select-sm" style="width: 10rem;">
+      {% if searchinput.index_name %}
+      <option selected>{{ searchinput.index_name | title }}</option>
+      {% else %}
+      <option selected>Index name</option>
+      {% endif %}
+      {% for index in indices_names %}
+      <option value="{{ index }}">{{ index | title }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="searchtype" class="px-4 mx-2 my-auto custom-select custom-select-sm"  style="width: 10rem;">
+      {% if searchinput.type %}
+      <option selected>{{ searchinput.type | title }}</option>
+      {% else %}
+      <option selected>Search type</option>
+      {% endif %}
+      <option value="chromatic">Chromatic</option>
+      <option value="diatonic">Diatonic</option>
+      <option value="rhythmic">Rhythmic</option>
+      <option value="lyrics">Lyrics</option>
+    </select>
+
+
+    <div class="px-4 mx-2 my-auto form-group form-check">
+      <input type="checkbox" class="form-check-input" name="mirror" id="MirrorSearch" {% if searchinput.mirror %}checked{% endif %} >
+      <label class="form-check-label" for="MirrorSearch" style="width: 10rem;">Include mirror pattern</label>
+    </div>
+
+    <div class="input-group-append">
+      <button id="button-addon1" type="submit" class="btn btn-primary"><i class="fa fa-search">&nbsp;Search&nbsp;</i></button>
+    </div>
+
+  </div>
+
+  <div id="ABC" class="searchtabcontent">
+    {% csrf_token %}
+
     <div class="p-3 bg-light rounded rounded-pill shadow-sm">
-        <div class="input-group px-4">
-            <!--<label for="exampleFormControlTextarea1">Example textarea</label>-->
-            <textarea name="pattern" placeholder="Type your abc pattern here"
-                class="form-control" id="exampleFormControlTextarea1"
-                rows="2">{% if searchinput.pattern %}{{ searchinput.pattern }}{% endif %}</textarea>
-        <!--</div>-->
-		<!--<input name="pattern" type="search" placeholder="Type your abc pattern here" aria-describedby="button-addon1" class="form-control border-0 bg-light">-->
-		<div class="input-group-append">
-		  <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
-		</div>
-	  </div>
-	</div>
-<br/>
 
-<div class="d-flex align-middle">
+      <div class="input-group px-4">
+        <textarea name="pattern" placeholder="Input your abc pattern here" class="form-control" id="exampleFormControlTextarea1" rows="2">{% if searchinput.pattern %}{{ searchinput.pattern }}{% endif %}</textarea>
+      </div>
 
-<select name="indexname" class="px-4 mr-2 custom-select custom-select-sm"
-    style="width: 10rem;">
-{% if searchinput.index_name %}
-<option selected>{{ searchinput.index_name | title }}</option>
-{% else %}
-<option selected>Index name</option>
-{% endif %}
-{% for index in indices_names %}
-<option value="{{ index }}">{{ index | title }}</option>
-{% endfor %}
-</select>
+    </div>
+  </div>
 
-<select name="searchtype" class="px-4 mx-2 custom-select custom-select-sm"  style="width: 10rem;">
-    {% if searchinput.type %}
-    <option selected>{{ searchinput.type | title }}</option>
-  {% else %}
-  <option selected>Search type</option>
-  {% endif %}
-  <option value="chromatic">Chromatic</option>
-  <option value="diatonic">Diatonic</option>
-  <option value="rhythmic">Rhythmic</option>
-  <option value="lyrics">Lyrics</option>
-</select>
+  <div id="Pianotab" class="searchtabcontent">
+    <div id="keyboardZone" class="bg-white p-1 rounded shadow" style="width: 700px;">
+      <div class="d-flex justify-content-center">
+        {% include 'search/keyboard.html' %}
+      </div>
+    </div>
+  </div>
+  </div> <!-- wrapper div-->
 
-
-<div class="px-4 mx-2 form-group form-check">
-<input type="checkbox" class="form-check-input" name="mirror" id="MirrorSearch" {% if searchinput.mirror %}checked{% endif %} >
-<label class="form-check-label" for="MirrorSearch" style="width: 10rem;">Mirror search</label>
-</div>
-
-</div>
 
 </form>
-  <!-- End -->
-</div>
+<!-- End -->
+{% comment %}</div>{% endcomment %}
 
+  <script>
+    function openTab(evt, tabName) {
+        // Declare all variables
+      var i, tabcontent, tablinks;
 
-{% endblock content %}
+      // Get all elements with class="tabcontent" and hide them
+      tabcontent = document.getElementsByClassName("searchtabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+          }
+
+      // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("searchtablinks");
+        for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    } 
+
+  </script>
+  <script>
+    // open Piano by default
+    document.getElementById("pianobutton").click();
+  </script>
+
+  {% endblock content %}
