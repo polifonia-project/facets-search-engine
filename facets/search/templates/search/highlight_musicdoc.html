@@ -8,10 +8,12 @@
         <div class="col-lg-2 mx-auto">
         </div>
 
-        <div class="col-lg-8 mx-auto">
-            <h1 class="text-center">{{ globalvariables.sitename }} MusicDoc View</h1>
+        <div class="col-lg-12 mx-auto">
+            <h1 class="text-center">
+    {% if title != null and title != "" %}{{ title }} &mdash; {{ composer }}{% else %}Document {{ doc_id }}{% endif %}
+            </h1>
 
-            <div class="card text-center">
+            <div class="card">
                 <div class="card-header">
                     <ul>
                         <li>Document ID: {{ doc_id }} </li>
@@ -91,23 +93,44 @@
         highlightids[numids-1] = highlightids[numids-1].split(']')[0];
         
         for (var i = 0; i < highlightids.length; i++) {
-                // finally, get rid of quote symbol in each highlightid
-                temp = highlightids[i].split('"');
-                highlightids[i] = temp[1];
-                console.log(highlightids[i]);
-                // TODO: this gets null. getElementById does not work properly!!
-                match = document.getElementById(highlightids[i]);
-                if (match != null) {
-                        console.log(match);
-                        match.strokeStyle = "#ff0487";
-                        match.fillStyle = "#ff0000";
-                        match.fillOpacityStyle = 1.0;
+            // finally, get rid of quote symbol in each highlightid
+            temp = highlightids[i].split('"');
+            highlightids[i] = temp[1];
+            //console.log(highlightids[i]);
+            //match = document.getElementById(highlightids[i]);
+            //var element = document.querySelector("#" + highlightids[i]);
+            var element = document.querySelector("#" + "m-124");
+            if (element) {
+            console.log("works! " + element);
+                var classes =
+                    element.getAttribute("class");
+                var classlist = classes.split(" ");
+                var outclass = "";
+                for (var i=0; i<classlist.length; i++) {
+                    if
+                    (classlist[i] == "highlight") {
+                        continue;
+                    }
+                    outclass
+                        += " " + classlist[i];
                 }
+                outclass += " highlight";
+                element.setAttribute("class", outclass);
+            }
+                
+               // if (match != null) {
+               //         console.log(match);
+               //         match.strokeStyle = "#ff0487";
+               //         match.fillStyle = "#ff0000";
+               //         match.fillOpacityStyle = 1.0;
+               // }
         }
         // TODO: in the following test code, the id of a displayed note from the html page is used, yet getElementById still returns null.
         window.onload = function(){
-            testforbwv48 = "dle1498";
-            testelement = document.getElementById(testforbwv48);
+            testforbwv48 = "m-124";
+            testelement = document.querySelector("#m-124");
+            // testforbwv48 = "dle1498";
+            // testelement = document.getElementById(testforbwv48);
             console.log(testelement);
             testelement.strokeStyle = "#ff0487";
         }
