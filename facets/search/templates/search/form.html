@@ -9,7 +9,7 @@
 </div>
 
 <div id="searchform"> <!-- search form -->
-There are two modes: one with a piano keyboard to input a pattern, and another with an 'abc' text pattern. Pick the suitable tab below.
+You may input a query with a piano keyboard or in abc notation. Pick the suitable tab below.
 <br/><br/>
 
 <ul class="nav nav-tabs">
@@ -36,7 +36,9 @@ There are two modes: one with a piano keyboard to input a pattern, and another w
       <option selected>Index name</option>
       {% endif %}
       {% for index in indices_names %}
+      {% if searchinput.index_name != index %}
       <option value="{{ index }}">{{ index | title }}</option>
+      {% endif %}
       {% endfor %}
     </select>
 
@@ -46,10 +48,18 @@ There are two modes: one with a piano keyboard to input a pattern, and another w
       {% else %}
       <option selected>Search type</option>
       {% endif %}
+      {% if searchinput.type != 'chromatic' %}
       <option value="chromatic">Chromatic</option>
+      {% endif %}
+      {% if searchinput.type != 'diatonic' %}
       <option value="diatonic">Diatonic</option>
+      {% endif %}
+      {% if searchinput.type != 'rhythmic' %}
       <option value="rhythmic">Rhythmic</option>
+      {% endif %}
+      {% if searchinput.type != 'lyrics' %}
       <option value="lyrics">Lyrics</option>
+      {% endif %}
     </select>
 
 
@@ -128,4 +138,4 @@ There are two modes: one with a piano keyboard to input a pattern, and another w
 </script>
 
 
-  {% endblock content %}
+{% endblock content %}

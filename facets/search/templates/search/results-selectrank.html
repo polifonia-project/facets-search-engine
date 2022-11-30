@@ -4,9 +4,16 @@
 {% csrf_token %}
 
 <select name="rankby" class="px-4 mx-2 custom-select custom-select-sm" >
+  {% if searchinput.rankby %}
+  <option selected>{{searchinput.rankby}}</option>
+  {% if searchinput.rankby != 'Relevancy' %}
+  <option value="Relevancy">Relevancy</option>
+  {% endif %}
+  {% else %}
   <option selected>Rank by</option>
-  <option value="relevancy">Relevancy</option>
-  <option value="similarity">Similarity</option>
+  <option value="Relevancy">Relevancy</option>
+  <option value="Similarity">Similarity</option>
+  {% endif %}
 </select>
 
 <input class="px-4 mx-2 my-1" type="submit" value="Re-rank">

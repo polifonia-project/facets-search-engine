@@ -58,7 +58,6 @@ class search_results:
         return
 
     def results(request):
-        # print("result view called")
 
         es = Elasticsearch()
         try:
@@ -162,7 +161,7 @@ class search_results:
                         print("ids of all matching notes are:", mat_doc["matching_ids"], "\n")
                         match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
 
-                    if searchinput["rankby"] == "relevancy":
+                    if searchinput["rankby"] == "Relevancy":
                         matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
                         
                     # Get rid of duplicates
@@ -300,10 +299,7 @@ class search_results:
             startfrom = 0
             endby = min(settings.SCORES_PER_PAGE, p.count)
             scores_thispg = dict(list(score_info.items())[startfrom:endby])
-        
-        print("scoreinfo:",score_info)
-        print(startfrom, endby)
-        print(scores_thispg)
+
         context = {
                     "searchinput": searchinput,
                     "index_name": searchinput["index_name"],
@@ -361,6 +357,7 @@ class search_results:
         # statitstics(number of patterns and docs) are also changed.
 
         # TO-SOLVE(minor): if re-rank, the composer facet will be reset
+        # TO-SOLVE: re-rank by similarity
 
         es = Elasticsearch()
         try:
@@ -391,8 +388,7 @@ class search_results:
             searchinput["composer"] = request.POST.get('composer', False)
 
             searchinput["rankby"] = request.POST.get('rankby', False)
-            print(searchinput["rankby"])
-            if searchinput["rankby"] == "relevancy" or searchinput["rankby"] == "Relevancy":
+            if searchinput["rankby"] == "Relevancy":
                 matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
                 matching_doc_ids = list(reversed(matching_doc_ids))
                 #print("After re-rank, matching docs are:", matching_doc_ids)
