@@ -23,14 +23,18 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
 
 <!-- Tab content -->
 
-<form action="/search/results/" method="post">
+<form id="searchform" action="/search/results/" method="post" onsubmit="return validateMyForm(this);">
 
   <div id="formwrap"> <!-- wrapper div -->
 
     <div class="mb-2 pt-3 mx-auto d-flex justify-content-center"> <!-- buttons -->
 
+<<<<<<< HEAD
     <select name="indexname" class="px-4 mr-2 my-auto custom-select custom-select-sm" style="width: 10rem;">
 
+=======
+    <select name="indexname" class="px-4 mr-2 my-auto custom-select custom-select-sm" required style="width: 10rem;">
+>>>>>>> 790138270112441ff7a6446282c77204e313641e
       {% if searchinput.index_name %}
       <option selected>{{ searchinput.index_name | title }}</option>
       {% else %}
@@ -55,7 +59,7 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
 
     </select>
 
-    <select name="searchtype" class="px-4 mx-2 my-auto custom-select custom-select-sm"  style="width: 10rem;">
+    <select name="searchtype" class="px-4 mx-2 my-auto custom-select custom-select-sm" required style="width: 10rem;">
       {% if searchinput.type %}
       <option selected>{{ searchinput.type | title }}</option>
       {% else %}
@@ -148,6 +152,19 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
        else
           e.style.display = 'block';
     }
+</script>
+
+<script type="text/javascript">
+	function validateMyForm(form)
+	{
+		if(!form.indexname.selectedIndex > 0) {
+			// the default first option remains selected
+      document.getElementById("search-message").style.display = "block";
+      document.getElementById("search-message").innerHTML = "<h4>Select an index and a search method</h4>";
+			return false;
+		}
+		return true;
+	}
 </script>
 
 
