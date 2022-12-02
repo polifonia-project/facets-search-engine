@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 MEDIA_ROOT = BASE_DIR.as_posix()+ "/media"
 
+
 MEDIA_URL = '/media/'
 
 NEUMA_ID_SEPARATOR = ":"
@@ -36,6 +37,8 @@ DEBUG = True
 APPEND_SLASH = True
 ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'neuma-dev.huma-num.fr', ]
 
+# SECURITY SETTING: disable scorelib index to avoid deletion from users
+DISABLE_SCORELIB = False
 
 # Application definition
 

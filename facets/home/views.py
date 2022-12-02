@@ -90,7 +90,15 @@ def OverviewDataView(request):
         # stats[key] = es.indices.stats(key)
         indices_stats[key] = es.indices.stats(key).get('_all').get('primaries').get('docs').get('count')
 
-    context = {"indices_number": len(indices_stats), "indices_stats": indices_stats}
+    if settings.DISABLE_SCORELIB:
+        context = {"indices_number": len(indices_stats)-1, "indices_stats": indices_stats,  
+               "disable_scorelib": settings.DISABLE_SCORELIB
+        }
+    else:
+        context = {"indices_number": len(indices_stats), "indices_stats": indices_stats,  
+               "disable_scorelib": settings.DISABLE_SCORELIB
+        }
+
     return HttpResponse(template.render(context, request))
 
 # View index by name

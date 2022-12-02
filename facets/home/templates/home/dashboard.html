@@ -32,11 +32,18 @@
 				</div>
 				<ul class="list-group ">
 					{% for k, v in indices_stats.items %}
+					{% if disable_scorelib == False %}
 					<li class="list-group-item d-flex justify-content-between align-items-center ">
 						{{ k }}
 						<span class="badge badge-primary badge-pill"><a href="{{ k }}/">{{ v }} docs</a></span>
 					</li>
-					{% endfor %}
+					{% elif k != 'scorelib' and k != 'Scorelib' %}
+					<li class="list-group-item d-flex justify-content-between align-items-center ">
+						{{ k }}
+						<span class="badge badge-primary badge-pill"><a href="{{ k }}/">{{ v }} docs</a></span>
+					</li>
+					{% endif %}
+					{% endfor %}					
 				</ul>
 			</div>
 		</div>

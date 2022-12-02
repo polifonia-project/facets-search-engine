@@ -18,10 +18,12 @@
 
 	<input id="pianopattern" name="pianopattern" type="hidden" size="64" value="" />
 
-
+	
 	<div id="seepartition" class="seepartition">
 		<!-- <p id="partition" class="partition"></p> <br class="clear"/> -->
+	{%comment%}
 	<div id="search_partition"></div>
+	{%endcomment%}
 	</div>
 	
 	<table width="100%">
@@ -170,6 +172,7 @@
 	Piano.init();
 
 	// Pour donner une valeur initiale a la melodie
+	
 	if ('{}{pianopattern}')
 		Piano.getMelody('{{pianopattern}}');
 	

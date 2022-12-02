@@ -47,7 +47,9 @@ def index(request):
         composer_names = index_wrapper.get_composer_names()
     """
     
-    context = {"indices_names": indices}#, "composer_names": composer_names}
+    context = {"indices_names": indices, 
+               "disable_scorelib": settings.DISABLE_SCORELIB
+              }#, "composer_names": composer_names}
 
     template = loader.get_template('search/index.html')
     return HttpResponse(template.render(context, request))
@@ -243,7 +245,8 @@ class search_results:
                     "score_info": scores_thispg,
                     "abcpattern": searchinput["pattern"],
                     "pg": pg, 
-                    "startfrom":startfrom
+                    "startfrom": startfrom,
+                    "disable_scorelib": settings.DISABLE_SCORELIB
                 }
 
                 return HttpResponse(template.render(context, request))
@@ -313,7 +316,9 @@ class search_results:
                     "score_info": scores_thispg,
                     "abcpattern": searchinput["pattern"],
                     "pg": pg,
-                    "startfrom": startfrom
+                    "startfrom": startfrom,
+                    "disable_scorelib": settings.DISABLE_SCORELIB
+
         }
         return context
 
@@ -460,8 +465,10 @@ class search_results:
                     "matching_locations": matching_locations,
                     "score_info": scores_thispg,
                     "pg": pg,
-                    "startfrom": startfrom
+                    "startfrom": startfrom,
+                    "disable_scorelib": settings.DISABLE_SCORELIB
             }
+            print(context["disable_scorelib"])
 
             return HttpResponse(template.render(context, request))
 

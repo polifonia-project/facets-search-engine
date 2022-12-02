@@ -30,16 +30,29 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
     <div class="mb-2 pt-3 mx-auto d-flex justify-content-center"> <!-- buttons -->
 
     <select name="indexname" class="px-4 mr-2 my-auto custom-select custom-select-sm" style="width: 10rem;">
+
       {% if searchinput.index_name %}
       <option selected>{{ searchinput.index_name | title }}</option>
       {% else %}
       <option selected>Index name</option>
       {% endif %}
+
+      {% if disable_scorelib != True %}
       {% for index in indices_names %}
       {% if searchinput.index_name != index %}
       <option value="{{ index }}">{{ index | title }}</option>
       {% endif %}
       {% endfor %}
+      
+      {% else %}
+      {% for index in indices_names %}
+      {% if searchinput.index_name != index and index != 'scorelib' and index != 'Scorelib' %}
+      <option value="{{ index }}">{{ index | title }}</option>
+      {% endif %}
+      {% endfor %}
+
+      {% endif %}
+
     </select>
 
     <select name="searchtype" class="px-4 mx-2 my-auto custom-select custom-select-sm"  style="width: 10rem;">
