@@ -43,7 +43,12 @@ except:
 
 def index(request):
     template = loader.get_template('home/index.html')
-    context = {}
+    f = open('./VERSION', 'r')
+    file_string = f.read()
+    commit = file_string.split()[0]
+    date = file_string.split()[1]
+    f.close()
+    context = {'commit': commit, 'date': date}
     return HttpResponse(template.render(context, request))
 
 def fetch_musicdoc(request, index_name, doc_id):
