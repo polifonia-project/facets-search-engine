@@ -1,6 +1,19 @@
+{% if matching_doc_ids %}
 <div class="alert alert-info rounded shadow" role="alert" >
   <h5 class="alert-heading">Statistics</h5>
-
 <li class="list-group-item py-1 d-flex justify-content-between
-  align-items-center "> {{num_matching_patterns}} matching patterns found in {{num_matching_docs}} documents. </li>
+  align-items-center "> 
+  
+  {{num_matching_patterns}} matching patterns found in {{num_matching_docs}} documents. 
+
+</li>
 </div>
+{% else %}
+<div class="alert alert-info rounded shadow" role="alert" style="width: 720px;">
+<h5 class="alert-heading">Statistics</h5>
+<li class="list-group-item"> 
+  No matching result found in index: {{index_name}}, please enter another pattern!
+</li>
+</div>
+{% endif %}
+

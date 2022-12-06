@@ -4,18 +4,26 @@
 
 
 <div class="row"> <!-- row -->
+
+    {% if matching_doc_ids %}
     <div class="col-lg-2 mx-auto">
-{% include 'search/results-stats.html' %}
+    {% include 'search/results-stats.html' %}
     </div>
+    <div class="col-lg-8 mx-auto">
+    {% include 'search/result-scorespreview.html' %}
+    </div>
+    <div class="col-lg-2 mx-auto">
+    {% include 'search/results-selectfacets.html'%}
+    {% include 'search/results-selectrank.html'%}
+    </div>
+
+    {%else%}
 
     <div class="col-lg-8 mx-auto">
-{% include 'search/result-scorespreview.html' %}
-    </div>
-    <div class="col-lg-2 mx-auto">
-{% include 'search/results-selectfacets.html'%}
-{% include 'search/results-selectrank.html'%}
+    {% include 'search/results-stats.html' %}
     </div>
 
+    {% endif %}
 
 {%comment%} {% include 'search/results-list-list.html'%} {%endcomment%}
 

@@ -69,9 +69,11 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
       {% if searchinput.type != 'rhythmic' %}
       <option value="rhythmic">Rhythmic</option>
       {% endif %}
+      {%comment%}
       {% if searchinput.type != 'lyrics' %}
       <option value="lyrics">Lyrics</option>
       {% endif %}
+      {%endcomment%}
     </select>
 
 

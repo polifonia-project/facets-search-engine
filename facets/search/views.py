@@ -163,6 +163,18 @@ class search_results:
                     matching_info_dict = {}
 
                     # Get a list of doc_id and composer names
+                    if matching_docs.hits.hits == []:
+                        # No matching results found in this index
+                        template = loader.get_template('search/results.html')
+                        context = {
+                            "searchinput": searchinput,
+                            "index_name": searchinput["index_name"],
+                            "matching_doc_ids": False,
+                            "abcpattern": searchinput["pattern"],
+                            "num_matching_patterns": 0 
+                        }
+                        return HttpResponse(template.render(context, request))
+
                     for hit in matching_docs.hits.hits:
                         if 'composer' in hit['_source']:
                             matching_composers.append(hit['_source']['composer'])
@@ -242,7 +254,11 @@ class search_results:
                         scores_thispg = dict(list(score_info.items())[startfrom:endby])
 
                 else:
-                    # TODO: lyrics and text, right now just leave them empty
+                    # TODO: lyrics and text search, right now just give an error
+                    template = loader.get_template('search/search_errorpage.html')
+                    error_message = "Please enter a valid pattern to search!"
+                    context = {"indices_names": indices,  "message": error_message}
+                    return HttpResponse(template.render(context, request))
                     match_dict_display = {}
                     score_info = {}
                     num_matching_patterns = 0
