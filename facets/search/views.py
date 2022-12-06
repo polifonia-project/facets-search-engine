@@ -71,6 +71,7 @@ class search_results:
             return HttpResponse(template.render(context, request))
 
         if request.method == 'GET':
+            # Access another page of search result
             template = loader.get_template('search/results.html')
             callpage = request.GET.get('page', False)
             context = search_results.paginate_search_result(request, callpage)
@@ -100,31 +101,43 @@ class search_results:
                 searchinput["index_name"] = searchinput["index_name"].lower()
 
                 searchinput["composer"] = request.POST.get('composer', False)
+            except Exception as ex:
+                template = loader.get_template('search/search_errorpage.html')
+                context = {"indices_names": indices, "ex": str(ex), "message": "Error related to getting POST request!"}
+                return HttpResponse(template.render(context, request))
 
+            try:
                 if searchinput["pattern"] or searchinput["pianopattern"]:
-                    searchcontext = SearchContext()
-                    # json -> searchcontext
-                    searchcontext.read(searchinput)
-                    # print the content of SearchContext object
-                    print("\n\nSearching in index: ", searchcontext.index)
-                    print("Search type: ", searchcontext.search_type)
-                    if searchcontext.pattern:
-                        print("ABC encoded pattern: ", searchcontext.pattern)
-                    elif searchcontext.pianopattern:
-                        print("Pattern from piano: ", searchcontext.pianopattern)
+                    try:
+                        searchcontext = SearchContext()
+                        # json -> searchcontext
+                        searchcontext.read(searchinput)
+                        # print the content of SearchContext object
+                        print("\n\nSearching in index: ", searchcontext.index)
+                        print("Search type: ", searchcontext.search_type)
+                        if searchcontext.pattern:
+                            print("ABC encoded pattern: ", searchcontext.pattern)
+                        elif searchcontext.pianopattern:
+                            print("Pattern from piano: ", searchcontext.pianopattern)
+                    except Exception as ex:
+                        template = loader.get_template('search/search_errorpage.html')
+                        error_message = "Error when conversing search input to search context!"
+                        context = {"indices_names": indices, "ex": str(ex), "message": error_message}
+                        return HttpResponse(template.render(context, request))
 
                     if not searchcontext.check_pattern_length():
                         # TODO: test this and show render in htmlresponse if pattern is too short
                         searchcontext.pattern = ""
                         searchcontext.pianopattern = ""
-                        if searchcontext.keywords != "":
-                            print("Pattern not valid, we are in keyword search mode.")
+                        if searchcontext.text != "":
+                            print("Pattern not valid, we are in text search mode.")
                         else:
-                            print("Please re-enter a valid pattern: it must contain at least three intervals")
                             template = loader.get_template('search/search_errorpage.html')
-                            context = {"indices_names": indices}
+                            error_message = "Please enter a valid pattern to search: it must contain at least three intervals"
+                            context = {"indices_names": indices, "message": error_message}
                             return HttpResponse(template.render(context, request))
-                            
+
+                    # Print some info about the search
                     if searchcontext.text:
                         print("Text: ", searchcontext.text)
                     if searchcontext.facet_composers != [] and searchinput["composer"] != False:
@@ -135,9 +148,15 @@ class search_results:
                     if searchcontext.search_type != "lyrics":
                         print("Mirror search: ", searchcontext.mirror_search,"\n\n")
 
-                    index_wrapper = IndexWrapper(searchinput["index_name"])
-                    # ES returns a "response" object with all the documents that matches query
-                    matching_docs = index_wrapper.search(searchcontext)
+                    try:
+                        index_wrapper = IndexWrapper(searchinput["index_name"])
+                        # ES returns a "response" object with all the documents that matches query
+                        matching_docs = index_wrapper.search(searchcontext)
+                    except Exception as ex:
+                        template = loader.get_template('search/search_errorpage.html')
+                        error_message = "Error when trying to call search with ES in IndexWrapper"
+                        context = {"indices_names": indices,  "ex": str(ex), "message": error_message}
+                        return HttpResponse(template.render(context, request))
 
                     matching_doc_ids = []
                     matching_composers = []
@@ -150,8 +169,14 @@ class search_results:
                             matching_info_dict[hit['_id']] = hit['_source']['composer']
                         matching_doc_ids.append(hit['_id'])
 
-                    # Get matching ids(positions) of patterns in MusicSummary for highlighting
-                    matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
+                    try:
+                        # Get matching ids(positions) of patterns in MusicSummary for highlighting
+                        matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
+                    except Exception as ex:
+                        template = loader.get_template('search/search_errorpage.html')
+                        error_message = "Error when trying to locate matching patterns in IndexWrapper"
+                        context = {"indices_names": indices, "ex": str(ex), "message": error_message}
+                        return HttpResponse(template.render(context, request))
 
                     # Display the list: number of pattern occurrences in every matching doc
                     # For rank by relevancy
@@ -189,7 +214,8 @@ class search_results:
                             # If exception raised here, there's something indexed on ES but not in database. 
                             template = loader.get_template('error.html')
                             error_message = str(ex)+'\n'
-                            error_message += "Please re-upload document:"+doc_id+" to make sure all documents indexed ES are stored in database."
+                            error_message += "Please re-upload document:"+doc_id+" to"+searchinput["index_name"]+ " to make sure all documents indexed ES are stored in database."
+                            # TODO: list all the unsync docs under this index
                             context = {"message": error_message}
                             return HttpResponse(template.render(context, request))
 
@@ -207,7 +233,7 @@ class search_results:
                         else:
                             score_info[doc_id].append("Unknown composer")
 
-                    # paginator for the first page.
+                    # Paginator for the first page
                     if callpage == False or callpage == 0 or callpage == 1:
                         p = Paginator(tuple(score_info), settings.SCORES_PER_PAGE )
                         pg = p.get_page(1)
@@ -251,9 +277,8 @@ class search_results:
 
                 return HttpResponse(template.render(context, request))
             except Exception as ex: 
-                print((str(ex)))
                 template = loader.get_template('search/search_errorpage.html')
-                context = {"indices_names": indices}
+                context = {"indices_names": indices, "ex": str(ex), "message": "other error message"}
                 return HttpResponse(template.render(context, request))
 
     def paginate_search_result(request, callpage):
@@ -337,7 +362,7 @@ class search_results:
         try:
             musicdoc = MusicDoc.objects.get(doc_id=doc_id)
         except Exception as ex:
-            return HttpResponse("No music document found in database.")
+            return HttpResponse(doc_id+" not found in database.")
 
         hostname = request.get_host()
         doc_url = "http://"+hostname+ "/home/media/"+index_name+"/"+doc_id+"/"

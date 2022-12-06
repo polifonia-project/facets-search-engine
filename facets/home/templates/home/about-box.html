@@ -12,7 +12,9 @@
     <p>
       The development relies on <a href="https://github.com/polifonia-project/facets-search-engine">Github</a>.
       The code is open-source (MIT License). <br/><br/> 
+      {% if commit and date %}
      This demo website is powered by version <em><a href="https://github.com/polifonia-project/facets-search-engine/commit/{{ commit }}">{{ commit }}</a> ({{ date }})</em> of the code.
+     {% endif %}
     </p>
     <a href="http://www.cnam.fr"><img src="/static/images/lecnamlogo.jpg" width="200" alt="cnam logo"></a>
     <a href="https://polifonia-project.eu/"><img src="/static/images/polifonia-black.png" width="200" alt="polifonia logo"></a>

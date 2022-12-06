@@ -3,9 +3,10 @@
 <!-- VEROVIO -->
 <!--/////////////-->  
 
+{%comment%}
 <script src="/static/js/verovio-toolkit.js"></script>
-
 <script>var vrvToolkit = new verovio.toolkit();</script>
+{%endcomment%}
 
 <div class="d-flex flex-column">
 
@@ -26,13 +27,6 @@
     <script type="text/javascript">
         /* Load the file using HTTP GET */
         console.log ("Get url for {{i}}")
-        var vrvOptions = {
-            scale : 33,
-            pageHeight : 100,
-            adjustPageHeight : 1,
-        };
-
-        vrvToolkit.setOptions(vrvOptions);
 
         document.addEventListener('DOMContentLoaded', (event) => {
             $.ajax({

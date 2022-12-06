@@ -3,9 +3,6 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-{% comment %}<script src="/static/js/verovio-toolkit.js"></script>{% endcomment %}
-{% comment %}<script>var vrvToolkit = new verovio.toolkit();</script>{% endcomment %}
-
 
 <div class="container">
     <div class="row mb-8">
@@ -38,7 +35,7 @@
                 {% if doc_url %}
                 <script type="text/javascript">
                 /* Load the file using HTTP GET */
-                console.log ("obtenons {{doc_url}}");
+                console.log ("Obtained {{doc_url}}");
                 document.addEventListener('DOMContentLoaded', (event) => {
                     $.ajax({
                         url: "{{doc_url}}", 

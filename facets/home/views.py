@@ -22,14 +22,16 @@ class DocsView(TemplateView):
 
 def AboutView(request):
     template = loader.get_template('home/about.html')
-    f = open('./VERSION', 'r')
-    file_string = f.read()
-    commit = file_string.split()[0]
-    date = file_string.split()[1]
-    f.close()
-    context = {'commit': commit, 'date': date}
+    try:
+        f = open('./VERSION', 'r')
+        file_string = f.read()
+        commit = file_string.split()[0]
+        date = file_string.split()[1]
+        f.close()
+        context = {'commit': commit, 'date': date}
+    except:
+        context = {}
     return HttpResponse(template.render(context, request))
-
 
 try:
     # host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
@@ -43,12 +45,15 @@ except:
 
 def index(request):
     template = loader.get_template('home/index.html')
-    f = open('./VERSION', 'r')
-    file_string = f.read()
-    commit = file_string.split()[0]
-    date = file_string.split()[1]
-    f.close()
-    context = {'commit': commit, 'date': date}
+    try:
+        f = open('./VERSION', 'r')
+        file_string = f.read()
+        commit = file_string.split()[0]
+        date = file_string.split()[1]
+        f.close()
+        context = {'commit': commit, 'date': date}
+    except: 
+        context = {}
     return HttpResponse(template.render(context, request))
 
 def fetch_musicdoc(request, index_name, doc_id):

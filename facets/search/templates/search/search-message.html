@@ -1,4 +1,15 @@
 <div id="search-message" class="d-flex align-middle alert alert-danger" role="alert">
-  <h4>Please re-enter your search!</h4>
-</div>
+  <h4>
+  Please re-enter your search! <br/>
 
+  {% if message %}
+  {{message}}
+  <br/>
+  {% endif %}
+
+  {% if ex %}
+  {{ex}}
+  <br/>
+  {%endif%}
+  </h4>
+</div>
