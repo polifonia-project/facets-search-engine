@@ -4,6 +4,7 @@
 {% csrf_token %}
 
 <select name="composer" class="px-4 mx-2 custom-select custom-select-sm">
+
   {% if searchinput.composer %}
   <option selected>{{searchinput.composer}}</option>
   {% for composer in matching_composers %}
@@ -14,7 +15,7 @@
   {% else %}
   <option selected>Composers</option>
   {% for composer in matching_composers %}
-<option value="{{ composer }}">{{ composer | title }}</option>
+  <option value="{{ composer }}">{{ composer | title }}</option>
   {% endfor %}
   {% endif %}
 </select>

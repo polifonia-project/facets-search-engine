@@ -54,7 +54,7 @@ def uploaddata(request):
         context = {}
         return HttpResponse(template.render(context, request))
     
-    context = {"indices_names": indices}
+    context = {"indices_names": indices, "disable_scorelib": settings.DISABLE_SCORELIB}
     return HttpResponse(template.render(context, request))
 
 @csrf_exempt

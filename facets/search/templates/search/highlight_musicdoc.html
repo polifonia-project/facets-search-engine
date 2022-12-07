@@ -2,6 +2,7 @@
 
 {% block content %}
 {% include 'navbar.html' %}
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
 <div class="container">
     <div class="row mb-8">
 
@@ -34,6 +35,7 @@
         textArea.innerHTML = text;
         return textArea.value;
     }
+
     document.addEventListener('DOMContentLoaded', (event) => {
         $.ajax({
             url: "{{doc_url}}", 
@@ -41,13 +43,18 @@
             highlightids: "{{highlight_ids}}",
             success: function(data) {
                 let svg = vrvToolkit.renderData(data);
+
+
                 document.getElementById("notation").innerHTML = svg;
+
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 console.log("Error with document {{doc_url}} " + xhr.status);
             }
+
         });
     });
+
     </script>
 
 {%comment%}
@@ -62,25 +69,20 @@
                 }
             }
 {%endcomment%}
-
-    <table class="preview"><tr>
-        <td valign="top"> </td>
-        <td>
-            <div id="notation">
-                    score placeholder
-            </div>
-        </td>
-
-    </tr>
-    </table>
+        
+        <div id="notation" >
+            score placeholder
+        </div>
 
         <script type="text/javascript">
+
+        document.addEventListener("DOMContentLoaded", function() {
         /* Highlight the score elements */
 
         var todecode = "{{highlight_ids}}"
         // decode html so " symbol can be read
         var decoded = decodeHTMLEntities(todecode)
-        
+
         var highlightids = [];
         highlightids = decoded.split(", ");
         
@@ -88,12 +90,14 @@
         highlightids[0] = highlightids[0].split('[')[1];
         numids = highlightids.length;
         highlightids[numids-1] = highlightids[numids-1].split(']')[0];
-        
+
         for (var i = 0; i < highlightids.length; i++) {
             // finally, get rid of quote symbol in each highlightid
             temp = highlightids[i].split('"');
             highlightids[i] = temp[1];
             //console.log(highlightids[i]);
+
+            /*
             //match = document.getElementById(highlightids[i]);
             //var element = document.querySelector("#" + highlightids[i]);
             var element = document.querySelector("#" + "m-124");
@@ -114,7 +118,7 @@
                 outclass += " highlight";
                 element.setAttribute("class", outclass);
             }
-                
+            */
                // if (match != null) {
                //         console.log(match);
                //         match.strokeStyle = "#ff0487";
@@ -122,6 +126,29 @@
                //         match.fillOpacityStyle = 1.0;
                // }
         }
+        allnotes = document.getElementsByClassName('note')
+        console.log(allnotes)
+
+            for (var i = 0; i < highlightids.length; i++) {
+                    match = document.getElementById(highlightids[i]);
+                    //var match = document.querySelector(highlightids[i]);
+
+                    //match = document.getElementById("notation").getSVGDocument().getElementById(highlightids[i])
+
+                    //match = document.querySelector('p#highlighids[i].note')
+
+                    if (match != null) {
+                        match.strokeStyle = "#ff0487";
+                        //match.style.stroke = "#ff0487";
+                        //match.style.fill = "#ff0000";
+                        //match.style.fillOpacity = 1.0;
+                        
+                    }
+                    console.log(match);
+            }
+
+        });
+        /*
         // TODO: in the following test code, the id of a displayed note from the html page is used, yet getElementById still returns null.
         window.onload = function(){
             testforbwv48 = "m-124";
@@ -130,7 +157,7 @@
             // testelement = document.getElementById(testforbwv48);
             console.log(testelement);
             testelement.strokeStyle = "#ff0487";
-        }
+        }*/
 
     </script>
     

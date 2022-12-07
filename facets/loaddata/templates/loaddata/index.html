@@ -29,10 +29,17 @@
 
           <select name="indexname" class="px-4 mr-2 custom-select-sm" style="width: 10rem;">
           <option selected>Index name</option>
+          {% if disable_scorelib %}
+          {% for index in indices_names %}
+          {% if index != 'scorelib' and index != 'Scorelib' %}
+          <option value="{{ index }}">{{ index | title }}</option>
+          {%endif%}
+          {% endfor %}
+          {%else%}
           {% for index in indices_names %}
           <option value="{{ index }}">{{ index | title }}</option>
           {% endfor %}
-
+          {%endif%}
           </select>
           
           <select name="fileformat" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
