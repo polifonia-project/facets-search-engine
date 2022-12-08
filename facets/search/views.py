@@ -369,6 +369,7 @@ class search_results:
         template = loader.get_template('search/highlight_musicdoc.html')
 
         all_matching = request.session.get('matching_locations')
+        highlight_ids = []
         # Find the list of ids to highlight in this doc
         for dict_i in all_matching:
             if dict_i["doc"] == doc_id:

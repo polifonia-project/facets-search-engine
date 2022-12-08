@@ -3,10 +3,18 @@
 <!-- VEROVIO -->
 <!--/////////////-->  
 
-{%comment%}
+
 <script src="/static/js/verovio-toolkit.js"></script>
-<script>var vrvToolkit = new verovio.toolkit();</script>
-{%endcomment%}
+<script>
+    var vrvToolkit = new verovio.toolkit();
+    var vrvOptions = {
+                        scale : 33,
+                        pageHeight : 10,
+                        adjustPageHeight : 1,
+                    };
+                    vrvToolkit.setOptions(vrvOptions);
+                    </script>
+
 
 <div class="d-flex flex-column">
 
@@ -45,12 +53,12 @@
     </script>
 
     <div> <!-- for score preview -->
-<table class="preview"><tr>
-<td valign=""> </td>
-<td>     <div id="notation{{i}}">score placeholder</div> </td>
-</tr>
-</table>
-    </div> <!-- for score preview -->
+        <table class="preview"><tr>
+        <td valign=""> </td>
+        <td>     <div id="notation{{i}}">score placeholder</div> </td>
+        </tr>
+        </table>
+            </div> <!-- for score preview -->
 
             </div>
             <br/>

@@ -24,7 +24,9 @@
                         {% else %}
                         {% endif %}
                         <li>Score format: {{ doc_type }} </li>
+                        {%comment%}
                         <li>Matching locations: {{ highlight_ids }} </li>
+                        {%endcomment%}
                     </ul>
                 </div>
                 {% if doc_url %}
@@ -77,77 +79,77 @@
         <script type="text/javascript">
 
         document.addEventListener("DOMContentLoaded", function() {
-        /* Highlight the score elements */
+            /* Highlight the score elements */
 
-        var todecode = "{{highlight_ids}}"
-        // decode html so " symbol can be read
-        var decoded = decodeHTMLEntities(todecode)
+            var todecode = "{{highlight_ids}}"
+            // decode html so " symbol can be read
+            var decoded = decodeHTMLEntities(todecode)
 
-        var highlightids = [];
-        highlightids = decoded.split(", ");
-        
-        //get rid of "[" and "]" in the first and last item of the list
-        highlightids[0] = highlightids[0].split('[')[1];
-        numids = highlightids.length;
-        highlightids[numids-1] = highlightids[numids-1].split(']')[0];
-
-        for (var i = 0; i < highlightids.length; i++) {
-            // finally, get rid of quote symbol in each highlightid
-            temp = highlightids[i].split('"');
-            highlightids[i] = temp[1];
-            //console.log(highlightids[i]);
-
-            /*
-            //match = document.getElementById(highlightids[i]);
-            //var element = document.querySelector("#" + highlightids[i]);
-            var element = document.querySelector("#" + "m-124");
-            if (element) {
-            console.log("works! " + element);
-                var classes =
-                    element.getAttribute("class");
-                var classlist = classes.split(" ");
-                var outclass = "";
-                for (var i=0; i<classlist.length; i++) {
-                    if
-                    (classlist[i] == "highlight") {
-                        continue;
-                    }
-                    outclass
-                        += " " + classlist[i];
-                }
-                outclass += " highlight";
-                element.setAttribute("class", outclass);
-            }
-            */
-               // if (match != null) {
-               //         console.log(match);
-               //         match.strokeStyle = "#ff0487";
-               //         match.fillStyle = "#ff0000";
-               //         match.fillOpacityStyle = 1.0;
-               // }
-        }
-        allnotes = document.getElementsByClassName('note')
-        console.log(allnotes)
+            var highlightids = [];
+            highlightids = decoded.split(", ");
+            
+            //get rid of "[" and "]" in the first and last item of the list
+            highlightids[0] = highlightids[0].split('[')[1];
+            numids = highlightids.length;
+            highlightids[numids-1] = highlightids[numids-1].split(']')[0];
 
             for (var i = 0; i < highlightids.length; i++) {
-                    match = document.getElementById(highlightids[i]);
-                    //var match = document.querySelector(highlightids[i]);
+                // finally, get rid of quote symbol in each highlightid
+                temp = highlightids[i].split('"');
+                highlightids[i] = temp[1];
+                //console.log(highlightids[i]);
 
-                    //match = document.getElementById("notation").getSVGDocument().getElementById(highlightids[i])
-
-                    //match = document.querySelector('p#highlighids[i].note')
-
-                    if (match != null) {
-                        match.strokeStyle = "#ff0487";
-                        //match.style.stroke = "#ff0487";
-                        //match.style.fill = "#ff0000";
-                        //match.style.fillOpacity = 1.0;
-                        
+                /*
+                //match = document.getElementById(highlightids[i]);
+                //var element = document.querySelector("#" + highlightids[i]);
+                var element = document.querySelector("#" + "m-124");
+                if (element) {
+                console.log("works! " + element);
+                    var classes =
+                        element.getAttribute("class");
+                    var classlist = classes.split(" ");
+                    var outclass = "";
+                    for (var i=0; i<classlist.length; i++) {
+                        if
+                        (classlist[i] == "highlight") {
+                            continue;
+                        }
+                        outclass
+                            += " " + classlist[i];
                     }
-                    console.log(match);
+                    outclass += " highlight";
+                    element.setAttribute("class", outclass);
+                }
+                */
+                   // if (match != null) {
+                   //         console.log(match);
+                   //         match.strokeStyle = "#ff0487";
+                   //         match.fillStyle = "#ff0000";
+                   //         match.fillOpacityStyle = 1.0;
+                   // }
             }
+            allnotes = document.getElementsByClassName('note')
+            //console.log(allnotes)
 
-        });
+                for (var i = 0; i < highlightids.length; i++) {
+                        match = document.getElementById(highlightids[i]);
+                        //var match = document.querySelector(highlightids[i]);
+
+                        //match = document.getElementById("notation").getSVGDocument().getElementById(highlightids[i])
+
+                        //match = document.querySelector('p#highlighids[i].note')
+
+                        if (match != null) {
+                            match.strokeStyle = "#ff0487";
+                            //match.style.stroke = "#ff0487";
+                            //match.style.fill = "#ff0000";
+                            //match.style.fillOpacity = 1.0;
+                            
+                        }
+                        console.log(match);
+                }
+
+            });
         /*
         // TODO: in the following test code, the id of a displayed note from the html page is used, yet getElementById still returns null.
         window.onload = function(){
