@@ -25,6 +25,7 @@ import re
 def get_metadata_from_score(doctype, score, m21_score):
 	
 	#TODO: clean the '\n's from composer names and title names. kern
+	# TODO2: multiple composers by Music21
 	metainfo = {"title":"", "composer":""}
 	
 	if doctype == "xml":
@@ -372,6 +373,87 @@ def extract_features(score, music_summary, musicdoc):
 		return descr_dict
 
 
+def extract_info_from_score(m21_score):
+	
+	info = {}
+	
+	key = m21_score.analyze('key')
+	info["key_tonic_name"] = key.tonic.name
+	info["key_mode"] = key.mode
+
+	info["num_of_parts"] = len(m21_score.getElementsByClass(stream.Part))
+	#info["num_of_voices"] = len(m21_score.getElementsByClass(stream.Voice))
+	info["num_of_measures"] = 0
+	for part in m21_score.parts:
+		info["num_of_measures"] += len(part)
+
+	info["num_of_notes"] = len(m21_score.flatten().getElementsByClass(note.Note))
+
+	#info["instruments"] = m21_score.getElementsByClass(instrument.Instrument)
+	if instrument.partitionByInstrument(m21_score) == None:
+		info["instruments"] = "None"
+	else:
+		info["instruments"] = []
+		for part in instrument.partitionByInstrument(m21_score):
+			info["instruments"].append(part.getInstrument())
+	
+	print("Info of the score:", info)
+
+	print("Pitch analysis:")
+	nameCount = analysis.pitchAnalysis.pitchAttributeCount(m21_score, 'name')
+	print("10 most common pitch and occurrence:")
+	for n, count in nameCount.most_common(10):
+		print("%2s: %2d" % (n, nameCount[n]))
+
+	"""
+	pcCount = analysis.pitchAnalysis.pitchAttributeCount(m21_score, 'pitchClass')
+	# can use nameWithOctave or name
+	for n in sorted(pcCount):
+		print("%2d notes in pitch class%2d" % (pcCount[n] , n))
+	"""
+	p = analysis.discrete.Ambitus()
+	count = 0
+	for part in m21_score.parts:
+		count += 1
+		pitchMin, pitchMax = p.getPitchSpan(part)
+		# Could be used to analyse each measure
+		print("Lowest pitch of part", count, "is ", pitchMin)
+		print("Highest pitch of part", count, "is ", pitchMax)
+	
+	# pitch histogram?
+	#fe = features.jSymbolic.BasicPitchHistogramFeature(m21_score)
+
+	fe = features.jSymbolic.AverageMelodicIntervalFeature(m21_score)
+	print("Average melodic interval in semitones:", fe.extract().vector)
+
+	fe = features.jSymbolic.DirectionOfMotionFeature(m21_score)
+	print("Direction of motion (the fraction of melodic intervals that are rising rather than falling):", fe.extract().vector[0])
+
+	fe = features.jSymbolic.MostCommonPitchFeature(m21_score)
+	print("Most common pitch:", fe.extract().vector[0])
+
+	print("\nNote length analysis:")
+
+	fe = features.native.MostCommonNoteQuarterLength(m21_score)
+	print("Most common note quarter length:", fe.extract().vector[0])
+
+	fe = features.jSymbolic.MaximumNoteDurationFeature(m21_score)
+	print("Duration of the longest note:", fe.extract().vector[0])
+
+	fe = features.jSymbolic.MinimumNoteDurationFeature(m21_score)
+	print("Duration of the shortest note:", fe.extract().vector[0])
+
+	fe = features.native.RangeOfNoteQuarterLengths(m21_score)
+	print("Difference between the longest and shortest quarter lengths:", fe.extract().vector[0])
+
+	fe = features.jSymbolic.AverageNoteDurationFeature(m21_score)
+	print("Average note duration:", fe.extract().vector[0])
+
+	fe = features.jSymbolic.InitialTimeSignatureFeature(m21_score)
+	print("\nInitial time signature:", fe.extract().vector)
+
+	return info
+
 def decompose_zip_name(fname):
 
 	dirname = os.path.dirname(fname)
@@ -558,6 +640,8 @@ def process_score(musicdoc, m21_score, doc_id):
 			print("Error while encoding the score: ", doc_id, ":", str(ex))
 
 		try:
+			# Extract infos from the score
+			extracted_infos = extract_info_from_score(m21_score)
 			# Feature extraction
 			descr_dict = extract_features(score, MS, musicdoc)
 		except Exception as ex:
