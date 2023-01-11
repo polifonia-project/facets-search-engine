@@ -287,7 +287,7 @@ def extract_features(score, music_summary, musicdoc):
 						# Descriptor object
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						#descriptor.part = part_id
+						descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "chromatic"
 						descriptor.value = chr_descr
@@ -305,7 +305,7 @@ def extract_features(score, music_summary, musicdoc):
 						
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						#descriptor.part = part_id
+						descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "diatonic"
 						descriptor.value = dia_descr
@@ -320,7 +320,7 @@ def extract_features(score, music_summary, musicdoc):
 
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						#descriptor.part = part_id
+						descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "rhythmic"
 						descriptor.value = rhy_descr
@@ -335,7 +335,7 @@ def extract_features(score, music_summary, musicdoc):
 
 						descriptor = Descriptor()
 						descriptor.doc = musicdoc
-						#descriptor.part = part_id
+						descriptor.part = part_id
 						descriptor.voice = voice_id
 						descriptor.descr_type = "notes"
 						descriptor.value = notes_descr
@@ -389,13 +389,11 @@ def extract_info_from_score(m21_score):
 
 	info["num_of_notes"] = len(m21_score.flatten().getElementsByClass(note.Note))
 
-	#info["instruments"] = m21_score.getElementsByClass(instrument.Instrument)
-	if instrument.partitionByInstrument(m21_score) == None:
-		info["instruments"] = "None"
-	else:
-		info["instruments"] = []
+	info["instruments"] = []
+	if instrument.partitionByInstrument(m21_score) != None:
 		for part in instrument.partitionByInstrument(m21_score):
 			info["instruments"].append(part.getInstrument())
+			# TODO: from music21 object to string
 	
 	print("Info of the score:", info)
 
@@ -429,25 +427,25 @@ def extract_info_from_score(m21_score):
 	fe = features.jSymbolic.DirectionOfMotionFeature(m21_score)
 	print("Direction of motion (the fraction of melodic intervals that are rising rather than falling):", fe.extract().vector[0])
 
-	fe = features.jSymbolic.MostCommonPitchFeature(m21_score)
-	print("Most common pitch:", fe.extract().vector[0])
-
 	print("\nNote length analysis:")
 
 	fe = features.native.MostCommonNoteQuarterLength(m21_score)
 	print("Most common note quarter length:", fe.extract().vector[0])
 
+	fe = features.native.RangeOfNoteQuarterLengths(m21_score)
+	print("Difference between the longest and shortest quarter lengths:", fe.extract().vector[0])
+
+	"""
+	# jSymbolic number should be *2 to be consistent with other "note quarter lengths" features
 	fe = features.jSymbolic.MaximumNoteDurationFeature(m21_score)
 	print("Duration of the longest note:", fe.extract().vector[0])
 
 	fe = features.jSymbolic.MinimumNoteDurationFeature(m21_score)
 	print("Duration of the shortest note:", fe.extract().vector[0])
 
-	fe = features.native.RangeOfNoteQuarterLengths(m21_score)
-	print("Difference between the longest and shortest quarter lengths:", fe.extract().vector[0])
-
 	fe = features.jSymbolic.AverageNoteDurationFeature(m21_score)
 	print("Average note duration:", fe.extract().vector[0])
+	"""
 
 	fe = features.jSymbolic.InitialTimeSignatureFeature(m21_score)
 	print("\nInitial time signature:", fe.extract().vector)
