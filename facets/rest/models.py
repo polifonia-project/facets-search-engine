@@ -63,6 +63,33 @@ class MusicDoc(models.Model):
 	# Metadata:
 	title = models.CharField(max_length=255, null=True, blank=True)
 	composer = models.CharField(max_length=255, null=True, blank=True)
+	#multiple composers?
+
+
+	def add_info(self, mkey, mvalue):
+		"""
+		Given a key as the name of the info,
+		and given a value as the value of this featur.
+		"""
+
+		# The key must belongs to the pre-defined list
+		if mkey not in Metainfo.META_KEYS:
+			raise Exception(f"Sorry, the key {mkey} does not belong to the list")
+		
+		try:
+			meta_pair = Metainfo.objects.get(doc=self, meta_key=mkey)
+		except Metainfo.DoesNotExist as e:
+			meta_pair = Metainfo(doc=self, meta_key=mkey, meta_value=mvalue)
+			meta_pair.save()
+
+	def get_info(self):
+		"""Return the list of key-value pairs"""
+		metas = []
+		for m in Metainfo.objects.filter(doc=self):
+			m.label = Metainfo.META_KEYS[m.meta_key]["label"]
+			metas.append(m)
+		return metas
+
 
 	def __str__(self):
 		return self.doc_id
@@ -72,7 +99,7 @@ class Descriptor(models.Model):
 	A descriptor is a textual representation for some musical feature, used for full text indexing
 	'''
 	
-	doc = models.ForeignKey(MusicDoc,on_delete=models.CASCADE)
+	doc = models.ForeignKey(MusicDoc, on_delete=models.CASCADE)
 	part = models.CharField(max_length=30)
 	voice = models.CharField(max_length=30)
 	descr_type = models.CharField(max_length=30)
@@ -80,3 +107,48 @@ class Descriptor(models.Model):
 
 	def to_dict(self):
 		return dict(voice=self.voice, value=self.value)
+
+class Metainfo(models.Model):
+	doc = models.ForeignKey(MusicDoc, on_delete=models.CASCADE)
+	meta_key = models.CharField(max_length=255)
+	meta_value = models.TextField()
+
+	# List of allowed meta keys, 
+	MK_MODE = "mode"
+	MK_GENRE = "genre"
+	MK_COMPOSER = "composer"
+	MK_KEY_TONIC = "key_tonic_name"
+	MK_KEY_MODE = "key_mode"
+	MK_NUM_OF_PARTS = "num_of_parts"
+	MK_NUM_OF_MEASURES = "num_of_measures"
+	MK_NUM_OF_NOTES = "num_of_notes"
+	ML_INSTRUMENTS = "instruments"
+	MK_LOWEST_PITCH_EACH_PART = "lowest_pitch_each_part"
+	MK_HIGHEST_PITCH_EACH_PART = "highest_pitch_each_part"
+	MK_MOST_COMMON_PITCHES = "most_common_pitches"
+	MK_AVE_MELODIC_INTERVAL = "average_melodic_interval"
+	MK_DIRECTION_OF_MOTION = "direction_of_motion"
+	MK_MOST_COMMON_NOTE_QUARTER_LENGTH = "most_common_note_quarter_length"
+	MK_RANGE_NOTE_QUARTER_LENGTH = "range_note_quarter_length"
+	MK_INIT_TIME_SIG = "initial_time_signature"
+
+	# Descriptive infos for meta pairs
+	META_KEYS = {
+		MK_MODE: {"label": "Mode"},
+		MK_GENRE: {"label": "Genre"},
+		MK_COMPOSER: {"label": "Composer"},
+		MK_KEY_TONIC: {"label": "Key Tonic Name"},
+		MK_KEY_MODE: {"label":"Key Mode"},
+		MK_NUM_OF_PARTS: {"label": "Number of parts"},
+		MK_NUM_OF_MEASURES: {"label": "Number of measures"},
+		MK_NUM_OF_NOTES: {"label": "Number of notes"},
+		ML_INSTRUMENTS: {"label": "Instruments"},
+		MK_LOWEST_PITCH_EACH_PART: {"label": "Lowest pitch each part"},
+		MK_HIGHEST_PITCH_EACH_PART: {"label": "Highest pitch each part"},
+		MK_MOST_COMMON_PITCHES: {"label": "Most common pitches"},
+		MK_AVE_MELODIC_INTERVAL: {"label": "Average melodic interval"},
+		MK_DIRECTION_OF_MOTION: {"label": "Direction of motion"},
+		MK_MOST_COMMON_NOTE_QUARTER_LENGTH: {"label": "Most common note quarter length"},
+		MK_RANGE_NOTE_QUARTER_LENGTH: {"label": "Range of note quarter length"},
+		MK_INIT_TIME_SIG:{"label": "Initial time signature"}
+	}

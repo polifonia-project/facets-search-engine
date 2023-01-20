@@ -23,9 +23,13 @@ import xml.etree.ElementTree as ET
 import re
 
 def get_metadata_from_score(doctype, score, m21_score):
+	"""
+	Get composer and title information directly from the scores
+	"""
 	
-	#TODO: clean the '\n's from composer names and title names. kern
+	# TODO: clean the '\n's from composer names and title names. kern
 	# TODO2: multiple composers by Music21
+
 	metainfo = {"title":"", "composer":""}
 	
 	if doctype == "xml":
@@ -187,8 +191,10 @@ def get_metadata_from_score(doctype, score, m21_score):
 		print("Title of this musicdoc: ", metainfo["title"])
 	else:
 		print("Couldn't find title information of this musicdoc.")
+
 	if metainfo["composer"] != "":
 		print("Composer of this musicdoc: ", metainfo["composer"])
+		MusicDoc.add_info("composer", metainfo["composer"])
 	else:
 		print("Couldn't find composer information of this musicdoc.")
 
@@ -387,21 +393,24 @@ def extract_info_from_score(m21_score):
 	for part in m21_score.parts:
 		info["num_of_measures"] += len(part)
 
+	#TODO: make sure "flatten" works for MEI 
 	info["num_of_notes"] = len(m21_score.flatten().getElementsByClass(note.Note))
 
 	info["instruments"] = []
 	if instrument.partitionByInstrument(m21_score) != None:
 		for part in instrument.partitionByInstrument(m21_score):
-			info["instruments"].append(part.getInstrument())
-			# TODO: from music21 object to string
-	
+			#part.getInstrument() is a music21 object
+			info["instruments"].append(part.getInstrument().instrumentName)
+				
 	print("Info of the score:", info)
 
 	print("Pitch analysis:")
 	nameCount = analysis.pitchAnalysis.pitchAttributeCount(m21_score, 'name')
+	dict_common_pitch = {}
 	print("10 most common pitch and occurrence:")
 	for n, count in nameCount.most_common(10):
-		print("%2s: %2d" % (n, nameCount[n]))
+		#print("%2s: %2d" % (n, nameCount[n]))
+		info["most_common_pitches"] = json.dumps(dict_common_pitch)
 
 	"""
 	pcCount = analysis.pitchAnalysis.pitchAttributeCount(m21_score, 'pitchClass')
@@ -409,31 +418,43 @@ def extract_info_from_score(m21_score):
 	for n in sorted(pcCount):
 		print("%2d notes in pitch class%2d" % (pcCount[n] , n))
 	"""
+
+	pitchmin_eachpart = {}
+	pitchmax_eachpart = {}
 	p = analysis.discrete.Ambitus()
 	count = 0
 	for part in m21_score.parts:
 		count += 1
 		pitchMin, pitchMax = p.getPitchSpan(part)
-		# Could be used to analyse each measure
-		print("Lowest pitch of part", count, "is ", pitchMin)
-		print("Highest pitch of part", count, "is ", pitchMax)
+		partname = 'part'+str(count)
+		pitchmin_eachpart[partname] = pitchMin.nameWithOctave
+		pitchmax_eachpart[partname] = pitchMax.nameWithOctave
+		print("Lowest pitch of part", count, "is ", pitchMin.nameWithOctave)
+		print("Highest pitch of part", count, "is ", pitchMax.nameWithOctave)
 	
+	info["lowest_pitch_each_part"]  = json.dumps(pitchmin_eachpart)
+	info["highest_pitch_each_part"]  = json.dumps(pitchmax_eachpart)
+
 	# pitch histogram?
 	#fe = features.jSymbolic.BasicPitchHistogramFeature(m21_score)
 
 	fe = features.jSymbolic.AverageMelodicIntervalFeature(m21_score)
-	print("Average melodic interval in semitones:", fe.extract().vector)
+	print("Average melodic interval in semitones:", fe.extract().vector[0])
+	info["average_melodic_interval"] = fe.extract().vector[0]
 
 	fe = features.jSymbolic.DirectionOfMotionFeature(m21_score)
 	print("Direction of motion (the fraction of melodic intervals that are rising rather than falling):", fe.extract().vector[0])
+	info["direction_of_motion"] = fe.extract().vector[0]
 
 	print("\nNote length analysis:")
 
 	fe = features.native.MostCommonNoteQuarterLength(m21_score)
 	print("Most common note quarter length:", fe.extract().vector[0])
+	info["most_common_note_quarter_length"] = fe.extract().vector[0]
 
 	fe = features.native.RangeOfNoteQuarterLengths(m21_score)
 	print("Difference between the longest and shortest quarter lengths:", fe.extract().vector[0])
+	info["range_note_quarter_length"] = fe.extract().vector[0]
 
 	"""
 	# jSymbolic number should be *2 to be consistent with other "note quarter lengths" features
@@ -449,6 +470,7 @@ def extract_info_from_score(m21_score):
 
 	fe = features.jSymbolic.InitialTimeSignatureFeature(m21_score)
 	print("\nInitial time signature:", fe.extract().vector)
+	info["initial_time_signature"] = json.dumps(fe.extract().vector)
 
 	return info
 
@@ -640,6 +662,14 @@ def process_score(musicdoc, m21_score, doc_id):
 		try:
 			# Extract infos from the score
 			extracted_infos = extract_info_from_score(m21_score)
+
+			# Save in the database
+			try:
+				for item in extracted_infos:
+					musicdoc.add_info(item, extracted_infos[item])
+			except Exception as ex:
+				print ("Exception for musicdoc" + musicdoc.doc_id + " Message:" + str(ex))
+
 			# Feature extraction
 			descr_dict = extract_features(score, MS, musicdoc)
 		except Exception as ex:
