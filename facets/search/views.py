@@ -145,6 +145,7 @@ class search_results:
                         print("Faceted: search for work composed by:")
                         for composer in searchcontext.facet_composers:
                             print(composer)
+                    
                     if searchcontext.search_type != "lyrics":
                         print("Mirror search: ", searchcontext.mirror_search,"\n\n")
 

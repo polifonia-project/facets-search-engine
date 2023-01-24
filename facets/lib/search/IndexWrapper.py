@@ -174,7 +174,7 @@ class IndexWrapper:
 
         return
 
-    def index_musicdoc(self, index_name, musicdoc, descr_dict, encodedMS):
+    def index_musicdoc(self, index_name, musicdoc, descr_dict, encodedMS, extracted_infos):
         """ 
         Add or replace a MusicDoc in the ElasticSearch index
         """
@@ -187,7 +187,8 @@ class IndexWrapper:
                 meta={'id': musicdoc.doc_id, 'index': index_name},
                 title = musicdoc.title, 
                 composer = musicdoc.composer,
-                summary = encodedMS
+                summary = encodedMS,
+                infos = extracted_infos
             )
 
             """
@@ -268,7 +269,7 @@ class IndexWrapper:
 
             #elif search_context.is_text_search():
                 '''
-                Wait for scores to be saved...
+                Once the scores are saved...
                 TODO1: Make it work for all types of scores by adding codes to Voice.py or something else
                 TODO: Get IDs of matching M21 objects from the scores.
                 

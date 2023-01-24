@@ -213,12 +213,14 @@ def processdata(request):
                     print("Wrong file format selected, but it was auto-corrected.")
                 else:
                     template = loader.get_template('loaddata/loaderror.html')
+                    print("The file format is not supported.")
                     context = {"indices_names": indices}
                     return HttpResponse(template.render(context, request))
 
             if real_format not in allowed_formats or (not request.FILES["myfile"]):
                 # Not supported, return error page.
                 template = loader.get_template('loaddata/loaderror.html')
+                print("The file format is not supported.")
                 context = {"indices_names": indices}
                 return HttpResponse(template.render(context, request))
 
@@ -242,6 +244,7 @@ def processdata(request):
                     return HttpResponse(template.render(context, request))
                 except Exception as ex:
                     template = loader.get_template('loaddata/loaderror.html')
+                    print(ex)
                     return template.render(request)
             else:
                 if uploadrequest["fileformat"] != "midi":
@@ -250,6 +253,7 @@ def processdata(request):
                 else:
                     # Not supported MIDI yet
                     template = loader.get_template('loaddata/loaderror.html')
+                    print("MIDI is not supported format.")
                     context = {"indices_names": indices}
                     return HttpResponse(template.render(context, request))
 
@@ -308,22 +312,24 @@ def processdata(request):
                 else:
                     # Otherwise, the format is not supported.
                     template = loader.get_template('loaddata/loaderror.html')
+                    print("The file format is not supported.")
                     context = {"indices_names": indices}
                     return HttpResponse(template.render(context, request))
 
 
                 # Process the current score, produce descriptors from MusicSummary
-                descr_dict, encodedMS = ScoreProcessing.process_score(musicdoc, m21_score, doc_id)
+                descr_dict, encodedMS, extracted_infos = ScoreProcessing.process_score(musicdoc, m21_score, doc_id)
                 
                 # Index the current musicdoc, including id, MusicSummary and descriptors
                 index_wrapper = IndexWrapper(index_name) 
-                index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
+                index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS, extracted_infos)
                 
                 context = {"index_name": index_name, "musicdoc": musicdoc, "descr_dict": descr_dict, "encodedMS": encodedMS, "indices_names": indices}
                 
                 return HttpResponse(template.render(context, request))
 
         except Exception as ex:
+            print("Error:", ex)
             template = loader.get_template('loaddata/loaderror.html')
             context = {"indices_names": indices}
             return HttpResponse(template.render(context, request))
