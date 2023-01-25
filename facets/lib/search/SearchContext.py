@@ -72,6 +72,9 @@ class SearchContext:
         if "composer" in search_input:
             # This should be a list of composer names from the search input
             self.facet_composers = search_input["composer"]
+        if "instruments" in search_input:
+            self.instruments = search_input["instruments"]
+        # Other facets to be continued..
 
     def check_default_meter(self):
         # For ABC pattern:

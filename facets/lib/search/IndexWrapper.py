@@ -6,6 +6,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Index
 from elasticsearch_dsl import Document, Integer, Text, Object, Nested, InnerDoc
 from elasticsearch_dsl import Q
+from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl import UpdateByQuery
 from elasticsearch.helpers import bulk
 
@@ -105,6 +106,31 @@ class IndexWrapper:
 
         return composer_names
 
+    def get_all_instrument_names(self):
+        '''
+        Get ALL composer names in ALL indexes
+        Q: is it too time consuming?!
+        '''
+
+        instrument_names = []
+        search = Search(using=self.elastic_search)
+        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+        search = search.query("match_all")
+        doc_info = search.execute()
+
+        for doc in doc_info.hits.hits:
+            if 'infos' in doc['_source']:
+                if doc['_source']['infos']["instruments"] != None and doc['_source']['infos']["instruments"] != []:
+                    for instrument_name in doc['_source']['infos']["instruments"]:
+                        if instrument_name not in instrument_names:
+                            instrument_names.append(instrument_name)
+
+        # Remove duplicates and get the final list of composers
+        invalid_name = [""] # cou ld be more than "" here
+        instrument_names = list(set(instrument_names)-set(invalid_name))
+
+        return instrument_names
+
     def get_source_from_doc(self, index_name, doc_id):
         search = Search(using=self.elastic_search)
         search = search.query("match_phrase", _id=doc_id)
@@ -151,19 +177,16 @@ class IndexWrapper:
         
         # todo for templates: there should be an option for updating all the doc_id in all indexes in UI "all above"
 
-        """
-        ubq = UpdateByQuery(index = index_name).using(self.elastic_search)
-        ubq = ubq.query('match', __id=doc_id)
-        print(ubq.to_dict())
-        """
         # get the stored MS
         encodedMS = self.get_MS_from_doc(index_name, doc_id)
         musicdoc_index = MusicDocIndex(
-            meta={'id': doc_id, 'index': index_name},
+            meta={'id': doc_id, 'index': index_name, 'title': title,
+                  'composer': composer},
             title = title, 
             composer = composer,
             summary = encodedMS
         )
+        #TODO: update other metadata from extracted_infos
 
         # get the descriptors as well to not lose any info
         descr_dict = self.get_descriptor_from_doc(index_name, doc_id)
@@ -184,7 +207,14 @@ class IndexWrapper:
         try:
 
             musicdoc_index = MusicDocIndex(
-                meta={'id': musicdoc.doc_id, 'index': index_name},
+                meta={
+                    'id': musicdoc.doc_id,
+                    'index': index_name,
+                    'title': musicdoc.title,
+                    'composer': musicdoc.composer,
+                    'instruments': extracted_infos["instruments"]
+                },
+                #TODO: where to put title and composer and all these info? within meta or not?
                 title = musicdoc.title, 
                 composer = musicdoc.composer,
                 summary = encodedMS,
@@ -219,6 +249,7 @@ class IndexWrapper:
             Locate every matching patterns in the music document,
             and rank the results by melodic or rhythmic distance.
         """
+
         opera = []
         for doc_id in matching_doc_ids:
             matching_ids = []
@@ -364,6 +395,8 @@ class IndexWrapper:
 
         # Get matching results from Elasticsearch
         matching_docs = search.execute()
+        # for testing, delete later
+        print("matchingdocstest:", matching_docs)
 
         return matching_docs
 
@@ -371,7 +404,16 @@ class IndexWrapper:
         """
         Create the search object with ElasticSearch DSL
         """
-        
+        ######
+        #WARNING: STILL TESTING WITH FACETS:
+        ######
+        """
+        if search_context.facet_composers != None and search_context.facet_composers != "":
+            logger.info("Searching with facets")
+            if search_context.search_type == settings.CHROMATIC_SEARCH and search_context.is_mirror_search() == False:
+                facetedsearch = SearchWithFacets({"composer": search_context.facet_composers})
+                return facetedsearch
+        """
         search = Search(using=self.elastic_search, index=search_context.index)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
 
@@ -426,10 +468,21 @@ class IndexWrapper:
             elif search_context.search_type == settings.EXACT_SEARCH:
                 search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
 
-        # To write: facets related
-
         return search
 
+class SearchWithFacets(FacetedSearch):
+    fields = ['infos', 'instruments', 'composer', 'title']
+    #q_title = Q("multi_match", query=search_context.text, fields=['lyrics', 'composer', 'title'])
+
+    facets = {
+        'composer': TermsFacet(field = 'composer')
+    }
+    #NestedFacet
+
+    def search(self):
+        s = Search(using=self.elastic_search)
+        #return s.filter('range', publish_from={'lte': 'now/h'})
+        return s
 
 class DescriptorIndex(InnerDoc):
     '''
@@ -455,6 +508,9 @@ class MusicDocIndex(Document):
     composer = Text()
     
     summary = Text()
+
+    #instruments = Text() # is this necessary?
+    #infos = Text()
 
     # N-gram encoding of the chromatic intervals
     chromatic = Nested( 
