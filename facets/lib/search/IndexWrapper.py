@@ -468,6 +468,10 @@ class IndexWrapper:
             elif search_context.search_type == settings.EXACT_SEARCH:
                 search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
 
+            print("***** FACETING")
+            print("==========================")
+            search.aggs.bucket('per_composer', 'terms', field='composer.keyword')
+
         return search
 
 class SearchWithFacets(FacetedSearch):

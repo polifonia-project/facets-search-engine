@@ -1,0 +1,13 @@
+<form action="/search/filtered_result/" method="post">
+<div class="alert alert-dark bg-white p-3 rounded shadow d-flex flex-column align-items-center">
+
+{% csrf_token %}
+<ul>
+  {% for k, v in facets.items %}
+  <li>{{ k }} ({{ v }}) </li>
+  {% endfor %}
+</ul>
+</div>
+</form>
+
+
