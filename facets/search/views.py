@@ -59,6 +59,21 @@ class search_results:
     def __init__(self):
         return
 
+    def filter_results_by_selected_facets(searchinput, matching_doc_ids, matching_info_dict, facets_name_list):
+        for facet_name in facets_name_list:
+            filtered_doc_ids = []
+            if searchinput[facet_name]:
+                # check if the facet is selected in search input, if yes, filter the matching doc ids
+                for i in matching_doc_ids:
+                    if matching_info_dict[i] == searchinput[facet_name]:
+                        # for example, when matching_info_dict[doc_id] == searchinput["composer"]
+                        filtered_doc_ids.append(i)
+                # only match the filtered ones, discard others
+                matching_doc_ids = filtered_doc_ids
+
+        # in the end, we have a list of filtered docs that meets all the selected facets
+        return matching_doc_ids
+
     def results(request):
 
         es = Elasticsearch()
@@ -102,6 +117,9 @@ class search_results:
 
                 searchinput["composer"] = request.POST.get('composer', False)
                 searchinput["instrument"] = request.POST.get('instrument', False)
+                searchinput["keymode"] = request.POST.get('keymode', False)
+                searchinput["keytonicname"] = request.POST.get('keytonicname', False)
+                # TODO: to be continued
 
             except Exception as ex:
                 template = loader.get_template('search/search_errorpage.html')
@@ -185,20 +203,30 @@ class search_results:
                             matching_info_dict[hit['_id']] = hit['_source']['composer']
                         matching_doc_ids.append(hit['_id'])
 
+                    # list of names of facets
+                    facets_name_list = ["composer", "instrument"]#, "keytonicname", "keymode"] # to be continued
+
                     # Get facets names and value
                     print("printing FACETS")
 
+                    # dictionary of dictionary of each facet
+                    facets_count_dict = {}
+
+                    # Get a dictionary of all composer names in the matching docs and the number of docs for each compoer
                     composers = {}
-                    # Get a dictionary of all composer names in the matching docs and the number of matches for each composer
                     for composer in matching_docs.aggregations.per_composer.buckets:
                         print(composer)
                         composers[composer.key] = composer.doc_count
+                    facets_count_dict["composer"] = composers
 
                     instruments = {}
                     # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
                     for instrument in matching_docs.aggregations.per_instrument.buckets:
                         print(instrument)
                         instruments[instrument.key] = instrument.doc_count
+                    facets_count_dict["instrument"] = instruments
+
+                    # TODO: TO BE CONTINUED: key tonic name, key mode and so on
 
                     try:
                         # Get matching ids(positions) of patterns in MusicSummary for highlighting
@@ -225,16 +253,10 @@ class search_results:
                     # Get rid of duplicates
                     invalid_name = [""]
                     matching_composers = list(set(matching_composers)-set(invalid_name))
+                    # TODO: maybe it's no longer necessary to save matching composers if we have facets_count_dict
 
-                    filtered_doc_ids = []
-                    # TODO not urgent: only one name at this moment but should be a list
-                    if searchinput["composer"]:
-                        for i in matching_doc_ids:
-                           if matching_info_dict[i] == searchinput["composer"]: # later change to "in" when searchinput["composer"] becomes a list
-                                filtered_doc_ids.append(i)
-                        # only match the filtered ones, discard others
-                        matching_doc_ids = filtered_doc_ids
-
+                    matching_doc_ids = search_results.filter_results_by_selected_facets(searchinput, matching_doc_ids, matching_info_dict, facets_name_list)
+                    
                     hostname = request.get_host()
                     score_info = {}
                     # Score info(type, media link) for score display:
@@ -290,9 +312,12 @@ class search_results:
                 request.session["matching_locations"] = matching_locations
                 request.session["score_info"] = score_info
                 request.session["match_dict_display"] = match_dict_display
-                #request.session["facets"] = facets
-                request.session["composers"] = composers
-                request.session["instruments"] = instruments
+                
+                # save facets in request session:
+                for facet_name in facets_name_list:
+                    request.session[facet_name] = facets_count_dict[facet_name]
+
+                request.session["facets_name_list"] = facets_name_list
 
                 template = loader.get_template('search/results.html')
                 context = {
@@ -312,9 +337,9 @@ class search_results:
                     "abcpattern": searchinput["pattern"],
                     "pg": pg, 
                     "startfrom": startfrom,
-                    "disable_scorelib": settings.DISABLE_SCORELIB
+                    "disable_scorelib": settings.DISABLE_SCORELIB,
+                    "facets_name_list": facets_name_list
                 }
-
                 return HttpResponse(template.render(context, request))
             except Exception as ex: 
                 template = loader.get_template('search/search_errorpage.html')
@@ -341,7 +366,13 @@ class search_results:
         num_matching_patterns = request.session.get("num_matching_patterns")
         matching_composers = request.session.get("matching_composers")
         matching_locations = request.session.get("matching_locations")
-        #GET request session of facets??
+        facets_name_list = request.session.get("facets_name_list")
+
+        #Get saved session of facets
+
+        facets_count_dict = {}
+        for facet_name in facets_name_list:
+            facets_count_dict[facet_name] = request.session.get(facet_name)
 
         p = Paginator(tuple(score_info), settings.SCORES_PER_PAGE)
 
@@ -383,8 +414,10 @@ class search_results:
                     "abcpattern": searchinput["pattern"],
                     "pg": pg,
                     "startfrom": startfrom,
-                    "disable_scorelib": settings.DISABLE_SCORELIB
-
+                    "disable_scorelib": settings.DISABLE_SCORELIB,
+                    "facets_name_list": facets_name_list,
+                    "composers": facets_count_dict["composer"],
+                    "instruments": facets_count_dict["instrument"]
         }
         return context
 
@@ -456,9 +489,15 @@ class search_results:
             # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")
             
-            # TODO: only one name at this moment but should be a list
-            searchinput["composer"] = request.POST.get('composer', False)
-            searchinput["instrument"] = request.POST.get('instrument', False)
+            facets_name_list = request.session.get("facets_name_list")
+
+            for facet_name in facets_name_list:
+                searchinput[facet_name] = request.POST.get(facet_name, False)
+
+            #Get saved session of facets
+            facets_count_dict = {}
+            for facet_name in facets_name_list:
+                facets_count_dict[facet_name] = request.session.get(facet_name)
 
             searchinput["rankby"] = request.POST.get('rankby', False)
             if searchinput["rankby"] == "Relevancy":
@@ -484,10 +523,14 @@ class search_results:
                     context = {"message": error_message}
                     return HttpResponse(template.render(context, request))
 
+                # TODO: CHANGE THE CURRENT METHOD TO SEND A NEW QUERY TO ES
+                # ignore the ones that is not in the facets
                 if searchinput["composer"] != False:
                     # filter out the ones that is not selected composer, if there is a composer facet selected
                     if musicdoc.composer != searchinput["composer"]:
                         continue
+                #if searchinput["instrument"] != False:
+                    # TODO: CHECK META INFO OF MUSICDOC !!
 
                 score_info[doc_id] = []
                 score_info[doc_id].append(musicdoc.doc_type)
@@ -531,6 +574,8 @@ class search_results:
                     "matching_doc_ids": matching_doc_ids,
                     "matching_composers": matching_composers,
                     "matching_locations": matching_locations,
+                    "composers": facets_count_dict["composer"],
+                    "instruments": facets_count_dict["instrument"],
                     "score_info": scores_thispg,
                     "pg": pg,
                     "startfrom": startfrom,

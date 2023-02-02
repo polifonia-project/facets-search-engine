@@ -105,11 +105,10 @@ class IndexWrapper:
         composer_names = list(set(composer_names)-set(invalid_name))
 
         return composer_names
-
+    """
     def get_all_instrument_names(self):
         '''
         Get ALL composer names in ALL indexes
-        Q: is it too time consuming?!
         '''
 
         instrument_names = []
@@ -130,7 +129,7 @@ class IndexWrapper:
         instrument_names = list(set(instrument_names)-set(invalid_name))
 
         return instrument_names
-
+    """
     def get_source_from_doc(self, index_name, doc_id):
         search = Search(using=self.elastic_search)
         search = search.query("match_phrase", _id=doc_id)
@@ -496,7 +495,6 @@ class MusicDocIndex(Document):
     
     summary = Text()
 
-    #instruments = Text() # is this necessary?
     infos = Text()
 
     # N-gram encoding of the chromatic intervals

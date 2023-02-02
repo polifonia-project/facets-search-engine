@@ -249,8 +249,12 @@ def save_data(index_name, docid, doctype, score, m21_score):
 
 		if metainfo["title"] != '':
 			musicdoc.title = metainfo["title"]
+		#else:
+		#	musicdoc.title = "Unknown title"
 		if metainfo["composer"] != '':
 			musicdoc.composer = metainfo["composer"]
+		else:
+			musicdoc.composer = "Unknown composer"
 
 		# Save file
 		filename = docid+"."+doctype
@@ -402,7 +406,7 @@ def extract_info_from_score(m21_score):
 			# part.getInstrument() is a music21 object
 			info["instruments"].append(part.getInstrument().instrumentName)
 	if info["instruments"] == []:
-		info["instruments"].append("Unspecified")
+		info["instruments"].append("Unknown instrument")
 	
 	#print("Pitch analysis:")
 	nameCount = analysis.pitchAnalysis.pitchAttributeCount(m21_score, 'name')
