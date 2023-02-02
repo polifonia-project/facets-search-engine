@@ -450,7 +450,7 @@ def extract_info_from_score(m21_score):
 	#print("Direction of motion (the fraction of melodic intervals that are rising rather than falling):", fe.extract().vector[0])
 	info["direction_of_motion"] = fe.extract().vector[0]
 
-	print("\nNote length analysis:")
+	#print("\nNote length analysis:")
 
 	fe = features.native.MostCommonNoteQuarterLength(m21_score)
 	#print("Most common note quarter length:", fe.extract().vector[0])

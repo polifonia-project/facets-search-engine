@@ -2,12 +2,43 @@
 <div class="alert alert-dark bg-white p-3 rounded shadow d-flex flex-column align-items-center">
 
 {% csrf_token %}
-<ul>
-  {% for k, v in facets.items %}
-  <li>{{ k }} ({{ v }}) </li>
+
+<select name="composer" class="px-4 mx-2 custom-select custom-select-sm">
+  {% if searchinput.composer %}
+  <option selected>{{searchinput.composer}}</option>
+  {% for composer, count in composers.items %}
+  {% if searchinput.composer != composer %}
+  <option value="{{ composer }}({{count}})">{{ composer | title }}</option>
+  {% endif %}
   {% endfor %}
-</ul>
+  {% else %}
+  <option selected>Composers</option>
+  {% for composer, count in composers.items %}
+  <option value="{{ composer }}({{count}})">{{ composer | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
+<br/><br/>
+
+<select name="instruments" class="px-4 mx-2 custom-select custom-select-sm">
+  {% if searchinput.instrument %}
+  <option selected>{{searchinput.instrument}}</option>
+  {% for instrument, count in instruments.items %}
+  {% if searchinput.instrument != instrument %}
+  <option value="{{ instrument }}({{count}})">{{ instrument | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Instruments</option>
+  {% for instrument, count in instruments.items %}
+  <option value="{{ instrument }}({{count}})">{{ instrument | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
+
+<input class="px-4 mx-2 my-1" type="submit" value="Filter">
+
 </div>
 </form>
-
-

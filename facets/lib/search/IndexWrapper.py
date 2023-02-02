@@ -180,8 +180,7 @@ class IndexWrapper:
         # get the stored MS
         encodedMS = self.get_MS_from_doc(index_name, doc_id)
         musicdoc_index = MusicDocIndex(
-            meta={'id': doc_id, 'index': index_name, 'title': title,
-                  'composer': composer},
+            meta={'id': doc_id, 'index': index_name},
             title = title, 
             composer = composer,
             summary = encodedMS
@@ -210,9 +209,6 @@ class IndexWrapper:
                 meta={
                     'id': musicdoc.doc_id,
                     'index': index_name,
-                    'title': musicdoc.title,
-                    'composer': musicdoc.composer,
-                    'instruments': extracted_infos["instruments"]
                 },
                 #TODO: where to put title and composer and all these info? within meta or not?
                 title = musicdoc.title, 
@@ -395,8 +391,6 @@ class IndexWrapper:
 
         # Get matching results from Elasticsearch
         matching_docs = search.execute()
-        # for testing, delete later
-        print("matchingdocstest:", matching_docs)
 
         return matching_docs
 
@@ -471,22 +465,11 @@ class IndexWrapper:
             print("***** FACETING")
             print("==========================")
             search.aggs.bucket('per_composer', 'terms', field='composer.keyword')
+            search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword')
+            # and so on...
 
         return search
 
-class SearchWithFacets(FacetedSearch):
-    fields = ['infos', 'instruments', 'composer', 'title']
-    #q_title = Q("multi_match", query=search_context.text, fields=['lyrics', 'composer', 'title'])
-
-    facets = {
-        'composer': TermsFacet(field = 'composer')
-    }
-    #NestedFacet
-
-    def search(self):
-        s = Search(using=self.elastic_search)
-        #return s.filter('range', publish_from={'lte': 'now/h'})
-        return s
 
 class DescriptorIndex(InnerDoc):
     '''
@@ -514,7 +497,7 @@ class MusicDocIndex(Document):
     summary = Text()
 
     #instruments = Text() # is this necessary?
-    #infos = Text()
+    infos = Text()
 
     # N-gram encoding of the chromatic intervals
     chromatic = Nested( 

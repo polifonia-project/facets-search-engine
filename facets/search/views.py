@@ -101,6 +101,7 @@ class search_results:
                 searchinput["index_name"] = searchinput["index_name"].lower()
 
                 searchinput["composer"] = request.POST.get('composer', False)
+                searchinput["instrument"] = request.POST.get('instrument', False)
 
             except Exception as ex:
                 template = loader.get_template('search/search_errorpage.html')
@@ -177,18 +178,27 @@ class search_results:
                         }
                         return HttpResponse(template.render(context, request))
 
+                    # Get all the matching document ids
                     for hit in matching_docs.hits.hits:
                         if 'composer' in hit['_source']:
                             matching_composers.append(hit['_source']['composer'])
                             matching_info_dict[hit['_id']] = hit['_source']['composer']
                         matching_doc_ids.append(hit['_id'])
 
-                    facets = {}
+                    # Get facets names and value
                     print("printing FACETS")
-                    for facet in matching_docs.aggregations.per_composer.buckets:
-                        print(facet)
-                        facets[facet.key] = facet.doc_count
 
+                    composers = {}
+                    # Get a dictionary of all composer names in the matching docs and the number of matches for each composer
+                    for composer in matching_docs.aggregations.per_composer.buckets:
+                        print(composer)
+                        composers[composer.key] = composer.doc_count
+
+                    instruments = {}
+                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
+                    for instrument in matching_docs.aggregations.per_instrument.buckets:
+                        print(instrument)
+                        instruments[instrument.key] = instrument.doc_count
 
                     try:
                         # Get matching ids(positions) of patterns in MusicSummary for highlighting
@@ -280,7 +290,9 @@ class search_results:
                 request.session["matching_locations"] = matching_locations
                 request.session["score_info"] = score_info
                 request.session["match_dict_display"] = match_dict_display
-                request.session["facets"] = facets
+                #request.session["facets"] = facets
+                request.session["composers"] = composers
+                request.session["instruments"] = instruments
 
                 template = loader.get_template('search/results.html')
                 context = {
@@ -288,7 +300,8 @@ class search_results:
                     "index_name": searchinput["index_name"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
-                    "facets": facets,
+                    "composers": composers,
+                    "instruments": instruments,
                     "searchcontext": searchcontext,
                     "num_matching_docs": len(matching_doc_ids),
                     "num_matching_patterns": num_matching_patterns,
@@ -328,6 +341,7 @@ class search_results:
         num_matching_patterns = request.session.get("num_matching_patterns")
         matching_composers = request.session.get("matching_composers")
         matching_locations = request.session.get("matching_locations")
+        #GET request session of facets??
 
         p = Paginator(tuple(score_info), settings.SCORES_PER_PAGE)
 
@@ -444,6 +458,7 @@ class search_results:
             
             # TODO: only one name at this moment but should be a list
             searchinput["composer"] = request.POST.get('composer', False)
+            searchinput["instrument"] = request.POST.get('instrument', False)
 
             searchinput["rankby"] = request.POST.get('rankby', False)
             if searchinput["rankby"] == "Relevancy":
