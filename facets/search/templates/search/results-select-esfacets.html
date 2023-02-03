@@ -8,13 +8,13 @@
   <option selected>{{searchinput.composer}}</option>
   {% for composer, count in composers.items %}
   {% if searchinput.composer != composer %}
-  <option value="{{ composer }}({{count}})">{{ composer | title }}</option>
+  <option value="{{ composer }}">{{ composer | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}
   <option selected>Composers</option>
   {% for composer, count in composers.items %}
-  <option value="{{ composer }}({{count}})">{{ composer | title }}</option>
+  <option value="{{ composer }}">{{ composer | title }}</option>
   {% endfor %}
   {% endif %}
 </select>
@@ -26,13 +26,13 @@
   <option selected>{{searchinput.instrument}}</option>
   {% for instrument, count in instruments.items %}
   {% if searchinput.instrument != instrument %}
-  <option value="{{ instrument }}({{count}})">{{ instrument | title }}</option>
+  <option value="{{ instrument }}">{{ instrument | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}
   <option selected>Instruments</option>
   {% for instrument, count in instruments.items %}
-  <option value="{{ instrument }}({{count}})">{{ instrument | title }}</option>
+  <option value="{{ instrument }}">{{ instrument | title }}</option>
   {% endfor %}
   {% endif %}
 </select>

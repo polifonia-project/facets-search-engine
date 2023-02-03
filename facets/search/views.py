@@ -60,6 +60,7 @@ class search_results:
         return
 
     def filter_results_by_selected_facets(searchinput, matching_doc_ids, matching_info_dict, facets_name_list):
+        # this should be automated with ES
         for facet_name in facets_name_list:
             filtered_doc_ids = []
             if searchinput[facet_name]:
@@ -73,6 +74,64 @@ class search_results:
 
         # in the end, we have a list of filtered docs that meets all the selected facets
         return matching_doc_ids
+
+    def read_search_input_from_request(request, searchinput):
+        
+        if searchinput == {}:
+            # if it is the first entry of search with pattern, read them
+            searchinput["pattern"] = request.POST.get('pattern', False)
+            if request.POST.get('mirror', False):
+                searchinput["mirror"] = True
+            else:
+                searchinput["mirror"] = False
+
+            searchinput["pianopattern"] = request.POST.get('pianopattern', False)
+            searchinput["type"] = request.POST.get('searchtype', False)
+            # The search type names for ES should be all in lower case
+            searchinput["type"] = searchinput["type"].lower()
+            searchinput["index_name"] = request.POST.get('indexname', False)
+            # TO-DO: Forcing index_name to be all lower case might cause error.
+            # Find a better fix: do not put the first letter as captial letter when displaying/send through request
+            searchinput["index_name"] = searchinput["index_name"].lower()
+
+        # Ranking
+        searchinput["rankby"] = request.POST.get('rankby', False)
+
+        # Facets
+        searchinput["composer"] = request.POST.get('composer', False)
+        searchinput["instrument"] = request.POST.get('instrument', False)
+        searchinput["keymode"] = request.POST.get('keymode', False)
+        searchinput["keytonicname"] = request.POST.get('keytonicname', False)
+        # TODO: facets to be continued
+
+        return searchinput
+
+    def read_pattern_search_into_search_context(searchinput):
+        
+        searchcontext = SearchContext()
+        # json -> searchcontext
+        searchcontext.read(searchinput)
+        
+        # print the content of SearchContext object
+        print("\n\nSearching in index: ", searchcontext.index)
+        print("Search type: ", searchcontext.search_type)
+        
+        if searchcontext.pattern:
+            print("ABC encoded pattern: ", searchcontext.pattern)
+        elif searchcontext.pianopattern:
+            print("Pattern from piano: ", searchcontext.pianopattern)
+        
+        # Print some info about the search
+        if searchcontext.text:
+            print("Text: ", searchcontext.text)
+        if searchcontext.facet_composers != [] and searchinput["composer"] != False:
+            # MAKE SURE ALL THE NAMES ARE THE ORIGINAL INPUT IN CASE OF UPPER AND LOWER CASE
+            print("Faceted: search for work composed by:", searchcontext.facet_composers)
+                
+        if searchcontext.search_type != "lyrics":
+            print("Mirror search: ", searchcontext.mirror_search, "\n\n")
+
+        return searchcontext
 
     def results(request):
 
@@ -97,29 +156,7 @@ class search_results:
                 callpage = request.POST.get('page', False)
 
                 searchinput = {}
-                searchinput["pattern"] = request.POST.get('pattern', False)
-                if request.POST.get('mirror', False):
-                    searchinput["mirror"] = True
-                else:
-                    searchinput["mirror"] = False
-
-                searchinput["pianopattern"] = request.POST.get('pianopattern', False)
-                searchinput["rankby"] = request.POST.get('rankby', False)
-
-                searchinput["type"] = request.POST.get('searchtype', False)
-                # The search type names for ES should be all in lower case
-                searchinput["type"] = searchinput["type"].lower()
-
-                searchinput["index_name"] = request.POST.get('indexname', False)
-                # TO-DO: Forcing index_name to be all lower case might cause error.
-                # Find a better fix: do not put the first letter as captial letter when displaying/send through request
-                searchinput["index_name"] = searchinput["index_name"].lower()
-
-                searchinput["composer"] = request.POST.get('composer', False)
-                searchinput["instrument"] = request.POST.get('instrument', False)
-                searchinput["keymode"] = request.POST.get('keymode', False)
-                searchinput["keytonicname"] = request.POST.get('keytonicname', False)
-                # TODO: to be continued
+                searchinput = search_results.read_search_input_from_request(request, searchinput)
 
             except Exception as ex:
                 template = loader.get_template('search/search_errorpage.html')
@@ -129,45 +166,23 @@ class search_results:
             try:
                 if searchinput["pattern"] or searchinput["pianopattern"]:
                     try:
-                        searchcontext = SearchContext()
-                        # json -> searchcontext
-                        searchcontext.read(searchinput)
-                        # print the content of SearchContext object
-                        print("\n\nSearching in index: ", searchcontext.index)
-                        print("Search type: ", searchcontext.search_type)
-                        if searchcontext.pattern:
-                            print("ABC encoded pattern: ", searchcontext.pattern)
-                        elif searchcontext.pianopattern:
-                            print("Pattern from piano: ", searchcontext.pianopattern)
+                        searchcontext = search_results.read_pattern_search_into_search_context(searchinput)
+                        if not searchcontext.check_pattern_length():
+                            # if the pattern is not valid, return error
+                            searchcontext.pattern = ""
+                            searchcontext.pianopattern = ""
+                            if searchcontext.text != "":
+                                print("Pattern is not valid, we are in text search mode.")
+                            else:
+                                template = loader.get_template('search/search_errorpage.html')
+                                error_message = "Please enter a valid pattern to search: it must contain at least three intervals"
+                                context = {"indices_names": indices, "message": error_message}
+                                return HttpResponse(template.render(context, request))
                     except Exception as ex:
                         template = loader.get_template('search/search_errorpage.html')
-                        error_message = "Error when conversing search input to search context!"
+                        error_message = "Error when conversing search input into search context!"
                         context = {"indices_names": indices, "ex": str(ex), "message": error_message}
                         return HttpResponse(template.render(context, request))
-
-                    if not searchcontext.check_pattern_length():
-                        # TODO: test this and show render in htmlresponse if pattern is too short
-                        searchcontext.pattern = ""
-                        searchcontext.pianopattern = ""
-                        if searchcontext.text != "":
-                            print("Pattern not valid, we are in text search mode.")
-                        else:
-                            template = loader.get_template('search/search_errorpage.html')
-                            error_message = "Please enter a valid pattern to search: it must contain at least three intervals"
-                            context = {"indices_names": indices, "message": error_message}
-                            return HttpResponse(template.render(context, request))
-
-                    # Print some info about the search
-                    if searchcontext.text:
-                        print("Text: ", searchcontext.text)
-                    if searchcontext.facet_composers != [] and searchinput["composer"] != False:
-                        # MAKE SURE ALL THE NAMES ARE THE ORIGINAL INPUT IN CASE OF UPPER AND LOWER CASE
-                        print("Faceted: search for work composed by:")
-                        for composer in searchcontext.facet_composers:
-                            print(composer)
-                    
-                    if searchcontext.search_type != "lyrics":
-                        print("Mirror search: ", searchcontext.mirror_search,"\n\n")
 
                     try:
                         index_wrapper = IndexWrapper(searchinput["index_name"])
@@ -255,6 +270,7 @@ class search_results:
                     matching_composers = list(set(matching_composers)-set(invalid_name))
                     # TODO: maybe it's no longer necessary to save matching composers if we have facets_count_dict
 
+                    # if there are selected facets
                     matching_doc_ids = search_results.filter_results_by_selected_facets(searchinput, matching_doc_ids, matching_info_dict, facets_name_list)
                     
                     hostname = request.get_host()
@@ -312,7 +328,9 @@ class search_results:
                 request.session["matching_locations"] = matching_locations
                 request.session["score_info"] = score_info
                 request.session["match_dict_display"] = match_dict_display
-                
+                # using default ranking method at the first call: rank by similarity
+                request.session["ranking_method"] = "Similarity"
+
                 # save facets in request session:
                 for facet_name in facets_name_list:
                     request.session[facet_name] = facets_count_dict[facet_name]
@@ -453,6 +471,17 @@ class search_results:
         }
         return HttpResponse(template.render(context, request))
 
+    def re_rank_the_results(ranking_method, match_dict_display):
+        # Given a new ranking method, return the ranked list of matching doc ids for display
+        if ranking_method == "Relevancy" or ranking_method == "relevancy":
+            matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
+            matching_doc_ids = list(reversed(matching_doc_ids))
+            return matching_doc_ids
+        # TODO: rank by similarity... quick way
+        #elif ranking_method == "Similarity" or ranking_method == "similarity":
+            # RANK BY SIM
+            # SAVE A SCORE OF THE SIMILARITY AS PART OF THE SEARCH RESULT! TODO IN IndexWrapper
+
     def FilteredResultView(request):
         # Ideally, this page does not display the search input anymore 
         # because the user should not submit a new search input from this page
@@ -463,6 +492,7 @@ class search_results:
 
         # TO-SOLVE(minor): if re-rank, the composer facet will be reset
         # TO-SOLVE: re-rank by similarity
+        # TO-SOLVE: re-send request to ES according to the new requests
 
         es = Elasticsearch()
         try:
@@ -477,35 +507,68 @@ class search_results:
 
             template = loader.get_template('search/filtered_result.html')
 
+            # read already entered patterns
             searchinput = request.session.get('searchinput')
 
+            # read new entered facets and rank method
+            searchinput = search_results.read_search_input_from_request(request, searchinput)
+
+            if searchinput["pattern"] or searchinput["pianopattern"]:
+                # if it is pattern search
+                searchcontext = search_results.read_pattern_search_into_search_context(searchinput)
+            else:
+                # TODO: make it work for text search
+                print("we currently do not support faceting with text search!")
+                template = loader.get_template('error.html')
+                error_message = str(ex)+'\n'
+                error_message += "Sorry, we currently do not support faceting with text search!"
+                context = {"message": error_message}
+                return HttpResponse(template.render(context, request))
+
+            # now, send the refined search context to ES for a faceted search!
+            try:
+                index_wrapper = IndexWrapper(searchinput["index_name"])
+                # ES returns a "response" object with all the documents that matches query
+                matching_docs = index_wrapper.search(searchcontext)
+            except Exception as ex:
+                template = loader.get_template('search/search_errorpage.html')
+                error_message = "Error when trying to call search with ES in IndexWrapper"
+                context = {"indices_names": indices,  "ex": str(ex), "message": error_message}
+                return HttpResponse(template.render(context, request))
+
+
+
+            # TODO: get rid of the following ones from request sessions
+            #bc we are sending the request again to ES instead of getting stats from request session
             # for stats display
             matching_doc_ids = request.session.get("matching_doc_ids")
 
-            # for display in the composer facets
+            # for display in the composer facets: 
             matching_composers = request.session.get("matching_composers")
             # for highlighting
             matching_locations = request.session.get("matching_locations")
             # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")
             
+            # just a list of names of facets supported..
             facets_name_list = request.session.get("facets_name_list")
 
             for facet_name in facets_name_list:
                 searchinput[facet_name] = request.POST.get(facet_name, False)
 
-            #Get saved session of facets
+            #Get saved session of distribution stats for facets
             facets_count_dict = {}
             for facet_name in facets_name_list:
                 facets_count_dict[facet_name] = request.session.get(facet_name)
 
-            searchinput["rankby"] = request.POST.get('rankby', False)
-            if searchinput["rankby"] == "Relevancy":
-                matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
-                matching_doc_ids = list(reversed(matching_doc_ids))
-                #print("After re-rank, matching docs are:", matching_doc_ids)
-                # Remember this re-ranked order
+
+
+            # if a new rank method is entered
+            if searchinput["rankby"] != False and searchinput["rankby"] != request.session["ranking_method"]:
+                matching_doc_ids = search_results.re_rank_the_results(searchinput["rankby"], match_dict_display)
+                # remember the new order and new rank method in request.session
                 request.session["matching_doc_ids"] = matching_doc_ids
+                request.session["ranking_method"] = searchinput["rankby"]
 
             hostname = request.get_host()
             score_info = {}
@@ -530,7 +593,7 @@ class search_results:
                     if musicdoc.composer != searchinput["composer"]:
                         continue
                 #if searchinput["instrument"] != False:
-                    # TODO: CHECK META INFO OF MUSICDOC !!
+                    # TODO: CHECK META INFO OF MUSICDOC in database!
 
                 score_info[doc_id] = []
                 score_info[doc_id].append(musicdoc.doc_type)
@@ -581,7 +644,7 @@ class search_results:
                     "startfrom": startfrom,
                     "disable_scorelib": settings.DISABLE_SCORELIB
             }
-            print(context["disable_scorelib"])
+            #print(context["disable_scorelib"])
 
             return HttpResponse(template.render(context, request))
 

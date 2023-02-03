@@ -467,6 +467,13 @@ class IndexWrapper:
             search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword')
             # and so on...
 
+            if search_context.facet_composers != None and search_context.facet_composers != []:
+                # there is composers facets to filter
+                search.filter('terms', field='composer.keyword', tags= search_context.facets_composers)
+
+            #if search_context.facet_instruments != None and search_context.facet_instruments != []:
+            
+
         return search
 
 

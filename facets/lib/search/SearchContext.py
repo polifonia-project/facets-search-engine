@@ -19,6 +19,9 @@ class SearchContext:
     def __init__(self) :
         self.index = ""
         self.facet_composers = []
+        self.facet_instruments = []
+        self.facet_keymode = ""
+        self.facet_keytonicname = ""
         self.search_type = settings.CHROMATIC_SEARCH
         self.pattern = ""
         self.pianopattern = ""
@@ -73,8 +76,10 @@ class SearchContext:
             # This should be a list of composer names from the search input
             self.facet_composers = search_input["composer"]
         if "instruments" in search_input:
-            self.instruments = search_input["instruments"]
+            self.facet_instruments = search_input["instruments"]
         # Other facets to be continued..
+        #self.facet_keymode = ""
+        #self.facet_keytonicname = ""
 
     def check_default_meter(self):
         # For ABC pattern:
