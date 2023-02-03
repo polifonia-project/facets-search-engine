@@ -7,14 +7,14 @@
 
   {% if searchinput.composer %}
   <option selected>{{searchinput.composer}}</option>
-  {% for composer in matching_composers %}
+  {% for composer in facet_composers %}
   {% if searchinput.composer != composer %}
   <option value="{{ composer }}">{{ composer | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}
   <option selected>Composers</option>
-  {% for composer in matching_composers %}
+  {% for composer in facet_composers %}
   <option value="{{ composer }}">{{ composer | title }}</option>
   {% endfor %}
   {% endif %}

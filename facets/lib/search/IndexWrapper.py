@@ -469,7 +469,9 @@ class IndexWrapper:
 
             if search_context.facet_composers != None and search_context.facet_composers != []:
                 # there is composers facets to filter
-                search.filter('terms', field='composer.keyword', tags= search_context.facets_composers)
+                search.filter('terms', field='composer.keyword', tags = search_context.facet_composers)
+            if search_context.facet_instruments != None and search_context.facet_instruments != []:
+                search.filter('terms', field='infos.instruments.keyword', tags = search_context.facet_composers)
 
             #if search_context.facet_instruments != None and search_context.facet_instruments != []:
             
