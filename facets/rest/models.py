@@ -90,7 +90,6 @@ class MusicDoc(models.Model):
 			metas.append(m)
 		return metas
 
-
 	def __str__(self):
 		return self.doc_id
 
@@ -109,6 +108,7 @@ class Descriptor(models.Model):
 		return dict(voice=self.voice, value=self.value)
 
 class Metainfo(models.Model):
+
 	doc = models.ForeignKey(MusicDoc, on_delete=models.CASCADE)
 	meta_key = models.CharField(max_length=255)
 	meta_value = models.TextField()

@@ -6,14 +6,14 @@
 <select name="composer" class="px-4 mx-2 custom-select custom-select-sm">
   {% if searchinput.composer %}
   <option selected>{{searchinput.composer}}</option>
-  {% for composer, count in facet_composers.items %}
+  {% for composer in facet_composers %}
   {% if searchinput.composer != composer %}
   <option value="{{ composer }}">{{ composer | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}
   <option selected>Composers</option>
-  {% for composer, count in facet_composers.items %}
+  {% for composer in facet_composers %}
   <option value="{{ composer }}">{{ composer | title }}</option>
   {% endfor %}
   {% endif %}
@@ -24,14 +24,14 @@
 <select name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
   {% if searchinput.instrument %}
   <option selected>{{searchinput.instrument}}</option>
-  {% for instrument, count in facet_instruments.items %}
+  {% for instrument in facet_instruments %}
   {% if searchinput.instrument != instrument %}
   <option value="{{ instrument }}">{{ instrument | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}
   <option selected>Instruments</option>
-  {% for instrument, count in facet_instruments.items %}
+  {% for instrument in facet_instruments %}
   <option value="{{ instrument }}">{{ instrument | title }}</option>
   {% endfor %}
   {% endif %}

@@ -397,16 +397,6 @@ class IndexWrapper:
         """
         Create the search object with ElasticSearch DSL
         """
-        ######
-        #WARNING: STILL TESTING WITH FACETS:
-        ######
-        """
-        if search_context.facet_composers != None and search_context.facet_composers != "":
-            logger.info("Searching with facets")
-            if search_context.search_type == settings.CHROMATIC_SEARCH and search_context.is_mirror_search() == False:
-                facetedsearch = SearchWithFacets({"composer": search_context.facet_composers})
-                return facetedsearch
-        """
         search = Search(using=self.elastic_search, index=search_context.index)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
 

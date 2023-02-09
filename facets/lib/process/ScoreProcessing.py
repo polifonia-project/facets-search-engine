@@ -30,7 +30,7 @@ def get_metadata_from_score(doctype, score, m21_score):
 	# TODO: clean the '\n's from composer names and title names. kern
 	# TODO2: multiple composers by Music21
 
-	metainfo = {"title":"", "composer":""}
+	metainfo = {"title": "", "composer": ""}
 	
 	if doctype == "xml":
 
@@ -190,12 +190,13 @@ def get_metadata_from_score(doctype, score, m21_score):
 	if metainfo["title"] != "":
 		print("Title of this musicdoc: ", metainfo["title"])
 	else:
+		matainfo["title"] = "Unknown title"
 		print("Couldn't find title information of this musicdoc.")
 
 	if metainfo["composer"] != "":
 		print("Composer of this musicdoc: ", metainfo["composer"])
-		MusicDoc.add_info("composer", metainfo["composer"])
 	else:
+		metainfo["composer"] = "Unknown composer"
 		print("Couldn't find composer information of this musicdoc.")
 
 	return metainfo
@@ -245,17 +246,13 @@ def save_data(index_name, docid, doctype, score, m21_score):
 			metainfo = get_metadata_from_score(doctype, score, m21_score)
 		except:
 			# in case there is an error, just skip and leave these fields empty
-			metainfo = {"title":"", "composer":""}
+			metainfo = {"title":"Unknown title", "composer":"Unknown composer"}
 
 		if metainfo["title"] != '':
 			musicdoc.title = metainfo["title"]
-		#else:
-		#	musicdoc.title = "Unknown title"
 		if metainfo["composer"] != '':
 			musicdoc.composer = metainfo["composer"]
-		else:
-			musicdoc.composer = "Unknown composer"
-
+		
 		# Save file
 		filename = docid+"."+doctype
 		if doctype == 'krn':
@@ -268,7 +265,7 @@ def save_data(index_name, docid, doctype, score, m21_score):
 			musicdoc.xmlfile.save(filename, ContentFile(score))
 		elif doctype == 'abc':
 			musicdoc.abcfile.save(filename, ContentFile(score))
-		
+
 		musicdoc.save()
 
 		return musicdoc
@@ -676,17 +673,20 @@ def process_score(musicdoc, m21_score, doc_id):
 			print("Error while encoding the score: ", doc_id, ":", str(ex))
 
 		try:
+
 			# Extract infos from the score
 			extracted_infos = extract_info_from_score(m21_score)
 
-			"""
-			# Save in the database: should be either moved to save_data or not necessary(they will be saved ES index)
+			# Save extracted info in the database
+			# Ideally the data shouldn't be saved twice for loading of each score, but deal with it later.
+
 			try:
 				for item in extracted_infos:
 					musicdoc.add_info(item, extracted_infos[item])
+				musicdoc.save()
+
 			except Exception as ex:
 				print ("Exception for musicdoc" + musicdoc.doc_id + " Message:" + str(ex))
-			"""
 
 			# Feature extraction
 			descr_dict = extract_features(score, MS, musicdoc)

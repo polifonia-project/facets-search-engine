@@ -391,11 +391,11 @@ def document(request, index_name, doc_id):
                     return JSONResponse({"Error": "Not supported content type: " + request.content_type})
 
                 # Process the current score, produce descriptors from MusicSummary
-                descr_dict, encodedMS = ScoreProcessing.process_score(musicdoc, m21_score, doc_id)
+                descr_dict, encodedMS, extracted_infos = ScoreProcessing.process_score(musicdoc, m21_score, doc_id)
                 
                 # Index the current musicdoc, including id, MusicSummary and descriptors
                 index_wrapper = IndexWrapper(index_name) 
-                index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS)
+                index_wrapper.index_musicdoc(index_name, musicdoc, descr_dict, encodedMS, extracted_infos)
                 
                 return JSONResponse({"message": "Successfully indexed document " + doc_id})
         except Exception as ex:
