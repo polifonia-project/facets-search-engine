@@ -453,18 +453,27 @@ class IndexWrapper:
 
             print("***** FACETING")
             print("==========================")
-            search.aggs.bucket('per_composer', 'terms', field='composer.keyword')
-            search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword')
+            #search.aggs.bucket('per_composer', 'terms', field='composer.keyword')
+            search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+            search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+            search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+            search.aggs.bucket('per_keymode', 'terms', field='infos.key_mode.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+            #search.aggs.bucket('per_numofparts', 'terms', field='infos.num_of_parts.keyword')
             # and so on...
 
-            if search_context.facet_composers != None and search_context.facet_composers != []:
+            """
+            # TODO: test if this works
+            if search_context.facet_composers != None and search_context.facet_composers != [] and search_context.facet_composers != "":
                 # there is composers facets to filter
                 search.filter('terms', field='composer.keyword', tags = search_context.facet_composers)
-            if search_context.facet_instruments != None and search_context.facet_instruments != []:
-                search.filter('terms', field='infos.instruments.keyword', tags = search_context.facet_composers)
-
-            #if search_context.facet_instruments != None and search_context.facet_instruments != []:
-            
+            if search_context.facet_instruments != None and search_context.facet_instruments != [] and search_context.facet_instruments != "":
+                search.filter('terms', field='infos.instruments.keyword', tags = search_context.facet_instruments)
+            if search_context.facet_keymode != None and search_context.facet_keymode != "":
+                search.filter('terms', field='infos.key_mode.keyword', tags = search_context.facet_keymode)
+            if search_context.facet_keytonicname != None and search_context.facet_keytonicname != "":
+                search.filter('terms', field='infos.key_tonic_name.keyword', tags = search_context.facet_keytonicname)
+            # TBC for more facets.. 
+            """
 
         return search
 

@@ -131,8 +131,13 @@ class search_results:
         if searchcontext.facet_composers != [] and searchinput["composer"] != False:
             # MAKE SURE ALL THE NAMES ARE THE ORIGINAL INPUT IN CASE OF UPPER AND LOWER CASE
             print("Faceted: search for work composed by:", searchcontext.facet_composers)
-        if searchcontext.facet_instrument != [] and searchinput["instrument"] != False:
-            print("Faceted: search for work with the following instruments:", searchcontext.facet_instrument)
+        if searchcontext.facet_instruments != [] and searchinput["instrument"] != False:
+            print("Faceted: search for work with the following instruments:", searchcontext.facet_instruments)
+        if searchcontext.facet_keymode != "" and searchinput["instrument"] != False:
+            print("Faceted: search for work with the following key mode:", searchcontext.facet_keymode)
+        if searchcontext.facet_keytonicname != "" and searchinput["instrument"] != False:
+            print("Faceted: search for work with the following key tonic name:", searchcontext.facet_keytonicname)
+
         #TBC..
         if searchcontext.search_type != "lyrics":
             print("Mirror search: ", searchcontext.mirror_search, "\n\n")
@@ -155,10 +160,123 @@ class search_results:
             if 'infos' in hit['_source']:
                 if 'instruments' in hit['_source']['infos']:
                     if hit['_source']['infos']['instruments'] != [] and hit['_source']['infos']['instruments'] != None:
-                        matching_info[hit['_id']]['composer'] = hit['_source']['infos']['instruments']
+                        matching_info[hit['_id']]['instruments'] = hit['_source']['infos']['instruments']
+
+                if 'key_mode' in hit['_source']['infos']:
+                    if hit['_source']['infos']['key_mode'] != [] and hit['_source']['infos']['key_mode'] != None:
+                        matching_info[hit['_id']]['key_mode'] = hit['_source']['infos']['key_mode']
+
+                if 'key_tonic_name' in hit['_source']['infos']:
+                    if hit['_source']['infos']['key_tonic_name'] != [] and hit['_source']['infos']['key_tonic_name'] != None:
+                        matching_info[hit['_id']]['key_tonic_name'] = hit['_source']['infos']['key_tonic_name']
+
             # Get more info... to be continued
 
         return matching_doc_ids, matching_info
+
+    def count_facets_from_agg(matching_docs):
+
+                    # dictionary of dictionary of each facet
+                    facets_count_dict = {}
+
+                    # for filtering out invalid names
+                    invalid_name = ["", "composers", "Composers", "instruments", "Instruments", "Key mode", "Key Mode", "Key tonic name", "key tonic name"]
+
+                    # Get a dictionary of all composer names in the matching docs and the number of docs for each compoer
+                    facet_composers = {}
+                    facet_hit_ids = {}
+                    facet_hit_ids['composer'] = {}
+                    for composer in matching_docs.aggregations.per_composer.buckets:
+                        print(composer) # just for testing
+                        # composer.key is composer name, composer.doc_count is num of docs composed by this composer
+                        facet_composers[composer.key] = composer.doc_count
+                        list_ids_curr_composer = []
+                        # get each hit doc id for curr composer
+                        for item in composer.top_hits.buckets:
+                            list_ids_curr_composer.append(item['key'])
+                        facet_hit_ids['composer'][composer.key] = list_ids_curr_composer
+                    facet_composers = list(set(facet_composers)-set(invalid_name))
+                    facets_count_dict["composer"] = facet_composers
+
+                    facet_instruments = {}
+                    facet_hit_ids['instrument'] = {}                    
+                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
+                    for instrument in matching_docs.aggregations.per_instrument.buckets:
+                        print(instrument) # just for testing
+                        facet_instruments[instrument.key] = instrument.doc_count
+                        list_ids_curr_instr = []
+                        # get each hit doc id for curr composer
+                        for item in instrument.top_hits.buckets:
+                            list_ids_curr_instr.append(item['key'])
+                        facet_hit_ids['instrument'][instrument.key] = list_ids_curr_instr
+                    facet_instruments = list(set(facet_instruments)-set(invalid_name))
+                    facets_count_dict["instrument"] = facet_instruments
+
+                    facet_keymode = {}
+                    facet_hit_ids['keymode'] = {}
+                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
+                    for keymode in matching_docs.aggregations.per_keymode.buckets:
+                        print(keymode) # just for testing
+                        facet_keymode[keymode.key] = keymode.doc_count
+                        list_ids_curr_keym = []
+                        # get each hit doc id for curr composer
+                        for item in keymode.top_hits.buckets:
+                            list_ids_curr_keym.append(item['key'])
+                        facet_hit_ids['keymode'][keymode.key] = list_ids_curr_keym
+
+                    facet_keymode = list(set(facet_keymode)-set(invalid_name))
+                    facets_count_dict["keymode"] = facet_keymode
+
+                    facet_keytonicname = {}
+                    facet_hit_ids['keytonicname'] = {}
+                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
+                    for keytonicname in matching_docs.aggregations.per_keytonicname.buckets:
+                        print(keytonicname) # just for testing
+                        facet_keytonicname[keytonicname.key] = keytonicname.doc_count                        
+                        list_ids_curr_keyt = []
+                        # get each hit doc id for curr composer
+                        for item in keytonicname.top_hits.buckets:
+                            list_ids_curr_keyt.append(item['key'])
+                        facet_hit_ids['keytonicname'][keytonicname.key] = list_ids_curr_keyt
+
+                    facet_keytonicname = list(set(facet_keytonicname)-set(invalid_name))
+                    facets_count_dict["keytonicname"] = facet_keytonicname
+
+                    # TO BE CONTINUED: number of parts and so on
+
+                    return facets_count_dict, facet_hit_ids
+
+    def get_faceted_matching_ids(search_context, matching_doc_ids, facet_hit_ids):
+            temp_matching_ids = []
+            common_list = []
+            if search_context.facet_composers != None and search_context.facet_composers != [] and search_context.facet_composers != "":
+                # TODO: this needs to change when it's a list instead of one input for faceting
+                if search_context.facet_composers in facet_hit_ids["composer"]:
+                    temp_matching_ids = facet_hit_ids["composer"][search_context.facet_composers]
+                    if (set(temp_matching_ids) & set(matching_doc_ids)):
+                        common_list = list(set(temp_matching_ids) & set(matching_doc_ids))
+
+            if search_context.facet_instruments != None and search_context.facet_instruments != [] and search_context.facet_instruments != "":
+                # TODO: this needs to change when it's a list instead of one input for faceting
+                if search_context.facet_composers in facet_hit_ids["instrument"]:
+                    temp_matching_ids = facet_hit_ids["instrument"][search_context.facet_instruments]
+                    if (set(temp_matching_ids) & set(common_list)):
+                        common_list = list(set(temp_matching_ids) & set(common_list))
+                
+            if search_context.facet_keymode != None and search_context.facet_keymode != "":
+                if search_context.facet_keymode in facet_hit_ids["keymode"]:
+                    temp_matching_ids = facet_hit_ids["keymode"][search_context.facet_keymode]
+                    if (set(temp_matching_ids) & set(common_list)):
+                        common_list = list(set(temp_matching_ids) & set(common_list))
+
+            if search_context.facet_keytonicname != None and search_context.facet_keytonicname != "":
+                if search_context.facet_keytonicname in facet_hit_ids["keytonicname"]:
+                    temp_matching_ids = facet_hit_ids["keytonicname"][search_context.facet_keytonicname]
+                    if (set(temp_matching_ids) & set(common_list)):
+                        common_list = list(set(temp_matching_ids) & set(common_list))
+
+            # TBC for more facets.. 
+            return common_list
 
     def results(request):
 
@@ -238,33 +356,13 @@ class search_results:
                     matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
                     # list of names of facets
-                    facets_name_list = ["composer", "instrument"]#, "keytonicname", "keymode"] # to be continued
+                    facets_name_list = ["composer", "instrument", "keytonicname", "keymode"] # to be continued
 
                     # Get facets names and value
-                    print("printing FACETS")
+                    print("printing FACETS") # for testing only 
 
-                    # dictionary of dictionary of each facet
-                    facets_count_dict = {}
-
-                    # Get a dictionary of all composer names in the matching docs and the number of docs for each compoer
-                    facet_composers = {}
-                    for composer in matching_docs.aggregations.per_composer.buckets:
-                        print(composer) # just for testing
-                        facet_composers[composer.key] = composer.doc_count
-                    invalid_name = [""]
-                    facet_composers = list(set(facet_composers)-set(invalid_name))
-                    facets_count_dict["composer"] = facet_composers
-                    # Get rid of duplicates
-
-                    facet_instruments = {}
-                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
-                    for instrument in matching_docs.aggregations.per_instrument.buckets:
-                        print(instrument) # just for testing
-                        facet_instruments[instrument.key] = instrument.doc_count
-                    invalid_name = [""]
-                    facet_instruments = list(set(facet_instruments)-set(invalid_name))
-                    facets_count_dict["instrument"] = facet_instruments
-                    # TODO: TO BE CONTINUED: key tonic name, key mode and so on
+                    # Get a dictionary of counting for facets from aggregation
+                    facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
 
                     try:
                         # Get matching ids(positions) of patterns in MusicSummary for highlighting
@@ -291,7 +389,6 @@ class search_results:
                     # if there are selected facets ( actually not possible for the first entry! )
                     #matching_doc_ids = search_results.filter_results_by_selected_facets(searchinput, matching_doc_ids, matching_info, facets_name_list)
 
-                    
                     hostname = request.get_host()
                     score_info = {}
                     # Score info(type, media link) for score display:
@@ -348,11 +445,11 @@ class search_results:
                 request.session["match_dict_display"] = match_dict_display
                 # using default ranking method at the first call: rank by similarity
                 request.session["ranking_method"] = "Similarity"
+                request.session["facet_hit_ids"] = facet_hit_ids
 
                 # save facets in request session:
                 for facet_name in facets_name_list:
                     request.session[facet_name] = facets_count_dict[facet_name]
-
                 request.session["facets_name_list"] = facets_name_list
 
                 template = loader.get_template('search/results.html')
@@ -361,8 +458,10 @@ class search_results:
                     "index_name": searchinput["index_name"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
-                    "facet_composers": facet_composers,
-                    "facet_instruments": facet_instruments,
+                    "facet_composers": facets_count_dict["composer"],
+                    "facet_instruments": facets_count_dict["instrument"],
+                    "facet_keymode": facets_count_dict["keymode"],
+                    "facet_keytonicname": facets_count_dict["keytonicname"],
                     "searchcontext": searchcontext,
                     "num_matching_docs": len(matching_doc_ids),
                     "num_matching_patterns": num_matching_patterns,
@@ -450,7 +549,10 @@ class search_results:
                     "disable_scorelib": settings.DISABLE_SCORELIB,
                     "facets_name_list": facets_name_list,
                     "facet_composers": facets_count_dict["composer"],
-                    "facet_instruments": facets_count_dict["instrument"]
+                    "facet_instruments": facets_count_dict["instrument"],
+                    "facet_keymode": facets_count_dict["keymode"],
+                    "facet_keytonicname": facets_count_dict["keytonicname"]
+
         }
         return context
 
@@ -574,11 +676,16 @@ class search_results:
 
             # Get all the matching document ids and their facets info
             matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
+
+            facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
+            #facet_hit_ids request.session["facet_hit_ids"]
         
             # if there are selected facets NOT WORKING YET
             ###matching_doc_ids = search_results.filter_results_by_selected_facets(searchinput, matching_doc_ids, matching_info, facets_name_list)
 
-            print("test after filtering:", matching_doc_ids)
+            matching_doc_ids = search_results.get_faceted_matching_ids(searchcontext, matching_doc_ids, facet_hit_ids)
+
+            #print("test after filtering:", matching_doc_ids)
 
             # for highlighting
             matching_locations = request.session.get("matching_locations")
@@ -690,6 +797,8 @@ class search_results:
                     "matching_locations": matching_locations,
                     "facet_composers": facets_count_dict["composer"],
                     "facet_instruments": facets_count_dict["instrument"],
+                    "facet_keymode": facets_count_dict["keymode"],
+                    "facet_keytonicname": facets_count_dict["keytonicname"],
                     "score_info": scores_thispg,
                     "pg": pg,
                     "startfrom": startfrom,

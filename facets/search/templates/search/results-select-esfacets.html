@@ -38,6 +38,42 @@
 </select>
 
 
+<br/>
+
+<select name="keymode" class="px-4 mx-2 custom-select custom-select-sm">
+  {% if searchinput.keymode %}
+  <option selected>{{searchinput.keymode}}</option>
+  {% for keymode in facet_keymode %}
+  {% if searchinput.keymode != keymode %}
+  <option value="{{ keymode }}">{{ keymode | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Key Mode</option>
+  {% for keymode in facet_keymode %}
+  <option value="{{ keymode }}">{{ keymode | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
+<br/>
+
+<select name="keytonicname" class="px-4 mx-2 custom-select custom-select-sm">
+  {% if searchinput.keytonicname %}
+  <option selected>{{searchinput.keytonicname}}</option>
+  {% for keytonicname in facet_keytonicname %}
+  {% if searchinput.keytonicname != keytonicname %}
+  <option value="{{ instrument }}">{{ keytonicname | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Key tonic name</option>
+  {% for keytonicname in facet_keytonicname %}
+  <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
 <input class="px-4 mx-2 my-1" type="submit" value="Filter">
 
 </div>

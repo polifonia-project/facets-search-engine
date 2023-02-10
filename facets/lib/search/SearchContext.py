@@ -18,8 +18,9 @@ class SearchContext:
     """
     def __init__(self) :
         self.index = ""
-        self.facet_composers = []
-        self.facet_instruments = []
+        # TODO: FOR NOW facet_composers and facet_instruments are strings, when there're multiple selections we change to []
+        self.facet_composers = "" 
+        self.facet_instruments = ""
         self.facet_keymode = ""
         self.facet_keytonicname = ""
         self.search_type = settings.CHROMATIC_SEARCH
@@ -74,12 +75,24 @@ class SearchContext:
                 self.mirror_search = False
         if "composer" in search_input:
             # This should be a list of composer names from the search input
-            self.facet_composers = search_input["composer"]
+            # TODO: when searchinput can be multiple selection, it needs to change from string to list
+            #if type(search_input["composer"]) != list:
+            if search_input["composer"] != "Composers" and search_input["composer"] != "Composer":
+                # if no composer is selected, it should be Composers
+                self.facet_composers = search_input["composer"]
+
         if "instrument" in search_input:
-            self.facet_instrument = search_input["instrument"]
+            if search_input["instrument"] != "instruments" and search_input["instrument"] != "Instruments":
+                self.facet_instruments = search_input["instrument"]
+        if "keymode" in search_input:
+            if search_input["keymode"] != "Key mode" and search_input["keymode"] != "key mode":
+                self.facet_keymode = search_input["keymode"]
+        if "keytonicname" in search_input:
+            if search_input["keytonicname"] != "Key tonic name" and search_input["keytonicname"] != "key tonic name":
+                self.facet_keytonicname = search_input["keytonicname"]
+        #if "numofparts" in search_input
         # Other facets to be continued..
-        #self.facet_keymode = ""
-        #self.facet_keytonicname = ""
+        
 
     def check_default_meter(self):
         # For ABC pattern:
