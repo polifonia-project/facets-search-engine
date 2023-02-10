@@ -84,15 +84,16 @@ class SearchContext:
         if "instrument" in search_input:
             if search_input["instrument"] != "instruments" and search_input["instrument"] != "Instruments":
                 self.facet_instruments = search_input["instrument"]
+
         if "keymode" in search_input:
-            if search_input["keymode"] != "Key mode" and search_input["keymode"] != "key mode":
+            if search_input["keymode"] != "Key mode" and search_input["keymode"] != "key mode" and search_input["keymode"] != "Key Mode":
                 self.facet_keymode = search_input["keymode"]
+
         if "keytonicname" in search_input:
-            if search_input["keytonicname"] != "Key tonic name" and search_input["keytonicname"] != "key tonic name":
+            if search_input["keytonicname"] != "Key tonic name" and search_input["keytonicname"] != "key tonic name" and search_input["keytonicname"] != "Key Tonic Name":
                 self.facet_keytonicname = search_input["keytonicname"]
         #if "numofparts" in search_input
         # Other facets to be continued..
-        
 
     def check_default_meter(self):
         # For ABC pattern:

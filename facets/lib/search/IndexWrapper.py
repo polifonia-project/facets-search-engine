@@ -453,7 +453,6 @@ class IndexWrapper:
 
             print("***** FACETING")
             print("==========================")
-            #search.aggs.bucket('per_composer', 'terms', field='composer.keyword')
             search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
             search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
             search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
