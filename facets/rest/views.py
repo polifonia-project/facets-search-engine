@@ -44,9 +44,9 @@ def establish_es_connection():
 		host=hp["host"]
 		port=hp["port"]
 		es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
-        return es
 	except:
-		return JSONResponse({"\n\n**rest**** Error connecting to Elasticsearch, please check your if it is running."})
+		print("\n\n**rest**** Error connecting to Elasticsearch, please check your if it is running.")
+    return es
 
 class JSONResponse(HttpResponse):
     """
