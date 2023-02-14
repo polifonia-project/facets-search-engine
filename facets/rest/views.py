@@ -44,9 +44,9 @@ def establish_es_connection():
 		host=hp["host"]
 		port=hp["port"]
 		es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
+        return es
 	except:
-		print("\n\n**rest**** Error connecting to Elasticsearch, please check your if it is running.")
-	return es
+		return JSONResponse({"\n\n**rest**** Error connecting to Elasticsearch, please check your if it is running."})
 
 class JSONResponse(HttpResponse):
     """
@@ -89,7 +89,7 @@ def index(request, index_name):
             info = index_wrapper.get_index_info()
             return JSONResponse(info[index_name]['mappings'])
         else:
-            return JSONResponse("This index does not exist on ES.")
+            return JSONResponse({"This index does not exist on ES."})
     
     elif request.method == "PUT":
         '''
@@ -98,8 +98,11 @@ def index(request, index_name):
           Example:
               curl -X PUT  http://localhost:8000/index/index_name/
         '''
-        es = establish_es_connection()
-        indices = es.indices.get_alias()
+        try:
+            es = establish_es_connection()
+            indices = es.indices.get_alias()
+        except Exception as ex:
+            return JSONResponse({"Elasticsearch is not connected:" + ex})
 
         if index_name in indices:
             return JSONResponse({"Message": "Index already exists in ES:" + index_name})

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+pfrom django.shortcuts import render
 from django.template import loader
 from django.conf import settings
 from pprint import pprint
@@ -218,7 +218,7 @@ def MusicDocView(request, index_name, doc_id):
         else:
             md_title = "Unknown Title"
         if musicdoc.composer:
-            md_composer = musicdoc.composer
+            md_composer = musicdoc.composer.name
         else:
             md_composer = "Unknown Composer"
 

@@ -251,7 +251,20 @@ def save_data(index_name, docid, doctype, score, m21_score):
 		if metainfo["title"] != '':
 			musicdoc.title = metainfo["title"]
 		if metainfo["composer"] != '':
-			musicdoc.composer = metainfo["composer"]
+			if Person.objects.filter(name=metainfo["composer"]).exists():
+				musicdoc.composer = Person.objects.get(name = metainfo["composer"])
+			else:
+				curr_composer = Person()
+				curr_composer.name = metainfo["composer"] 
+				curr_composer.save()
+				musicdoc.composer = curr_composer
+		elif Person.objects.filter(name="Unknown composer").exists():
+			musicdoc.composer = Person.objects.get(name = "Unknown composer")
+		else:
+			curr_composer = Person()
+			curr_composer.name = "Unknown composer"
+			curr_composer.save()
+			musicdoc.composer = curr_composer
 		
 		# Save file
 		filename = docid+"."+doctype

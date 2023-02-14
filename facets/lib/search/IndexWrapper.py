@@ -211,7 +211,7 @@ class IndexWrapper:
                 },
                 #TODO: where to put title and composer and all these info? within meta or not?
                 title = musicdoc.title, 
-                composer = musicdoc.composer,
+                composer = musicdoc.composer.name,
                 summary = encodedMS,
                 infos = extracted_infos
             )
@@ -451,8 +451,8 @@ class IndexWrapper:
             elif search_context.search_type == settings.EXACT_SEARCH:
                 search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
 
-            print("***** FACETING")
-            print("==========================")
+            #print("***** FACETING")
+            #print("==========================")
             search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
             search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
             search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)

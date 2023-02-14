@@ -45,6 +45,8 @@ urlpatterns = [
     # to be modified: currrently everything works under home/
 ]
 
+
 if settings.DEBUG:
 	import debug_toolbar
 	urlpatterns = [path('__debug__/', include(debug_toolbar.urls)),] + urlpatterns
+

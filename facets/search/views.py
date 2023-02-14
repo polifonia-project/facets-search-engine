@@ -409,7 +409,7 @@ class search_results:
                         else:
                             score_info[doc_id].append("Unknown title")
                         if musicdoc.composer:
-                            score_info[doc_id].append(musicdoc.composer)
+                            score_info[doc_id].append(musicdoc.composer.name)
                         else:
                             score_info[doc_id].append("Unknown composer")
 
@@ -572,7 +572,7 @@ class search_results:
         context = {
             "index_name": index_name,
             "doc_type": musicdoc.doc_type,
-            "composer": musicdoc.composer,
+            "composer": musicdoc.composer.name,
             "title": musicdoc.title,
             "doc_id": doc_id,
             "doc_url": doc_url,
@@ -715,6 +715,7 @@ class search_results:
                     context = {"message": error_message}
                     return HttpResponse(template.render(context, request))
                 
+
                 score_info[doc_id] = []
                 score_info[doc_id].append(musicdoc.doc_type)
                 docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
@@ -724,8 +725,9 @@ class search_results:
                     score_info[doc_id].append(musicdoc.title)
                 else:
                     score_info[doc_id].append("Unknown title")
+
                 if musicdoc.composer:
-                    score_info[doc_id].append(musicdoc.composer)
+                    score_info[doc_id].append(musicdoc.composer.name)
                 else:
                     score_info[doc_id].append("Unknown composer")
 

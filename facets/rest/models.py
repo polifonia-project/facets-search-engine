@@ -16,6 +16,21 @@ class Index(models.Model):
 	def __str__(self):
 		return self.name
 
+class Person(models.Model):
+	'''Persons (authors, composers, etc)'''
+
+	name = models.CharField(max_length=100)
+	country = models.CharField(max_length=100)
+	year_birth = models.IntegerField(null = True, blank = True)
+	year_death = models.IntegerField(null = True, blank = True)
+	dbpedia_uri = models.CharField(max_length=255, null=True)
+
+	class Meta:
+		db_table = "Person"	
+
+	def __str__(self):
+		return self.name
+
 class MusicDoc(models.Model):
 	'''
 	Save the music file and its index, id, type in database
@@ -62,9 +77,8 @@ class MusicDoc(models.Model):
 
 	# Metadata:
 	title = models.CharField(max_length=255, null=True, blank=True)
-	composer = models.CharField(max_length=255, null=True, blank=True)
-	#multiple composers?
-
+	composer = models.ForeignKey(Person, null=True, blank=True, on_delete=models.CASCADE)
+	#multiple composers???
 
 	def add_info(self, mkey, mvalue):
 		"""
@@ -106,6 +120,7 @@ class Descriptor(models.Model):
 
 	def to_dict(self):
 		return dict(voice=self.voice, value=self.value)
+
 
 class Metainfo(models.Model):
 
