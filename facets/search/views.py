@@ -359,7 +359,7 @@ class search_results:
                     # Get facets names and value
                     print("printing FACETS") # for testing only 
 
-                    # Get a dictionary of counting for facets from aggregation
+                    # Get a dictionary of counting for facets from aggregation for each facets
                     facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
 
                     try:

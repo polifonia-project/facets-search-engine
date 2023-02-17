@@ -19,11 +19,11 @@ class Index(models.Model):
 class Person(models.Model):
 	'''Persons (authors, composers, etc)'''
 
-	name = models.CharField(max_length=100)
+	name = models.CharField(max_length=100, unique = True)
 	country = models.CharField(max_length=100)
 	year_birth = models.IntegerField(null = True, blank = True)
 	year_death = models.IntegerField(null = True, blank = True)
-	dbpedia_uri = models.CharField(max_length=255, null=True)
+	dbpedia_url = models.CharField(max_length=255, null=True)
 
 	class Meta:
 		db_table = "Person"	
@@ -129,9 +129,9 @@ class Metainfo(models.Model):
 	meta_value = models.TextField()
 
 	# List of allowed meta keys, 
-	MK_MODE = "mode"
-	MK_GENRE = "genre"
-	MK_COMPOSER = "composer"
+	MK_MODE = "mode" # should we delete this? there's key mode
+	MK_GENRE = "genre" 
+	MK_COMPOSER = "composer" # should we delete? there's Person model
 	MK_KEY_TONIC = "key_tonic_name"
 	MK_KEY_MODE = "key_mode"
 	MK_NUM_OF_PARTS = "num_of_parts"

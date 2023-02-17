@@ -1,13 +1,5 @@
 {% block content %}
 
-<div class="alert d-flex justify-content-center my-1">
-      {% if searchinput.index_name %}
-<a href="#" onclick="toggle_visibility('searchform');">
-						<button type="button" class="btn btn-secondary" aria-label="abstract">
-              Toggle search form </button> </a>
-      {% endif %}
-</div>
-
 <div id="searchform"> <!-- search form -->
 You may input a query with a piano keyboard or in abc notation. Pick the suitable tab below.
 <br/><br/>
@@ -18,6 +10,9 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
   </li>
   <li class="nav-item">
     <a class="nav-link searchtablinks" onclick="openTab(event, 'ABC')" aria-current="page" href="#">ABC</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link searchtablinks" onclick="openTab(event, 'text')" aria-current="page" href="#">Text</a>
   </li>
 </ul>
 
@@ -109,6 +104,12 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
   </div>
   </div> <!-- wrapper div-->
 
+  <div id="text" class="searchtabcontent">
+    {% csrf_token %}
+    <div class="p-3 bg-white ">
+  nothing to see here, yet
+    </div>
+  </div>
 
 </form>
 <!-- End -->
@@ -140,6 +141,15 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
     // open Piano by default
     document.getElementById("pianobutton").click();
   </script>
+
+
+<div class="alert d-flex justify-content-center my-1">
+      {% if searchinput.index_name %}
+<a href="#" onclick="toggle_visibility('searchform');">
+            <button type="button" class="btn btn-secondary" aria-label="abstract">
+              Toggle search form </button> </a>
+      {% endif %}
+</div>
 
 <script type="text/javascript">
     function toggle_visibility(id) {

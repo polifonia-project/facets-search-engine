@@ -1,13 +1,17 @@
 {% if matching_doc_ids %}
+
+{%comment%}
 <div class="alert alert-info rounded shadow" role="alert" >
   <h5 class="alert-heading">Statistics</h5>
 <li class="list-group-item py-1 d-flex justify-content-between
   align-items-center "> 
-  
-  {{num_matching_patterns}} matching patterns found in {{num_matching_docs}} documents. 
-
 </li>
 </div>
+
+{%endcomment%}  
+
+<h5><strong>Statistics:</strong>  {{num_matching_patterns}} matching patterns found in {{num_matching_docs}} documents. </h5>
+
 {% else %}
 <div class="alert alert-info rounded shadow" role="alert" style="width: 720px;">
 <h5 class="alert-heading">Statistics</h5>

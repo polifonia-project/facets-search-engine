@@ -6,13 +6,13 @@
 <div class="row"> <!-- row -->
 
     {% if matching_doc_ids %}
-    <div class="col-lg-2 mx-auto">
+    <div class="col-lg-12 mx-auto">
     {% include 'search/results-stats.html' %}
     </div>
-    <div class="col-lg-8 mx-auto">
+    <div class="col-lg-9 mx-auto">
     {% include 'search/result-scorespreview.html' %}
     </div>
-    <div class="col-lg-2 mx-auto">
+    <div class="col-lg-3 mx-auto">
     {% include 'search/results-select-esfacets.html'%}
     {%comment%}
     {% include 'search/results-selectfacets.html'%}
@@ -22,7 +22,7 @@
 
     {%else%}
 
-    <div class="col-lg-8 mx-auto">
+    <div class="col-lg-12 mx-auto">
     {% include 'search/results-stats.html' %}
     </div>
 

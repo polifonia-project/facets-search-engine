@@ -11,20 +11,20 @@
       <p>
         <ul>
           <li> Create an index given index name: <br/>
-            <code>curl -X PUT  http://localhost:8000/index/index_name/</code> </li>
+            <code>curl -X PUT  http://localhost:8000/rest/index/index_name/</code> </li>
 
           <li> Retrieve information of an index: <br/>
-            <code>curl -X GET  http://localhost:8000/index/index_name/</code> </li>
+            <code>curl -X GET  http://localhost:8000/rest/index/index_name/</code> </li>
 
           <li> Index a MEI format music score: <br/>
             <code>curl -X PUT -H "Content-type: application/mei"
-              http://localhost:8000/index/index_name/doc_id/ -d @file_path </code></li>
+              http://localhost:8000/rest/index/index_name/doc_id/ -d @file_path </code></li>
 
           <li>Get info of the music document: <br/>
-            <code>curl -X GET  http://localhost:8000/index/index_name/doc_id/ </code></li>
+            <code>curl -X GET  http://localhost:8000/rest/index/index_name/doc_id/ </code></li>
 
           <li> Initiate a search under an index: <br/>
-            <code>curl -X POST http://localhost:8000/index/index_name/_search -d
+            <code>curl -X POST http://localhost:8000/rest/index/index_name/_search -d
               @json_path </code></li>
 
           <li> Delete an indexed document from ES: <br/>
@@ -37,61 +37,61 @@
 Tutorial for indexing scores for pattern search with samples:
 <ul>
   <li>1. First create an index called "myindex":<br/>
-    <code>curl -X PUT  http://localhost:8000/index/myindex/ </code></li>
+    <code>curl -X PUT  http://localhost:8000/rest/index/myindex/ </code></li>
 
 <li>2.1 Import the first music score "001.mei" from the folder "data":<br/>
   <code>curl -X PUT -H "Content-type:application/mei"
-    http://localhost:8000/index/myindex/friuli001/ -d @data/friuli001.mei  </code></li>
+    http://localhost:8000/rest/index/myindex/friuli001/ -d @data/friuli001.mei  </code></li>
 
 <li>2.2(optional) Import more MEI score samples from the folder "data":<br/>
   <code>curl -X PUT -H "Content-type:application/mei"
-    http://localhost:8000/index/myindex/terpsichore026/ -d @data/terpsichore026.mei
+    http://localhost:8000/rest/index/myindex/terpsichore026/ -d @data/terpsichore026.mei
   </code></li>
 
 <li>2.3(optional) Import a XML score from "data":<br/>
   <code>curl -X PUT -H "Content-type:application/xml"
-    http://localhost:8000/index/myindex/couperin/ -d @data/couperin.xml </code></li>
+    http://localhost:8000/rest/index/myindex/couperin/ -d @data/couperin.xml </code></li>
 
 <li>2.4(optional) Import a zip of score samples from "data":<br/>
   <code>curl -X PUT -H "Content-type:application/zip"
-    http://localhost:8000/index/myindex/bwv3zip/ --data-binary @data/bwv3.zip
+    http://localhost:8000/rest/index/myindex/bwv3zip/ --data-binary @data/bwv3.zip
   </code></li>
 
 <li>2.5(optional) Import a kern score sample:<br/>
   <code>curl -X PUT -H "Content-type:application/krn"
-    http://localhost:8000/index/myindex/danmark/ --data-binary @data/danmark1.krn
+    http://localhost:8000/rest/index/myindex/danmark/ --data-binary @data/danmark1.krn
   </code></li>
 
 <li>2.6(optional) Import an abc score sample:<br/>
   <code>curl -X PUT -H "Content-type:application/abc"
-    http://localhost:8000/index/myindex/abctest/ --data-binary @data/test.abc
+    http://localhost:8000/rest/index/myindex/abctest/ --data-binary @data/test.abc
   </code></li>
 
 <li>2.7(optional) Import a MusicXML score sample:<br/>
   <code>curl -X PUT -H "Content-type:application/musicxml"
-    http://localhost:8000/index/myindex/testmxml/ --data-binary @data/Gas0301f.musicxml
+    http://localhost:8000/rest/index/myindex/testmxml/ --data-binary @data/Gas0301f.musicxml
   </code>
 <br/>
 OR:
 <br/>
 <code>curl -X PUT -H "Content-type:application/vnd.recordare.musicxml+xml" 
-					http://localhost:8000/index/myindex/testmxml/ -d @data/Gas0301f.musicxml
+					http://localhost:8000/rest/index/myindex/testmxml/ -d @data/Gas0301f.musicxml
 </code>
 
           <li>3. Use a defined query(search type: diatonic) in the folder "queries":
-            <code>curl -X POST http://localhost:8000/index/myindex/_search -d @queries/test_dia1.json </code></li>
+            <code>curl -X POST http://localhost:8000/rest/index/myindex/_search -d @queries/test_dia1.json </code></li>
 
 <li>3.2(optional) More samples for pattern search
   Test the search engine with a mirror query<br/>
-  <code>curl -X POST http://localhost:8000/index/myindex/_search -d
+  <code>curl -X POST http://localhost:8000/rest/index/myindex/_search -d
     @queries/test_mir1.json </code>
 <br/>
 
 Test chromatic search<br/>
-<code>curl -X POST http://localhost:8000/index/myindex/_search -d @queries/test_chr1.json </code>
+<code>curl -X POST http://localhost:8000/rest/index/myindex/_search -d @queries/test_chr1.json </code>
 <br/>
 Test rhythmic search<br/>
-<code>curl -X POST http://localhost:8000/index/myindex/_search -d @queries/test_rhy2.json </code></li>
+<code>curl -X POST http://localhost:8000/rest/index/myindex/_search -d @queries/test_rhy2.json </code></li>
       </p>
     </div>
   </div>
