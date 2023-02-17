@@ -35,14 +35,12 @@ urlpatterns = [
 	re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 	path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 	# Index management
-    path('index/<str:index_name>/', views.index, name='index'),
-    # Search in an index
-    path('index/<str:index_name>/_search', views.search, name='restsearch'),
-    # Music document management
-    path('index/<str:index_name>/<str:doc_id>/', views.document, name='document'),
-    # path('admin/', admin.site.urls),
-    # path('ui/', homeviews.urls),
-    # to be modified: currrently everything works under home/
+   path('index/<str:index_name>/', views.index, name='index'),
+   # Search in an index
+   path('index/<str:index_name>/_search', views.search, name='restsearch'),
+   # Music document management
+   path('index/<str:index_name>/<str:doc_id>/', views.document, name='document'),
+   # path('admin/', admin.site.urls),
 ]
 
 
