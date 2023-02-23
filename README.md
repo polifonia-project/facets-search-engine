@@ -11,7 +11,7 @@ keywords:
   - "information retrieval"
   - "search engine"
 changelog:
-licence: CC
+licence: GNU GPLv3
 release link: 
 image:
 logo:
