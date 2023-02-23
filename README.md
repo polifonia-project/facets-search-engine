@@ -26,6 +26,8 @@ bibliography: n/a
 
 # Facets Music Search Engine
 
+[![DOI](https://zenodo.org/badge/426643864.svg)](https://zenodo.org/badge/latestdoi/426643864)
+
 This repository is dedicated to the Docker image of the FACETS pilot, focusing on the development of a faceted search-engine for musical documents. 
 
 A preliminary version is live on the [NEUMA platform](http://neuma.huma-num.fr).
