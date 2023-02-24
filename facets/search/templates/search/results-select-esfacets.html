@@ -1,9 +1,20 @@
 <form action="/search/filtered_result/" method="post">
+
 <div class="alert alert-dark bg-white p-3 rounded shadow d-flex flex-column align-items-center">
 
 {% csrf_token %}
 
-<select name="composer" class="px-4 mx-2 custom-select custom-select-sm">
+<fieldset>
+<select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
+  <legend>Composer</legend>
+  {%comment%}
+  {% for composer in facet_composers %}
+  <input id="{{composer}}" type="checkbox" value="{{composer}}">
+  <label for="{{composer}}">{{composer}}</label>
+  {% endfor %}
+  {%endcomment%}
+
+  <optgroup label = "Composers">
   {% if searchinput.composer %}
   <option selected>{{searchinput.composer}}</option>
   {% for composer in facet_composers %}
@@ -12,16 +23,19 @@
   {% endif %}
   {% endfor %}
   {% else %}
-  <option selected>Composers</option>
+  <option selected>Not selected</option>
   {% for composer in facet_composers %}
   <option value="{{ composer }}">{{ composer | title }}</option>
-  {% endfor %}
+{% endfor %}
   {% endif %}
+  </optgroup>
 </select>
+</fieldset>
 
 <br/>
 
-<select name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Instruments">
   {% if searchinput.instrument %}
   <option selected>{{searchinput.instrument}}</option>
   {% for instrument in facet_instruments %}
@@ -30,7 +44,7 @@
   {% endif %}
   {% endfor %}
   {% else %}
-  <option selected>Instruments</option>
+  <option selected>Not selected</option>
   {% for instrument in facet_instruments %}
   <option value="{{ instrument }}">{{ instrument | title }}</option>
   {% endfor %}
@@ -40,7 +54,8 @@
 
 <br/>
 
-<select name="keymode" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="keymode" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Key mode">
   {% if searchinput.keymode %}
   <option selected>{{searchinput.keymode}}</option>
   {% for keymode in facet_keymode %}
@@ -49,7 +64,7 @@
   {% endif %}
   {% endfor %}
   {% else %}
-  <option selected>Key mode</option>
+  <option selected>Not selected</option>
   {% for keymode in facet_keymode %}
   <option value="{{ keymode }}">{{ keymode | title }}</option>
   {% endfor %}
@@ -58,7 +73,8 @@
 
 <br/>
 
-<select name="keytonicname" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="keytonicname" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Key tonic name">
   {% if searchinput.keytonicname %}
   <option selected>{{searchinput.keytonicname}}</option>
   {% for keytonicname in facet_keytonicname %}
@@ -67,7 +83,7 @@
   {% endif %}
   {% endfor %}
   {% else %}
-  <option selected>Key tonic name</option>
+  <option selected>Not selected</option>
   {% for keytonicname in facet_keytonicname %}
   <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
   {% endfor %}

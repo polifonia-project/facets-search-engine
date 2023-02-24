@@ -23,7 +23,7 @@ class Person(models.Model):
 	country = models.CharField(max_length=100)
 	year_birth = models.IntegerField(null = True, blank = True)
 	year_death = models.IntegerField(null = True, blank = True)
-	dbpedia_url = models.CharField(max_length=255, null=True)
+	wikidata_url = models.CharField(max_length=255, null=True)
 
 	class Meta:
 		db_table = "Person"	
