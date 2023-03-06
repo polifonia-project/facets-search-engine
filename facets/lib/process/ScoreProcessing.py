@@ -499,7 +499,39 @@ def extract_info_from_score(m21_score):
         init_timesig[1] = 4
     info["initial_time_signature"] = json.dumps(init_timesig)
 
-    print("Info of the score:", info)
+	print("Info of the score:", info)
+
+	# Get diatonic scale degree
+	midi_note = [] # not necessary
+	diatonic_note_num = []
+	pitch_class = []
+	diatonic_scale_degree = []
+
+	# Getting midi pitch value for each note, pitch class and diatonic note number
+	for thisnote in m21_score.recurse().notes:
+		if thisnote.isNote:
+			midi_note.append(float(thisnote.pitch.ps))
+			diatonic_note_num.append(float(thisnote.pitch.diatonicNoteNum))
+			pitch_class.append(float(thisnote.pitch.pitchClass))
+			# if chords are encountered, take their root: (this is rare in our corpora)
+		elif thisnote.isChord:
+			# if it is a chord, only take the root
+			midi_note.append(float(thisnote.root().ps))
+			diatonic_note_num.append(float(thisnote.root().diatonicNoteNum))
+			pitch_class.append(float(thisnote.root().pitchClass))
+
+	# Diatonic root of the score
+	diatonic_root = key.tonic.diatonicNoteNum
+
+	# Calcuate diaotnic scale degree of each note and save in a list
+	for note_num in diatonic_note_num:
+		relative_diatonic_pitch = note_num - diatonic_root
+		temp = int(relative_diatonic_pitch % 7) + 1
+		diatonic_scale_degree.append(temp)
+
+	# A list of numbers from 1 to 7 representing diatonic scale degree of each note
+	info["diatonic_scale_degree"] = diatonic_scale_degree
+	#print("diatonic_scale_degree_of_this_score:", diatonic_scale_degree)
 
     return info
 
