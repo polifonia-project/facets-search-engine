@@ -16,8 +16,19 @@ from lib.search.IndexWrapper import IndexWrapper
 from rest.models import *
 
 
-class DocsView(TemplateView):
-    template_name = "home/docs.html"
+# class DocsView(TemplateView):
+    # template_name = "home/docs.html"
+
+def DocsView(request):
+    template = loader.get_template('home/docs.html')
+    host = request.META['HTTP_HOST']
+    port = request.META['SERVER_PORT']
+    if port == 8000:
+        hostport = host + ":" + port
+    else:
+        hostport = host
+    context = {'hostport': hostport}
+    return HttpResponse(template.render(context, request))
 
 
 def AboutView(request):
