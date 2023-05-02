@@ -15,6 +15,12 @@ from lib.search.IndexWrapper import IndexWrapper
 
 from rest.models import *
 
+# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
+hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+print("\n\n**es****", hp)
+host=hp["host"]
+port=hp["port"]
+
 
 # class DocsView(TemplateView):
     # template_name = "home/docs.html"
@@ -43,15 +49,6 @@ def AboutView(request):
     except:
         context = {}
     return HttpResponse(template.render(context, request))
-
-try:
-    # host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
-    hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-    host=hp["host"]
-    port=hp["port"]
-    es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
-except:
-    print("\n\n**home**** Error connecting to Elasticsearch, please check your if it is running.")
 
 
 def index(request):
@@ -99,9 +96,11 @@ def fetch_musicdoc(request, index_name, doc_id):
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')
     try:
+        es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
         indices = es.indices.get_alias()
     except:
         # if ES is not connected, it should be warned
+        print("\n\n**home**** Error connecting to Elasticsearch, please check your if it is running.")
         template = loader.get_template('home/es_errorpage.html')
         context = {}
         return HttpResponse(template.render(context, request))
@@ -130,6 +129,7 @@ def IndexView(request, index_name):
         template = loader.get_template('home/indexview.html')
 
         try:
+            es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
             indices = es.indices.get_alias()
         except:
             # if ES is not connected, it should be warned

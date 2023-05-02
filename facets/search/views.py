@@ -19,18 +19,16 @@ import urllib.parse
 
 from rest.models import *
 
-try:
-    # host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
-    hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-    host=hp["host"]
-    port=hp["port"]
-    es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
-except:
-    print("\n\n**home**** Error connecting to Elasticsearch, please check your if it is running.")
+# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
+hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+print("\n\n**es****", hp)
+host=hp["host"]
+port=hp["port"]
 
 
 def index(request):
     try:
+        es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
         indices = es.indices.get_alias().keys()
     except:
         template = loader.get_template('home/es_errorpage.html')
@@ -606,6 +604,7 @@ class search_results:
 
         es = Elasticsearch()
         try:
+            # es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
             indices = es.indices.get_alias().keys()
         except:
             # If ES is not connected, it should be warned
