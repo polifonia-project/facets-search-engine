@@ -202,8 +202,9 @@ def add_metadata(request):
                             curr_composer.year_death = composer_info_dict["year_death"]
                         if "country" in composer_info_dict:
                             curr_composer.country = composer_info_dict["country"]
-                        if "year_birth" in composer_info_dict:
+                        if "dbpedia_uri" in composer_info_dict:
                             curr_composer.wikidata_url = composer_info_dict["dbpedia_uri"]
+                        print("Creating new Person:", composerfullname)
                         curr_composer.save()
 
             # Save in the ES.
