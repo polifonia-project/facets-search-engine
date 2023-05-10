@@ -94,7 +94,7 @@ def add_new_index(request):
             # View new indices, should include the new index
             indices = es.indices.get_alias().keys()
             context = {"indices_names": indices, "success": True, "index_name": index_name}
-            print(context)
+            #print(context)
             return HttpResponse(template.render(context, request))
 
 @csrf_exempt
@@ -165,10 +165,15 @@ def add_metadata(request):
             
             # Save in the database.
             musicdoc = MusicDoc.objects.get(doc_id = doc_id)
-            musicdoc.title = metainfo["title"]
-            # TODO: this needs update! 
+            invalid_title_names = ['Unknown title', 'Unknown Title', 'Unknown', 'unknown', '']
+            if metainfo["title"] not in invalid_title_names:
+                if musicdoc.title != None:
+                    if musicdoc.title not in invalid_title_names:
+                        print("Won't update title of doc",doc_id, ": already exist!")
+                    else:
+                        musicdoc.title = metainfo["title"]
             #Now composer needs to be a Person in database first, then take the name
-            invalid_composer_names = 'Unknown composer', 'Unknown', 'unknown', ''
+            invalid_composer_names = ['Unknown composer', 'Unknown Composer', 'Unknown', 'unknown', '']
             composerfullname = ''
             if isinstance(metainfo["composer"], str):
                 # if it's a string, then it should be the full name of the composer
@@ -203,17 +208,19 @@ def add_metadata(request):
 
             # Save in the ES.
             if curr_composer != None:
-                # save both title and composer
-                musicdoc.composer = curr_composer
-                musicdoc.save()
-                indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=curr_composer)
-            elif metainfo["title"] != None and metainfo["title"] != "":
-                indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=None)
+                if musicdoc.composer != None:
+                    if musicdoc.composer.name not in invalid_composer_names:
+                        musicdoc.composer = curr_composer
+                        musicdoc.save()
+                else:
+                    print("Won't update composer of doc", doc_id, ": already exist!")
+            # update the doc anyways
+            indexwrapper.update_musicdoc_metadata(index_name, doc_id, musicdoc)
             context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  composerfullname}
             return HttpResponse(template.render(context, request))
 
         except Exception as ex:
-            print(ex)
+            print("Error while loading metadata"+ ex)
             # The loading of json is causing error, call load error page
             template = loader.get_template('loaddata/loaderror.html')
             return HttpResponse(template.render(context, request))
