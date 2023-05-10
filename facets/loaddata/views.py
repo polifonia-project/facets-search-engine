@@ -165,13 +165,50 @@ def add_metadata(request):
             # Save in the database.
             musicdoc = MusicDoc.objects.get(doc_id = doc_id)
             musicdoc.title = metainfo["title"]
-            musicdoc.composer = metainfo["composer"]
-            musicdoc.save()
+            # TODO: this needs update! 
+            #Now composer needs to be a Person in database first, then take the name
+            invalid_composer_names = 'Unknown composer', 'Unknown', 'unknown', ''
+            composerfullname = ''
+            if isinstance(metainfo["composer"], str):
+                # if it's a string, then it should be the full name of the composer
+                composerfullname = metainfo["composer"]
+            elif isinstance(metainfo["composer"], dict):
+                # if it's a dict, then it should have all info for Person object
+                # first get composer info
+                composer_info_dict = metainfo["composer"]
+                if 'first_name' in composer_info_dict and 'last_name' in composer_info_dict:
+                    composerfullname = composer_info_dict["first_name"] + " " + composer_info_dict["last_name"]
+                elif 'name' in composer_info_dict:
+                    composerfullname = composer_info_dict['name']
+            curr_composer = None
+            if composerfullname not in invalid_composer_names:
+                    # otherwise not add to database
+                    if Person.objects.filter(name=composerfullname).exists():
+                        # get the Person object by name
+                        curr_composer = Person.objects.get(name = composerfullname)
+                    else:
+                        # if not exist, create this person in database
+                        curr_composer = Person()
+                        curr_composer.name = composerfullname
+                        if "year_birth" in composer_info_dict:
+                            curr_composer.year_birth = composer_info_dict["year_birth"]
+                        if "year_death" in composer_info_dict:
+                            curr_composer.year_death = composer_info_dict["year_death"]
+                        if "country" in composer_info_dict:
+                            curr_composer.country = composer_info_dict["country"]
+                        if "year_birth" in composer_info_dict:
+                            curr_composer.wikidata_url = composer_info_dict["dbpedia_uri"]
+                        curr_composer.save()
 
             # Save in the ES.
-            indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=metainfo["composer"])
-
-            context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  metainfo["composer"]}
+            if curr_composer != None:
+                # save both title and composer
+                musicdoc.composer = curr_composer
+                musicdoc.save()
+                indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=curr_composer)
+            elif metainfo["title"] != None and metainfo["title"] != "":
+                indexwrapper.update_musicdoc_metadata(index_name, doc_id, title=metainfo["title"], composer=None)
+            context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  composerfullname}
             return HttpResponse(template.render(context, request))
 
         except Exception as ex:
@@ -257,7 +294,6 @@ def processdata(request):
                     context = {"indices_names": indices}
                     return HttpResponse(template.render(context, request))
 
-                
                 if uploadrequest["fileformat"] == "mei":
                     """
                     Example:

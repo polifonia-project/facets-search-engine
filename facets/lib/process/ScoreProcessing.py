@@ -530,7 +530,9 @@ def extract_info_from_score(m21_score):
         diatonic_scale_degree.append(temp)
 
     # A list of numbers from 1 to 7 representing diatonic scale degree of each note
-    info["diatonic_scale_degree"] = diatonic_scale_degree
+    # Let's not save it to ES yet! Commented the next line
+    # If we want to save it to ES, need to update allowed list in model.py
+    #info["diatonic_scale_degree"] = diatonic_scale_degree
     #print("diatonic_scale_degree_of_this_score:", diatonic_scale_degree)
 
     return info
@@ -568,30 +570,27 @@ def read_zip(index_name, byte_str):
         valid_namelist = []
         m21scores = {}
         musicdocs = {}
-
-        # TODO: work with json metadata
-        found_metadata = False
-        meta_dict = {}
+        all_metas = {}
 
         for fname in zfile.namelist():
             # Skip files with weird names
             base, extension = decompose_zip_name(fname)
-
+            
             # base is file name, will be used as doc_id, extension is the file format
             if base == "" or base.startswith('_') or base.startswith('.'):
                 continue
 
             # TODO: if there is a folder within zip, work with it
 
-            # Read json of the corpus data
+            # Read json
             if extension == ".json":
                 # should check name of the json file to know if it is for a single score or the whole zip...
-                found_metadata = True
-                #meta_dict = json.loads(zfile.open(fname).read().decode('utf-8'))
+                # store in a dict called all_metas for loading later
                 meta_dict = json.loads(zfile.read(fname).decode('utf'))
-                #THIS meta_dict SHOULD BE USED LATER IN SAVE_DATA but is there a better way?
                 #metainfo_zip = load_meta_from_json(meta_dict)
-            
+                all_metas[base] = meta_dict
+                #print(all_metas[base])
+                print("Found a metadata file:%s%s" % (base, extension))
 
             if (extension == ".mei" or extension == ".xml"
                 or extension=='.krn' or extension=='.abc' or extension == '.musicxml'): #or extension == '.mxl' 
@@ -600,7 +599,6 @@ def read_zip(index_name, byte_str):
                 print ("Ignoring file %s.%s" % (base, extension))
 
         for valid_name in valid_namelist:
-
             base, extension = decompose_zip_name(valid_name)
             cur_file = zfile.read(valid_name)
             cur_file = cur_file.decode('utf')
@@ -614,8 +612,8 @@ def read_zip(index_name, byte_str):
                 print("Successfully loaded and saved the score:", valid_name)
                 m21scores[base] = m21_score
                 musicdocs[base] = musicdoc
-
-        return m21scores, musicdocs
+        
+        return m21scores, musicdocs, all_metas
 
 def load_and_process_zip(index_name, byte_str):
 
@@ -627,9 +625,10 @@ def load_and_process_zip(index_name, byte_str):
         """
         m21scores = {}
         musicdocs = {}
+        valid_score_ids = []
 
         try:
-            m21scores, musicdocs = read_zip(index_name, byte_str)
+            m21scores, musicdocs, all_metas = read_zip(index_name, byte_str)
         except Exception as ex:
             print ("Exception when trying to call read_zip()" + " Message:" + str(ex))
 
@@ -646,12 +645,107 @@ def load_and_process_zip(index_name, byte_str):
                     # Index the current musicdoc, including id, musicsummary and its descriptors in "index_name" index
                     index_wrapper = IndexWrapper(index_name) 
                     index_wrapper.index_musicdoc(index_name, musicdocs[score_id], descr_dict, encodedMS, extracted_infos)
-
+                    # in case needed for metadata loading
                     print("Successfully indexed the current document: ", score_id)
+
+                    valid_score_ids.append(score_id)
                 except:
                     print("Ignoring score", score_id, ", error occurred while processing")
                     continue
+            try:
+                if all_metas != {} and all_metas != None:
+                    load_meta_from_zip(index_name, all_metas, valid_score_ids)
+            except Exception as ex:
+                print ("Exception when trying to load metadata" + " Message:" + str(ex))
+
             return False
+
+def load_meta_from_zip(index_name, all_metas, valid_score_ids):
+        """
+            Load metadata from zip:
+            the json files named doc_id would be added as metadata of doc
+            the json files named corpus: currently, we take the composer info and add to all docs in zip 
+        """
+        invalid_composer_names = ['Unknown composer', 'Unknown', 'unknown', '']
+        indexwrapper = IndexWrapper(index_name)
+        for name in all_metas:
+                # first get composer info
+                if 'composer' not in all_metas[name]:
+                    continue
+                composer_info_dict = all_metas[name]["composer"]
+                if composer_info_dict == None or composer_info_dict == {}:
+                    continue
+                # If there is composer info to update:
+                # find person in database
+                curr_composer = None
+                if 'first_name' in composer_info_dict and 'last_name' in composer_info_dict:
+                    composerfullname = composer_info_dict["first_name"] + " " + composer_info_dict["last_name"]
+                elif 'name' in composer_info_dict:
+                    composerfullname = composer_info_dict['name']
+                if composerfullname not in invalid_composer_names:
+                    # otherwise not add to database
+                    if Person.objects.filter(name=composerfullname).exists():
+                        # get the Person object by name
+                        curr_composer = Person.objects.get(name = composerfullname)
+                    else:
+                        # if not exist, create this person in database
+                        curr_composer = Person()
+                        curr_composer.name = composerfullname
+                        if "year_birth" in composer_info_dict:
+                            curr_composer.year_birth = composer_info_dict["year_birth"]
+                        if "year_death" in composer_info_dict:
+                            curr_composer.year_death = composer_info_dict["year_death"]
+                        if "country" in composer_info_dict:
+                            curr_composer.country = composer_info_dict["country"]
+                        if "dbpedia_uri" in composer_info_dict:
+                            curr_composer.wikidata_url = composer_info_dict["dbpedia_uri"]
+                        print("Creating new Person:", composerfullname)
+                        curr_composer.save()
+                else:
+                    # invalid composer, not add as metadata
+                    continue
+
+                # Now add composer information to database,
+                # if the json file name is corpus, add composer info for all the files in this zip
+                if name == "corpus" and curr_composer != None:
+                    # add composer info for all scores in the zip
+                    for doc_id in valid_score_ids:
+                        musicdoc = MusicDoc.objects.get(doc_id=doc_id)
+                        if musicdoc.composer != None:
+                            checkcomposer = musicdoc.composer
+                            if checkcomposer.name != '' and checkcomposer.name != 'Unknown composer':
+                                print("There's already composer info, ignoring adding corpus metadata to:", doc_id)
+                            else:
+                                # There was no composer info for this musicdoc, thus add metadata
+                                musicdoc.composer = curr_composer
+                                musicdoc.save()
+                                # update the ES as well
+                                docMS = indexwrapper.get_MS_from_doc(index_name, doc_id)
+                                if docMS == None:
+                                    print("Error: can't find file when trying to update metadata on ES.")
+                                else:
+                                    try:
+                                        indexwrapper.update_musicdoc_metadata(index_name, doc_id, musicdoc)
+                                    except Exception as ex:
+                                        print("Error while updating musicdoc metadata: ", doc_id, ":", str(ex))
+                elif name in valid_score_ids and curr_composer != None:
+                    # add metadata info if the score is in database and there's composer info available
+                    musicdoc = MusicDoc.objects.get(doc_id=name)
+                    if musicdoc.composer != None:
+                        checkcomposer = musicdoc.composer
+                        if checkcomposer.name != '' and checkcomposer.name != 'Unknown composer':
+                            print("There's already composer info, ignoring adding corpus metadata to:", doc_id)
+                        else:
+                            # There was no composer info for this musicdoc, thus add metadata
+                            musicdoc.composer = curr_composer
+                            musicdoc.save()
+                            docMS = indexwrapper.get_MS_from_doc(index_name, doc_id)
+                            if docMS == None:
+                                print("Error: can't find file when trying to update metadata on ES.")
+                            else:
+                                indexwrapper.update_musicdoc_metadata(index_name, name, musicdoc)
+        print("Successfully added metadata info to files in the zip")
+        return True
 
 def load_score(index_name, score, s_format, docid):
         """

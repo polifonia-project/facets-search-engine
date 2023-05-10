@@ -1,7 +1,7 @@
 from django.conf import settings
 
 import os
-
+from attrdict import AttrDict
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Index
 from elasticsearch_dsl import Document, Integer, Text, Object, Nested, InnerDoc
@@ -148,6 +148,18 @@ class IndexWrapper:
         else:
             return None
 
+    def get_info_from_doc(self, index_name, doc_id):
+        # Get info of the doc
+
+        search = Search(using=self.elastic_search)
+        search = search.query("match_phrase", _id=doc_id)
+        doc_info = search.execute()
+        if 'infos' in doc_info.hits.hits[0]['_source']:
+            extracted_infos = doc_info.hits.hits[0]['_source']['infos']
+            return extracted_infos.to_dict()
+        else:
+            return None
+
     def get_descriptor_from_doc(self, index_name, doc_id):
         # Get descriptor of the doc
 
@@ -172,21 +184,26 @@ class IndexWrapper:
 
         return temp_dict
 
-    def update_musicdoc_metadata(self, index_name, doc_id, title, composer):
+    def update_musicdoc_metadata(self, index_name, doc_id, musicdoc):
         
         # todo for templates: there should be an option for updating all the doc_id in all indexes in UI "all above"
 
         # get the stored MS
         encodedMS = self.get_MS_from_doc(index_name, doc_id)
+        extracted_infos = AttrDict(self.get_info_from_doc(index_name, doc_id))
         musicdoc_index = MusicDocIndex(
-            meta={'id': doc_id, 'index': index_name},
-            title = title, 
-            composer = composer,
-            summary = encodedMS
+                meta={
+                    'id': musicdoc.doc_id,
+                    'index': index_name,
+                },
+                title = musicdoc.title, 
+                composer = musicdoc.composer.name,
+                summary = encodedMS,
+                infos = extracted_infos
         )
-        #TODO: update other metadata from extracted_infos
-
-        # get the descriptors as well to not lose any info
+        #s = Search(index='i')
+        #s.update_from_dict({"query": {"match": {"title": "python"}}, "size": 42})
+        #TypeError("Unable to serialize {'key_tonic_name': 'C', 'key_mode': 'minor', 'num_of_parts':...} 
         descr_dict = self.get_descriptor_from_doc(index_name, doc_id)
         musicdoc_index.preserve_descriptor(descr_dict)
 
@@ -231,7 +248,7 @@ class IndexWrapper:
             musicdoc_index.add_descriptor(descr_dict)
 
             # Save the updated index
-            musicdoc_index.save(using=self.elastic_search, id=musicdoc.doc_id)
+            musicdoc_index.save(using=self.elastic_search, index=index_name, id=musicdoc.doc_id)
 
         except Exception as ex:
             print ("Error occurred while trying to index: " + str(ex))
