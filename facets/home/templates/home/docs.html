@@ -8,33 +8,48 @@
   <div class="row mb-8">
     <div class="col-lg-12 mx-auto">
       <h1 class="text-center">{{ globalvariables.sitename }} documentation</h1>
+
+{% comment %}<ol class="toc-list">{% endcomment %}
+  {% comment %}<li> <a href="#tuto">{% endcomment %}
+      {% comment %}<span class="title">Tutorial for indexing scores for pattern search with samples:</span>{% endcomment %}
+    {% comment %}</a> </li>{% endcomment %}
+{% comment %}</ol>{% endcomment %}
+
+<h2>Basic curl commands to interact with {{ globalvariables.sitename }}'s REST API</h2>
+<button type="button" class="collapsible">Toggle basic commands</button>
+<div class="collapsiblecontent">
       <p>
         <ul>
-          <li> Create an index given index name: <br/>
-            <code>curl -X PUT  http://localhost:8000/rest/index/index_name/</code> </li>
+          <li> Create an index given index name: 
+            <code>curl -X PUT  http://{{ hostport }}/rest/index/index_name/</code> </li>
 
-          <li> Retrieve information of an index: <br/>
-            <code>curl -X GET  http://localhost:8000/rest/index/index_name/</code> </li>
+          <li> Retrieve information of an index: 
+            <code>curl -X GET  http://{{ hostport }}/rest/index/index_name/</code> </li>
 
-          <li> Index a MEI format music score: <br/>
+          <li> Index a MEI format music score: 
             <code>curl -X PUT -H "Content-type: application/mei"
               http://localhost:8000/rest/index/index_name/doc_id/ -d @file_path </code></li>
 
-          <li>Get info of the music document: <br/>
+          <li>Get info of the music document: 
             <code>curl -X GET  http://localhost:8000/rest/index/index_name/doc_id/ </code></li>
 
-          <li> Initiate a search under an index: <br/>
+          <li> Initiate a search under an index: 
             <code>curl -X POST http://localhost:8000/rest/index/index_name/_search -d
               @json_path </code></li>
 
-          <li> Delete an indexed document from ES: <br/>
+          <li> Delete an indexed document from ES: 
             <code>curl -X DELETE
               http://localhost:9200/index_name/_doc/doc_id_that_you_want_delete</code>
           </li>
         </ul>
       </p>
-      <p>
-Tutorial for indexing scores for pattern search with samples:
+</div>
+
+      <h2><a name="tuto">Tutorial for indexing scores for pattern search with samples:</a></h2>
+
+<button type="button" class="collapsible">Toggle tutorial commands</button>
+<div class="collapsiblecontent">
+
 <ul>
   <li>1. First create an index called "myindex":<br/>
     <code>curl -X PUT  http://localhost:8000/rest/index/myindex/ </code></li>
@@ -97,4 +112,9 @@ Test rhythmic search<br/>
   </div>
 
 </div>
+</div> 
+
+
+{% include 'home/collabsiblejs.html' %}
 {% endblock %}
+

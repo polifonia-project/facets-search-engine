@@ -11,14 +11,12 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest.models import *
 
-try:
-    # host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
-    hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-    host=hp["host"]
-    port=hp["port"]
-    es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
-except:
-    print("\n\n**loaddata**** Error connecting to Elasticsearch, please check your if it is running.")
+# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
+hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+print("\n\n**es****", hp)
+host=hp["host"]
+port=hp["port"]
+
 
 @csrf_exempt
 def get_filename_and_format(full_filename):
@@ -48,6 +46,7 @@ def get_filename_and_format(full_filename):
 def uploaddata(request):
     template = loader.get_template('loaddata/index.html')
     try:
+        es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
         indices = es.indices.get_alias().keys()
     except:
         template = loader.get_template('home/es_errorpage.html')
@@ -68,6 +67,7 @@ def add_new_index(request):
     if request.method == "POST":
         template = loader.get_template('loaddata/added_new_index.html')
         try:
+            es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
             indices = es.indices.get_alias().keys()
         except:
             # ES connection error
@@ -109,6 +109,7 @@ def add_metadata(request):
 
         # First check if the ES is connected
         try:
+            es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
             indices = es.indices.get_alias().keys()
         except:
             # if there is ES connection error
@@ -226,6 +227,7 @@ def processdata(request):
 
         # In case the user wants to load more documents
         try:
+            es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
             indices = es.indices.get_alias().keys()
         except:
             template = loader.get_template('home/es_errorpage.html')
