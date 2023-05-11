@@ -215,8 +215,11 @@ def add_metadata(request):
                         musicdoc.save()
                 else:
                     print("Won't update composer of doc", doc_id, ": already exist!")
-            # update the doc anyways
-            indexwrapper.update_musicdoc_metadata(index_name, doc_id, musicdoc)
+            docMS = indexwrapper.get_MS_from_doc(index_name, doc_id)
+            if docMS == None:
+                print("Error: can't find file when trying to update metadata on ES.")
+            else:
+                indexwrapper.update_musicdoc_metadata(index_name, doc_id, musicdoc)
             context = {"indices_names": indices, "index_name": index_name, "doc_id": doc_id, "title": metainfo["title"], "composer":  composerfullname}
             return HttpResponse(template.render(context, request))
 

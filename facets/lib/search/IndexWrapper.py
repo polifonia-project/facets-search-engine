@@ -201,9 +201,6 @@ class IndexWrapper:
                 summary = encodedMS,
                 infos = extracted_infos
         )
-        #s = Search(index='i')
-        #s.update_from_dict({"query": {"match": {"title": "python"}}, "size": 42})
-        #TypeError("Unable to serialize {'key_tonic_name': 'C', 'key_mode': 'minor', 'num_of_parts':...} 
         descr_dict = self.get_descriptor_from_doc(index_name, doc_id)
         musicdoc_index.preserve_descriptor(descr_dict)
 

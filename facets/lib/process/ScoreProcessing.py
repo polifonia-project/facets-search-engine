@@ -713,7 +713,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                         musicdoc = MusicDoc.objects.get(doc_id=doc_id)
                         if musicdoc.composer != None:
                             checkcomposer = musicdoc.composer
-                            if checkcomposer.name != '' and checkcomposer.name != 'Unknown composer':
+                            if checkcomposer.name not in invalid_composer_names:
                                 print("There's already composer info, ignoring adding corpus metadata to:", doc_id)
                             else:
                                 # There was no composer info for this musicdoc, thus add metadata
@@ -733,7 +733,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                     musicdoc = MusicDoc.objects.get(doc_id=name)
                     if musicdoc.composer != None:
                         checkcomposer = musicdoc.composer
-                        if checkcomposer.name != '' and checkcomposer.name != 'Unknown composer':
+                        if checkcomposer.name not in invalid_composer_names:
                             print("There's already composer info, ignoring adding corpus metadata to:", doc_id)
                         else:
                             # There was no composer info for this musicdoc, thus add metadata
