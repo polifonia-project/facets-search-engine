@@ -1,9 +1,10 @@
 from django.conf import settings
 
 import os
-from attrdict import AttrDict
-import collections
-import collections.abc
+#from attrdict import AttrDict
+#import collections
+#import collections.abc
+from attributedict.collections import AttributeDict
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Index
 from elasticsearch_dsl import Document, Integer, Text, Object, Nested, InnerDoc
@@ -193,10 +194,10 @@ class IndexWrapper:
         # get the stored MS
         encodedMS = self.get_MS_from_doc(index_name, doc_id)
 
-        for type_name in collections.abc.__all__:
-            setattr(collections, type_name, getattr(collections.abc, type_name))
+        #for type_name in collections.abc.__all__:
+        #    setattr(collections, type_name, getattr(collections.abc, type_name))
         
-        extracted_infos = AttrDict(self.get_info_from_doc(index_name, doc_id))
+        extracted_infos = AttributeDict(self.get_info_from_doc(index_name, doc_id))
         musicdoc_index = MusicDocIndex(
                 meta={
                     'id': musicdoc.doc_id,
