@@ -15,7 +15,7 @@ licence: GNU GPLv3
 release link: 
 image:
 logo:
-demo: 
+demo: http://neuma-dev.huma-num.fr
 links: 
   - http://neuma.huma-num.fr
 running-instance:
