@@ -79,13 +79,67 @@
   <option selected>{{searchinput.keytonicname}}</option>
   {% for keytonicname in facet_keytonicname %}
   {% if searchinput.keytonicname != keytonicname %}
-  <option value="{{ instrument }}">{{ keytonicname | title }}</option>
+  <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}
   <option selected>Not selected</option>
   {% for keytonicname in facet_keytonicname %}
   <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+<select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Num of parts">
+  {% if searchinput.numofparts %}
+  <option selected>{{searchinput.numofparts}}</option>
+  {% for numofparts in facet_numofparts %}
+  {% if searchinput.numofparts != numofparts %}
+  <option value="{{ numofparts }}">{{ numofparts | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for numofparts in facet_numofparts %}
+  <option value="{{ numofparts }}">{{ numofparts | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+<select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Num of measures">
+  {% if searchinput.numofmeasures %}
+  <option selected>{{searchinput.numofmeasures}}</option>
+  {% for numofmeasures in facet_numofmeasures %}
+  {% if searchinput.numofmeasures != numofmeasures %}
+  <option value="{{ numofmeasures }}">{{ numofmeasures | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for numofmeasures in facet_numofmeasures %}
+  <option value="{{ numofmeasures }}">{{ numofmeasures | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+<select multiple="true" name="numofnotes" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Num of notes">
+  {% if searchinput.numofnotes %}
+  <option selected>{{searchinput.numofnotes}}</option>
+  {% for numofnotes in facet_numofnotes %}
+  {% if searchinput.numofnotes != numofnotes %}
+  <option value="{{ numofnotes }}">{{ numofnotes | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for numofnotes in facet_numofnotes %}
+  <option value="{{ numofnotes }}">{{ numofnotes | title }}</option>
   {% endfor %}
   {% endif %}
 </select>

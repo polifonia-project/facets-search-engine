@@ -658,6 +658,7 @@ def load_and_process_zip(index_name, byte_str):
             except Exception as ex:
                 print ("Exception when trying to load metadata" + " Message:" + str(ex))
 
+            # if no error occured, return False
             return False
 
 def load_meta_from_zip(index_name, all_metas, valid_score_ids):
@@ -745,7 +746,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                             else:
                                 indexwrapper.update_musicdoc_metadata(index_name, name, musicdoc)
         print("Successfully added metadata info to files in the zip")
-        return True
+        return
 
 def load_score(index_name, score, s_format, docid):
         """

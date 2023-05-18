@@ -23,6 +23,9 @@ class SearchContext:
         self.facet_instruments = ""
         self.facet_keymode = ""
         self.facet_keytonicname = ""
+        self.facet_numofparts = ""
+        self.facet_numofmeasures = ""
+        self.facet_numofnotes = ""
         self.search_type = settings.CHROMATIC_SEARCH
         self.pattern = ""
         self.pianopattern = ""
@@ -92,7 +95,19 @@ class SearchContext:
         if "keytonicname" in search_input:
             if search_input["keytonicname"] != "Key tonic name" and search_input["keytonicname"] != "key tonic name" and search_input["keytonicname"] != "Key Tonic Name":
                 self.facet_keytonicname = search_input["keytonicname"]
-        #if "numofparts" in search_input
+
+        if "numofparts" in search_input:
+            if search_input["numofparts"] != "Number of parts" and search_input["numofparts"] != "number of parts" and search_input["numofparts"] != "Number Of Parts":
+                self.facet_numofparts = search_input["numofparts"]
+
+        if "numofmeasures" in search_input:
+            if search_input["numofmeasures"] != "Number of measures" and search_input["numofmeasures"] != "number of measures" and search_input["numofmeasures"] != "Number Of Measures":
+                self.facet_numofmeasures = search_input["numofmeasures"]
+
+        if "numofnotes" in search_input:
+            if search_input["numofnotes"] != "Number of notes" and search_input["numofnotes"] != "number of notes" and search_input["numofnotes"] != "Number Of Notes":
+                self.facet_numofnotes = search_input["numofnotes"]
+            
         # Other facets to be continued..
 
     def check_default_meter(self):

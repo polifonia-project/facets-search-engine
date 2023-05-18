@@ -1,9 +1,6 @@
 from django.conf import settings
 
 import os
-#from attrdict import AttrDict
-#import collections
-#import collections.abc
 from attributedict.collections import AttributeDict
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Index
@@ -108,6 +105,7 @@ class IndexWrapper:
         composer_names = list(set(composer_names)-set(invalid_name))
 
         return composer_names
+    
     """
     def get_all_instrument_names(self):
         '''
@@ -133,6 +131,7 @@ class IndexWrapper:
 
         return instrument_names
     """
+
     def get_source_from_doc(self, index_name, doc_id):
         search = Search(using=self.elastic_search)
         search = search.query("match_phrase", _id=doc_id)
@@ -194,9 +193,6 @@ class IndexWrapper:
         # get the stored MS
         encodedMS = self.get_MS_from_doc(index_name, doc_id)
 
-        #for type_name in collections.abc.__all__:
-        #    setattr(collections, type_name, getattr(collections.abc, type_name))
-        
         extracted_infos = AttributeDict(self.get_info_from_doc(index_name, doc_id))
         musicdoc_index = MusicDocIndex(
                 meta={
@@ -478,7 +474,10 @@ class IndexWrapper:
             search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
             search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
             search.aggs.bucket('per_keymode', 'terms', field='infos.key_mode.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            #search.aggs.bucket('per_numofparts', 'terms', field='infos.num_of_parts.keyword')
+            search.aggs.bucket('per_parts', 'terms', field='infos.num_of_parts').metric('top_hits', 'terms', field = '_id', size=1000)
+            search.aggs.bucket('per_measures', 'terms', field='infos.num_of_measures').metric('top_hits', 'terms', field = '_id', size=1000)
+            search.aggs.bucket('per_notes', 'terms', field='infos.num_of_notes').metric('top_hits', 'terms', field = '_id', size=1000)
+
             # and so on...
 
             """
