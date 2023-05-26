@@ -642,6 +642,42 @@ class search_results:
         }
         return context
 
+    def DiscoveryView(request):
+
+        es = Elasticsearch()
+        try:
+            indices = es.indices.get_alias().keys()
+            indice_list = list(indices)
+            index_wrapper = IndexWrapper(indice_list[0])
+        except:
+            # if ES is not connected, it should be warned
+            template = loader.get_template('home/es_errorpage.html')
+            context = {}
+            return HttpResponse(template.render(context, request))
+        template = loader.get_template('search/discovery.html')
+        matching_docs = index_wrapper.get_facet_for_initial_navigation(index_name = "ALL_INDICES")
+        # Now if it's empty, return empty results
+        if matching_docs.hits.hits == []:
+            # No matching results found in this index
+            context = {
+                "facets_count_dict": {}, 
+                #"facet_hit_ids": []
+            }
+        else:
+            # Get the matching doc ids with faceting
+            facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
+
+            # Get all the matching document ids and their facets info
+            #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
+
+            context = {
+                #"indices": indices,
+                "facets_count_dict": facets_count_dict, 
+                #"facet_hit_ids": facet_hit_ids
+            }
+
+        return HttpResponse(template.render(context, request))
+
     def HighlightMusicDocView(request, index_name, doc_id):
         # Highlight patterns while viewing a music document
     
