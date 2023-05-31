@@ -53,7 +53,7 @@
 
 
 <br/>
-
+{%comment%}
 <select multiple="true" name="keymode" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Key mode">
   {% if searchinput.keymode %}
@@ -86,6 +86,25 @@
   <option selected>Not selected</option>
   {% for keytonicname in facet_keytonicname %}
   <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+{%endcomment%}
+
+<select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Key">
+  {% if searchinput.key %}
+  <option selected>{{searchinput.key}}</option>
+  {% for key in facet_key %}
+  {% if searchinput.key != key %}
+  <option value="{{ keytonicname }}">{{ key | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for key in facet_key %}
+  <option value="{{ key }}">{{ key | title }}</option>
   {% endfor %}
   {% endif %}
 </select>
@@ -127,6 +146,7 @@
 </select>
 <br/>
 
+{%comment%}
 <select multiple="true" name="numofnotes" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Num of notes">
   {% if searchinput.numofnotes %}
@@ -140,6 +160,24 @@
   <option selected>Not selected</option>
   {% for numofnotes in facet_numofnotes %}
   <option value="{{ numofnotes }}">{{ numofnotes | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+{%endcomment%}
+
+<select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Time Signature">
+  {% if searchinput.timesig %}
+  <option selected>{{searchinput.timesig}}</option>
+  {% for timesig in facet_timesig %}
+  {% if searchinput.timesig != timesig %}
+  <option value="{{ timesig }}">{{ timesig | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for timesig in facet_timesig %}
+  <option value="{{ timesig }}">{{ timesig | title }}</option>
   {% endfor %}
   {% endif %}
 </select>

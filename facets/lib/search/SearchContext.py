@@ -21,11 +21,13 @@ class SearchContext:
         # TODO: FOR NOW facet_composers and facet_instruments are strings, when there're multiple selections we change to []
         self.facet_composers = "" 
         self.facet_instruments = ""
-        self.facet_keymode = ""
-        self.facet_keytonicname = ""
+        #self.facet_keymode = ""
+        #self.facet_keytonicname = ""
+        self.facet_key = ""
         self.facet_numofparts = ""
         self.facet_numofmeasures = ""
         self.facet_numofnotes = ""
+        self.facet_timesig = ""
         self.search_type = settings.CHROMATIC_SEARCH
         self.pattern = ""
         self.pianopattern = ""
@@ -87,7 +89,7 @@ class SearchContext:
         if "instrument" in search_input:
             if search_input["instrument"] != "instruments" and search_input["instrument"] != "Instruments":
                 self.facet_instruments = search_input["instrument"]
-
+        """
         if "keymode" in search_input:
             if search_input["keymode"] != "Key mode" and search_input["keymode"] != "key mode" and search_input["keymode"] != "Key Mode":
                 self.facet_keymode = search_input["keymode"]
@@ -95,6 +97,10 @@ class SearchContext:
         if "keytonicname" in search_input:
             if search_input["keytonicname"] != "Key tonic name" and search_input["keytonicname"] != "key tonic name" and search_input["keytonicname"] != "Key Tonic Name":
                 self.facet_keytonicname = search_input["keytonicname"]
+        """
+        if "key" in search_input:
+            if search_input["key"] != "Key" and search_input["key"] != "key":
+                self.facet_key = search_input["key"]
 
         if "numofparts" in search_input:
             if search_input["numofparts"] != "Number of parts" and search_input["numofparts"] != "number of parts" and search_input["numofparts"] != "Number Of Parts":
@@ -103,11 +109,15 @@ class SearchContext:
         if "numofmeasures" in search_input:
             if search_input["numofmeasures"] != "Number of measures" and search_input["numofmeasures"] != "number of measures" and search_input["numofmeasures"] != "Number Of Measures":
                 self.facet_numofmeasures = search_input["numofmeasures"]
-
+        """
         if "numofnotes" in search_input:
             if search_input["numofnotes"] != "Number of notes" and search_input["numofnotes"] != "number of notes" and search_input["numofnotes"] != "Number Of Notes":
                 self.facet_numofnotes = search_input["numofnotes"]
-            
+        """
+        if "timesig" in search_input:
+            if search_input["timesig"] != "Time Signature" and search_input["timesig"] != "Time signature" and search_input["timesig"] != "time signature":
+                self.facet_timesig = search_input["timesig"]
+    
         # Other facets to be continued..
 
     def check_default_meter(self):

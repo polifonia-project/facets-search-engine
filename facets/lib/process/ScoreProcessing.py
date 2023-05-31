@@ -405,6 +405,7 @@ def extract_info_from_score(m21_score):
     key = m21_score.analyze('key')
     info["key_tonic_name"] = key.tonic.name
     info["key_mode"] = key.mode
+    info["key"] = info["key_tonic_name"]+" "+info["key_mode"] 
 
     info["num_of_parts"] = len(m21_score.getElementsByClass(stream.Part))
     #info["num_of_voices"] = len(m21_score.getElementsByClass(stream.Voice))
@@ -497,7 +498,10 @@ def extract_info_from_score(m21_score):
     if init_timesig[0] == 0 and init_timesig[1] == 0:
         init_timesig[0] = 4
         init_timesig[1] = 4
-    info["initial_time_signature"] = json.dumps(init_timesig)
+    # change the format to string
+    str_timesig = str(init_timesig[0])+'/'+str(init_timesig[1])
+    #info["initial_time_signature"] = json.dumps(init_timesig)
+    info["initial_time_signature"] = str_timesig
 
     print("Info of the score:", info)
 
