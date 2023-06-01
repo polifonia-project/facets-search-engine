@@ -24,6 +24,8 @@ class Person(models.Model):
 	country = models.CharField(max_length=100)
 	year_birth = models.IntegerField(null = True, blank = True)
 	year_death = models.IntegerField(null = True, blank = True)
+	#centuries = models.CharField(max_length=100, null = True, blank = True) # to be removed
+	period = models.CharField(max_length=100, null = True, blank = True)
 	wikidata_url = models.CharField(max_length=255, null=True)
 
 	class Meta:
@@ -131,8 +133,10 @@ class Metainfo(models.Model):
 
 	# List of allowed meta keys, 
 	MK_MODE = "mode" # should we delete this? there's key mode
-	MK_GENRE = "genre" 
-	MK_COMPOSER = "composer" # should we delete? there's Person model
+	MK_GENRE = "genre"
+	MK_TITLE = "title"
+	MK_COMPOSER = "composer"
+	MK_PERIOD = "period" 
 	MK_KEY_TONIC = "key_tonic_name"
 	MK_KEY_MODE = "key_mode"
 	MK_NUM_OF_PARTS = "num_of_parts"
@@ -147,14 +151,18 @@ class Metainfo(models.Model):
 	MK_MOST_COMMON_NOTE_QUARTER_LENGTH = "most_common_note_quarter_length"
 	MK_RANGE_NOTE_QUARTER_LENGTH = "range_note_quarter_length"
 	MK_INIT_TIME_SIG = "initial_time_signature"
+	MK_KEY = "key"
 
 	# Descriptive infos for meta pairs
 	META_KEYS = {
 		MK_MODE: {"label": "Mode"},
 		MK_GENRE: {"label": "Genre"},
+		MK_TITLE: {"label": "Title"},
 		MK_COMPOSER: {"label": "Composer"},
+		MK_PERIOD: {"label": "Period"},
 		MK_KEY_TONIC: {"label": "Key Tonic Name"},
 		MK_KEY_MODE: {"label":"Key Mode"},
+		MK_KEY: {"label":"Key"},
 		MK_NUM_OF_PARTS: {"label": "Number of parts"},
 		MK_NUM_OF_MEASURES: {"label": "Number of measures"},
 		MK_NUM_OF_NOTES: {"label": "Number of notes"},

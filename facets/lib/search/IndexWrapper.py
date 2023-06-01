@@ -88,8 +88,10 @@ class IndexWrapper:
     def get_facet_for_initial_navigation(self, index_name):
 
         if index_name == "ALL_INDICES":
+            print("Showing facets in all indices on discovery page.")
             search = Search(using=self.elastic_search)
         else:
+            print("Showing facets in ",index_name, "on discovery page.")
             search = Search(using=self.elastic_search, index=index_name)
             
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
@@ -220,8 +222,16 @@ class IndexWrapper:
 
         # get the stored MS
         encodedMS = self.get_MS_from_doc(index_name, doc_id)
+        dict_info = self.get_info_from_doc(index_name, doc_id)
+        # add some other metainfo
+        dict_info["title"] = musicdoc.title
+        if musicdoc.composer != "" and musicdoc.composer != None:
+            dict_info["composer"] = musicdoc.composer.name
+            if musicdoc.composer.period != "" and musicdoc.composer.period != None:
+                dict_info["period"] = musicdoc.composer.period
+                print("Updating period info to ES")
 
-        extracted_infos = AttributeDict(self.get_info_from_doc(index_name, doc_id))
+        extracted_infos = AttributeDict(dict_info)
         musicdoc_index = MusicDocIndex(
                 meta={
                     'id': musicdoc.doc_id,

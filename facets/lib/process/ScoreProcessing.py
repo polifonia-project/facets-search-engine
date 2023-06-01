@@ -31,7 +31,7 @@ def get_metadata_from_score(doctype, score, m21_score):
     # TODO: clean the '\n's from composer names and title names. kern
     # TODO2: multiple composers by Music21
 
-    metainfo = {"title": "", "composer": ""}
+    metainfo = {"title": "", "composer": "", "period": ""}
     
     if doctype == "xml":
 
@@ -199,6 +199,23 @@ def get_metadata_from_score(doctype, score, m21_score):
         compo = WikiComposer(metainfo["composer"])
         print("----- INFO -----")
         print(compo.info)
+        if "dob" in compo.info:
+            dateofbirth = compo.info["dob"]
+            yearofbirth = int(dateofbirth.split('-')[0])
+            metainfo["period"] = str(int(yearofbirth/100))+"century"
+            #print("year of birth:", yearofbirth)
+        if 'dod' in compo.info:
+            dateofdeath = compo.info["dod"]
+            yearofdeath = int(dateofdeath.split('-')[0])
+            #print("year of death:", yearofdeath)
+            if metainfo["period"] != "":
+                # another century add to period
+                if int(yearofbirth/100) != int(yearofdeath/100):
+                    metainfo["period"] += " to "+str(int(yearofdeath/100))+"century"
+            else:
+                metainfo["period"] = str(int(yearofdeath/100))+"century"
+            print("period:", metainfo["period"])
+
     else:
         metainfo["composer"] = "Unknown composer"
         print("Couldn't find composer information of this musicdoc.")
@@ -247,6 +264,7 @@ def save_data(index_name, docid, doctype, score, m21_score):
         # Get and save metadata(title and composer so far)
         # TODO: include the extract info into get_metadata_from_score
         try:
+            # get title, composer, period information here
             metainfo = get_metadata_from_score(doctype, score, m21_score)
         except:
             # in case there is an error, just skip and leave these fields empty
@@ -256,12 +274,22 @@ def save_data(index_name, docid, doctype, score, m21_score):
             musicdoc.title = metainfo["title"]
         if metainfo["composer"] != '':
             if Person.objects.filter(name=metainfo["composer"]).exists():
-                musicdoc.composer = Person.objects.get(name = metainfo["composer"])
+                curr_composer = Person.objects.get(name = metainfo["composer"])
+                # if there's no period info and we get period info, update it 
+                if curr_composer.period == None and metainfo['period'] != '':
+                    curr_composer.period = metainfo['period']
+                    print("Updating period info of composer:",metainfo["composer"])
+                    curr_composer.save()
+                musicdoc.composer = curr_composer
+                musicdoc.save()
             else:
                 curr_composer = Person()
-                curr_composer.name = metainfo["composer"] 
+                curr_composer.name = metainfo["composer"]
+                if metainfo['period'] != '':
+                    curr_composer.period = metainfo['period']
                 curr_composer.save()
                 musicdoc.composer = curr_composer
+                musicdoc.save()
         elif Person.objects.filter(name="Unknown composer").exists():
             musicdoc.composer = Person.objects.get(name = "Unknown composer")
         else:
@@ -672,6 +700,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
             the json files named corpus: currently, we take the composer info and add to all docs in zip 
         """
         invalid_composer_names = ['Unknown composer', 'Unknown', 'unknown', '']
+        need_update_on_ES = False
         indexwrapper = IndexWrapper(index_name)
         for name in all_metas:
                 # first get composer info
@@ -692,14 +721,59 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                     if Person.objects.filter(name=composerfullname).exists():
                         # get the Person object by name
                         curr_composer = Person.objects.get(name = composerfullname)
+                        # update the info in case they are missing:
+                        if curr_composer.year_birth == None or curr_composer.year_birth == "":
+                            if "year_birth" in composer_info_dict:
+                                curr_composer.year_birth = composer_info_dict["year_birth"]
+                                birthcentury = int(composer_info_dict["year_birth"]/100)
+                                curr_composer.period = str(birthcentury)+"century"
+                                print("year of birth:", yearofbirth)
+                                print("Updated Person:", curr_composer.name, "'s period")
+                        if curr_composer.year_death == None or curr_composer.year_death == "":
+                            if "year_death" in composer_info_dict:
+                                curr_composer.year_death = composer_info_dict["year_death"]
+                                deathcentury = int(composer_info_dict["year_death"]/100)
+                                if curr_composer.period != None and curr_composer.period != "":
+                                    if "year_birth" in composer_info_dict:
+                                        # if there is birth year
+                                        if birthcentury!=deathcentury:
+                                            # if year birth and year death are in dif centuries.
+                                            curr_composer.period += " to "+str(int(yearofdeath/100))+"century"
+                                else:
+                                    #if there's no birth year info, only death year info
+                                    curr_composer.period = str(deathcentury)+"century"
+                                print("Updated Person:", curr_composer.name, "'s period")
+                        if curr_composer.country == None or curr_composer.country == "":
+                            if "country" in composer_info_dict:
+                                curr_composer.country = composer_info_dict["country"]
+                                print("Updated Person:", curr_composer.name, "'s country")
+                        if curr_composer.wikidata_url == None or curr_composer.wikidata_url == "":
+                            if "dbpedia_uri" in composer_info_dict:
+                                curr_composer.wikidata_url = composer_info_dict["dbpedia_uri"]
+                                print("Updated Person:", curr_composer.name, "'s url")
+                            elif "wikidata_url" in composer_info_dict:
+                                curr_composer.wikidata_url = composer_info_dict["wikidata_url"]
+                                print("Updated Person:", curr_composer.name, "'s url")
+                        curr_composer.save()
                     else:
                         # if not exist, create this person in database
                         curr_composer = Person()
                         curr_composer.name = composerfullname
                         if "year_birth" in composer_info_dict:
                             curr_composer.year_birth = composer_info_dict["year_birth"]
+                            birthcentury = int(composer_info_dict["year_birth"]/100)
+                            curr_composer.period = str(birthcentury)+"century"
                         if "year_death" in composer_info_dict:
                             curr_composer.year_death = composer_info_dict["year_death"]
+                            deathcentury = int(composer_info_dict["year_death"]/100)
+                            if curr_composer.period != None and curr_composer.period != "":
+                                if "year_birth" in composer_info_dict:
+                                    if birthcentury != deathcentury:
+                                        # if year birth and year death are in dif centuries.
+                                        curr_composer.period += " to "+str(int(yearofdeath/100))+"century"
+                            else:
+                                #if there's no birth year info, only death year info
+                                curr_composer.period = str(deathcentury)+"century"
                         if "country" in composer_info_dict:
                             curr_composer.country = composer_info_dict["country"]
                         if "dbpedia_uri" in composer_info_dict:
@@ -731,8 +805,13 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                                 else:
                                     try:
                                         indexwrapper.update_musicdoc_metadata(index_name, doc_id, musicdoc)
+                                        print("Updating metadata of doc:", doc_id, "using corpus.json")
                                     except Exception as ex:
                                         print("Error while updating musicdoc metadata: ", doc_id, ":", str(ex))
+                        else:
+                            indexwrapper.update_musicdoc_metadata(index_name, doc_id, musicdoc)
+                            print("Updating metadata of doc:", doc_id, "using corpus.json")
+
                 elif name in valid_score_ids and curr_composer != None:
                     # add metadata info if the score is in database and there's composer info available
                     musicdoc = MusicDoc.objects.get(doc_id=name)
@@ -749,6 +828,12 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                                 print("Error: can't find file when trying to update metadata on ES.")
                             else:
                                 indexwrapper.update_musicdoc_metadata(index_name, name, musicdoc)
+                                print("Updating metadata of doc:", doc_id, "using corpus.json")
+                    else:
+                        # otherwise update the musicdoc metadata with given info in corpus.json
+                        indexwrapper.update_musicdoc_metadata(index_name, name, musicdoc)
+                        print("Updating metadata of doc:", doc_id, "using corpus.json")
+
         print("Successfully added metadata info to files in the zip")
         return
 
@@ -824,6 +909,11 @@ def process_score(musicdoc, m21_score, doc_id):
 
             # Extract infos from the score
             extracted_infos = extract_info_from_score(m21_score)
+
+            # add composer and period info as well
+            extracted_infos["title"] = musicdoc.title
+            extracted_infos["composer"] = musicdoc.composer.name
+            extracted_infos["period"] = musicdoc.composer.period
 
             # Save extracted info in the database
             # Ideally the data shouldn't be saved twice for loading of each score, but deal with it later.

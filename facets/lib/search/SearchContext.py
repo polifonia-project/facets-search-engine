@@ -24,6 +24,7 @@ class SearchContext:
         #self.facet_keymode = ""
         #self.facet_keytonicname = ""
         self.facet_key = ""
+        self.facet_period = ""
         self.facet_numofparts = ""
         self.facet_numofmeasures = ""
         self.facet_numofnotes = ""
@@ -89,6 +90,10 @@ class SearchContext:
         if "instrument" in search_input:
             if search_input["instrument"] != "instruments" and search_input["instrument"] != "Instruments":
                 self.facet_instruments = search_input["instrument"]
+
+        if "period" in search_input:
+            if search_input["period"] != "period" and search_input["period"] != "Period":
+                self.facet_period = search_input["period"]
         """
         if "keymode" in search_input:
             if search_input["keymode"] != "Key mode" and search_input["keymode"] != "key mode" and search_input["keymode"] != "Key Mode":
