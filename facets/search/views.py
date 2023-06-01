@@ -82,6 +82,7 @@ class search_results:
         # Facets
         searchinput["composer"] = request.POST.get('composer', False)
         searchinput["instrument"] = request.POST.get('instrument', False)
+        searchinput["period"] = request.POST.get('period', False)
         #searchinput["keymode"] = request.POST.get('keymode', False)
         #searchinput["keytonicname"] = request.POST.get('keytonicname', False)
         searchinput["key"] = request.POST.get('key', False)
@@ -120,6 +121,9 @@ class search_results:
             print("Faceted: search for work with the following instruments:", searchcontext.facet_instruments)
         if searchcontext.facet_key != "" and searchinput["key"] != False:
             print("Faceted: search for work of the following key information:", searchcontext.facet_key)
+        if searchcontext.facet_period != "" and searchinput["period"] != False:
+            print("Faceted: search for work of the following period:", searchcontext.facet_period)
+
         """
         # these two are combined into one
         if searchcontext.facet_keymode != "" and searchinput["keymode"] != False:
@@ -178,6 +182,10 @@ class search_results:
                     if hit['_source']['infos']['key'] != [] and hit['_source']['infos']['key'] != None:
                         matching_info[hit['_id']]['key'] = hit['_source']['infos']['key']
 
+                if 'period' in hit['_source']['infos']:
+                    if hit['_source']['infos']['period'] != [] and hit['_source']['infos']['period'] != None:
+                        matching_info[hit['_id']]['period'] = hit['_source']['infos']['period']
+
                 if 'num_of_parts' in hit['_source']['infos']:
                     if hit['_source']['infos']['num_of_parts'] != [] and hit['_source']['infos']['num_of_parts'] != None:
                         matching_info[hit['_id']]['num_of_parts'] = hit['_source']['infos']['num_of_parts']
@@ -204,7 +212,7 @@ class search_results:
                     facets_count_dict = {}
 
                     # for filtering out invalid names
-                    invalid_name = ["", "composers", "Composers", "instruments", "Instruments", "Key mode", "Key Mode", "Key tonic name", "key tonic name", "Num of parts", "num of parts", "Num of measures", "num of measures", "num of notes", "Num of notes", "Time signature", "Time Signature", "Key", "key"]
+                    invalid_name = ["", "composers", "Composers", "instruments", "Instruments", "Period", "period", "Key mode", "Key Mode", "Key tonic name", "key tonic name", "Num of parts", "num of parts", "Num of measures", "num of measures", "num of notes", "Num of notes", "Time signature", "Time Signature", "Key", "key"]
 
                     # Get a dictionary of all composer names in the matching docs and the number of docs for each compoer
                     facet_composers = {}
@@ -236,10 +244,24 @@ class search_results:
                     facet_instruments = list(set(facet_instruments)-set(invalid_name))
                     facets_count_dict["instrument"] = facet_instruments
 
+
+                    facet_period = {}
+                    facet_hit_ids['period'] = {}                    
+                    # Get a dictionary of all period names in the matching docs and the number of matches for each period
+                    for period in matching_docs.aggregations.per_period.buckets:
+                        facet_period[period.key] = period.doc_count
+                        list_ids_curr_per = []
+                        # get each hit doc id for curr composer
+                        for item in period.top_hits.buckets:
+                            list_ids_curr_per.append(item['key'])
+                        facet_hit_ids['period'][period.key] = list_ids_curr_per
+                    facet_period = list(set(facet_period)-set(invalid_name))
+                    facets_count_dict["period"] = facet_period
+
                     """
                     facet_keymode = {}
                     facet_hit_ids['keymode'] = {}
-                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
+                    # Get a dictionary of all  names in the matching docs and the number of matches for each instrument
                     for keymode in matching_docs.aggregations.per_keymode.buckets:
                         #print(keymode) # just for testing
                         facet_keymode[keymode.key] = keymode.doc_count
@@ -255,7 +277,7 @@ class search_results:
 
                     facet_keytonicname = {}
                     facet_hit_ids['keytonicname'] = {}
-                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
+                    # Get a dictionary of all  names in the matching docs and the number of matches for each instrument
                     for keytonicname in matching_docs.aggregations.per_keytonicname.buckets:
                         #print(keytonicname) # just for testing
                         facet_keytonicname[keytonicname.key] = keytonicname.doc_count                        
@@ -270,7 +292,7 @@ class search_results:
                     """
                     facet_key = {}
                     facet_hit_ids['key'] = {}
-                    # Get a dictionary of all instrument names in the matching docs and the number of matches for each instrument
+                    # Get a dictionary of all key names in the matching docs and the number of matches for each key
                     for key in matching_docs.aggregations.per_key.buckets:
                         #print(keytonicname) # just for testing
                         facet_key[key.key] = key.doc_count                        
@@ -383,6 +405,15 @@ class search_results:
                     else:
                         common_list = []
             """
+
+            if search_context.facet_period != None and search_context.facet_period != "":
+                if search_context.facet_period in facet_hit_ids["period"]:
+                    temp_matching_ids = facet_hit_ids["period"][search_context.facet_period]
+                    if (set(temp_matching_ids) & set(common_list)):
+                        common_list = list(set(temp_matching_ids) & set(common_list))
+                    else:
+                        common_list = []
+
             if search_context.facet_key != None and search_context.facet_key != "":
                 if search_context.facet_key in facet_hit_ids["key"]:
                     temp_matching_ids = facet_hit_ids["key"][search_context.facet_key]
@@ -504,7 +535,7 @@ class search_results:
                     matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
                     # list of names of facets
-                    facets_name_list = ["composer", "instrument",  "numofparts", "numofmeasures", "key", "timesig"] 
+                    facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"] 
                     # no longer needed: "keytonicname", "keymode","numofnotes",
                     # to be continued
 
@@ -609,6 +640,7 @@ class search_results:
                     "facet_composers": facets_count_dict["composer"],
                     "facet_instruments": facets_count_dict["instrument"],
                     "facet_key": facets_count_dict["key"],
+                    "facet_period": facets_count_dict["period"],
                     #"facet_keymode": facets_count_dict["keymode"],
                     #"facet_keytonicname": facets_count_dict["keytonicname"],
                     "facet_numofparts": facets_count_dict["numofparts"],
@@ -703,6 +735,7 @@ class search_results:
                     "facet_composers": facets_count_dict["composer"],
                     "facet_instruments": facets_count_dict["instrument"],
                     "facet_key": facets_count_dict["key"],
+                    "facet_period": facets_count_dict["period"],
                     #"facet_keymode": facets_count_dict["keymode"],
                     #"facet_keytonicname": facets_count_dict["keytonicname"],
                     "facet_numofparts": facets_count_dict["numofparts"],
@@ -963,6 +996,7 @@ class search_results:
                     #"facet_keymode": facets_count_dict["keymode"],
                     #"facet_keytonicname": facets_count_dict["keytonicname"],
                     "facet_key": facets_count_dict["key"],
+                    "facet_period": facets_count_dict["period"],
                     "facet_numofparts": facets_count_dict["numofparts"],
                     "facet_numofmeasures": facets_count_dict["numofmeasures"],
                     "facet_timesig": facets_count_dict["timesig"],

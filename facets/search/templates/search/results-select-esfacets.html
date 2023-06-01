@@ -33,24 +33,22 @@
 </fieldset>
 
 <br/>
-
-<select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
-  <optgroup label = "Instruments">
-  {% if searchinput.instrument %}
-  <option selected>{{searchinput.instrument}}</option>
-  {% for instrument in facet_instruments %}
-  {% if searchinput.instrument != instrument %}
-  <option value="{{ instrument }}">{{ instrument | title }}</option>
+<select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Period">
+  {% if searchinput.period %}
+  <option selected>{{searchinput.period}}</option>
+  {% for period in facet_period %}
+  {% if searchinput.period != period %}
+  <option value="{{ period }}">{{ period | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}
   <option selected>Not selected</option>
-  {% for instrument in facet_instruments %}
-  <option value="{{ instrument }}">{{ instrument | title }}</option>
+  {% for period in facet_period %}
+  <option value="{{ period }}">{{ period | title }}</option>
   {% endfor %}
   {% endif %}
 </select>
-
 
 <br/>
 {%comment%}
@@ -110,6 +108,43 @@
 </select>
 <br/>
 
+
+<select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Time Signature">
+  {% if searchinput.timesig %}
+  <option selected>{{searchinput.timesig}}</option>
+  {% for timesig in facet_timesig %}
+  {% if searchinput.timesig != timesig %}
+  <option value="{{ timesig }}">{{ timesig | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for timesig in facet_timesig %}
+  <option value="{{ timesig }}">{{ timesig | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+<select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Instruments">
+  {% if searchinput.instrument %}
+  <option selected>{{searchinput.instrument}}</option>
+  {% for instrument in facet_instruments %}
+  {% if searchinput.instrument != instrument %}
+  <option value="{{ instrument }}">{{ instrument | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for instrument in facet_instruments %}
+  <option value="{{ instrument }}">{{ instrument | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
 <select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Num of parts">
   {% if searchinput.numofparts %}
@@ -126,8 +161,8 @@
   {% endfor %}
   {% endif %}
 </select>
-<br/>
 
+<br/>
 <select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Num of measures">
   {% if searchinput.numofmeasures %}
@@ -164,23 +199,6 @@
   {% endif %}
 </select>
 {%endcomment%}
-
-<select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
-  <optgroup label = "Time Signature">
-  {% if searchinput.timesig %}
-  <option selected>{{searchinput.timesig}}</option>
-  {% for timesig in facet_timesig %}
-  {% if searchinput.timesig != timesig %}
-  <option value="{{ timesig }}">{{ timesig | title }}</option>
-  {% endif %}
-  {% endfor %}
-  {% else %}
-  <option selected>Not selected</option>
-  {% for timesig in facet_timesig %}
-  <option value="{{ timesig }}">{{ timesig | title }}</option>
-  {% endfor %}
-  {% endif %}
-</select>
 
 <input class="px-4 mx-2 my-1" type="submit" value="Filter">
 
