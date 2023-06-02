@@ -908,7 +908,7 @@ class search_results:
             # Get the matching doc ids with faceting
             matching_doc_ids = search_results.get_faceted_matching_ids(searchcontext, matching_doc_ids, facet_hit_ids)
 
-            if matching_doc_ids == []:
+            if matching_doc_ids == [] or matching_doc_ids == None:
                 print("No document meets all the chosen faceting criteria...")
                 template = loader.get_template('search/results.html')
                 context = {
