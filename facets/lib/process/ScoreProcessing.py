@@ -196,25 +196,26 @@ def get_metadata_from_score(doctype, score, m21_score):
 
     if metainfo["composer"] != "":
         print("Composer of this musicdoc:", metainfo["composer"])
-        compo = WikiComposer(metainfo["composer"])
-        print("----- INFO -----")
-        print(compo.info)
-        if "dob" in compo.info:
-            dateofbirth = compo.info["dob"]
-            yearofbirth = int(dateofbirth.split('-')[0])
-            metainfo["period"] = str(int(yearofbirth/100))+"century"
-            #print("year of birth:", yearofbirth)
-        if 'dod' in compo.info:
-            dateofdeath = compo.info["dod"]
-            yearofdeath = int(dateofdeath.split('-')[0])
-            #print("year of death:", yearofdeath)
-            if metainfo["period"] != "":
-                # another century add to period
-                if int(yearofbirth/100) != int(yearofdeath/100):
-                    metainfo["period"] += " to "+str(int(yearofdeath/100))+"century"
-            else:
-                metainfo["period"] = str(int(yearofdeath/100))+"century"
-            print("period:", metainfo["period"])
+        try:
+            compo = WikiComposer(metainfo["composer"])
+            print("----- INFO -----")
+            print(compo.info)
+            if "dob" in compo.info:
+                dateofbirth = compo.info["dob"]
+                yearofbirth = int(dateofbirth.split('-')[0])
+                metainfo["period"] = str(int(yearofbirth/100))+"century"
+            if 'dod' in compo.info:
+                dateofdeath = compo.info["dod"]
+                yearofdeath = int(dateofdeath.split('-')[0])
+                if metainfo["period"] != "":
+                    # another century add to period
+                    if int(yearofbirth/100) != int(yearofdeath/100):
+                        metainfo["period"] += " to "+str(int(yearofdeath/100))+"century"
+                else:
+                    metainfo["period"] = str(int(yearofdeath/100))+"century"
+                print("period:", metainfo["period"])
+        except:
+            print("Can not get more info of this composer through wikidata.")
 
     else:
         metainfo["composer"] = "Unknown composer"
@@ -738,7 +739,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                                         # if there is birth year
                                         if birthcentury!=deathcentury:
                                             # if year birth and year death are in dif centuries.
-                                            curr_composer.period += " to "+str(int(yearofdeath/100))+"century"
+                                            curr_composer.period += " to "+str(deathcentury)+"century"
                                 else:
                                     #if there's no birth year info, only death year info
                                     curr_composer.period = str(deathcentury)+"century"
@@ -911,9 +912,12 @@ def process_score(musicdoc, m21_score, doc_id):
             extracted_infos = extract_info_from_score(m21_score)
 
             # add composer and period info as well
-            extracted_infos["title"] = musicdoc.title
-            extracted_infos["composer"] = musicdoc.composer.name
-            extracted_infos["period"] = musicdoc.composer.period
+            if musicdoc.title:
+                extracted_infos["title"] = musicdoc.title
+            if musicdoc.composer.name:
+                extracted_infos["composer"] = musicdoc.composer.name
+            if musicdoc.composer.period != None:
+                extracted_infos["period"] = musicdoc.composer.period
 
             # Save extracted info in the database
             # Ideally the data shouldn't be saved twice for loading of each score, but deal with it later.
