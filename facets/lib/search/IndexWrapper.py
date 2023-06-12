@@ -97,16 +97,16 @@ class IndexWrapper:
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
         search = search.query("match_all")
 
-        search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-        search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+        search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
         #search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
         #search.aggs.bucket('per_keymode', 'terms', field='infos.key_mode.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-        search.aggs.bucket('per_key', 'terms', field='infos.key.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-        search.aggs.bucket('per_period', 'terms', field='infos.period.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-        search.aggs.bucket('per_parts', 'terms', field='infos.num_of_parts').metric('top_hits', 'terms', field = '_id', size=1000)
-        search.aggs.bucket('per_measures', 'terms', field='infos.num_of_measures').metric('top_hits', 'terms', field = '_id', size=1000)
+        search.aggs.bucket('per_key', 'terms', field='infos.key.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_period', 'terms', field='infos.period.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_parts', 'terms', field='infos.num_of_parts').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_measures', 'terms', field='infos.num_of_measures').metric('top_hits', 'terms', field = '_id', size=100000)
         #search.aggs.bucket('per_notes', 'terms', field='infos.num_of_notes').metric('top_hits', 'terms', field = '_id', size=1000)
-        search.aggs.bucket('per_timesig', 'terms', field='infos.initial_time_signature').metric('top_hits', 'terms', field = '_id', size=1000)
+        search.aggs.bucket('per_timesig', 'terms', field='infos.initial_time_signature').metric('top_hits', 'terms', field = '_id', size=100000)
 
         # just for testing..
         logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))

@@ -535,7 +535,7 @@ class search_results:
                     matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
                     # list of names of facets
-                    facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"] 
+                    facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
                     # no longer needed: "keytonicname", "keymode","numofnotes",
                     # to be continued
 
@@ -757,29 +757,81 @@ class search_results:
             template = loader.get_template('home/es_errorpage.html')
             context = {}
             return HttpResponse(template.render(context, request))
-        template = loader.get_template('search/discovery.html')
-        matching_docs = index_wrapper.get_facet_for_initial_navigation(index_name = "ALL_INDICES")
-        # Now if it's empty, return empty results
-        if matching_docs.hits.hits == []:
-            # No matching results found in this index
-            context = {
-                "facets_count_dict": {}, 
-                #"facet_hit_ids": []
-            }
-        else:
-            # Get the matching doc ids with faceting
-            facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
 
-            # Get all the matching document ids and their facets info
-            #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
+        if  request.method == 'GET':
+            template = loader.get_template('search/discovery.html')
+            matching_docs = index_wrapper.get_facet_for_initial_navigation(index_name = "ALL_INDICES")
 
-            context = {
-                #"indices": indices,
-                "facets_count_dict": facets_count_dict, 
-                #"facet_hit_ids": facet_hit_ids
-            }
+            # Now if it's empty, return empty results
 
-        return HttpResponse(template.render(context, request))
+            if matching_docs.hits.hits == []:
+                # No matching results found in this index
+                context = {
+                    #"facets_count_dict": {}, 
+                }
+            else:
+                # Get the matching doc ids with faceting
+                facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
+
+                facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
+
+                """
+                if 'composer' in facets_count_dict:
+                    list_composer = facets_count_dict['composer']
+                else:
+                    list_composer = []
+                if 'period' in facets_count_dict:
+                    list_period = facets_count_dict['period']
+                else:
+                    list_period = []
+                if 'key' in facets_count_dict:
+                    list_key = facets_count_dict['key']
+                else:
+                    list_key = []
+                if 'timesig' in facets_count_dict:
+                    list_timesig = facets_count_dict['timesig']
+                else:
+                    list_timesig = []
+                if 'instrument' in facets_count_dict:
+                    list_instrument = facets_count_dict['instrument']
+                else:
+                    list_instrument = []
+                if 'numofparts' in facets_count_dict:
+                    list_numofparts = facets_count_dict['numofparts']
+                else:
+                    list_numofparts = []
+                if 'numofmeasures' in facets_count_dict:
+                    list_numofmeasures = facets_count_dict['numofmeasures']
+                else:
+                    list_numofmeasures = []            
+                """
+
+                for facet_name in facets_name_list:
+                    request.session[facet_name] = facets_count_dict[facet_name]
+                request.session["facets_name_list"] = facets_name_list
+
+                # Get all the matching document ids and their facets info
+                #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
+
+                context = {
+                    #"indices": indices,
+                    #"facets_count_dict": facets_count_dict, 
+                    #"facet_hit_ids": facet_hit_ids
+                    "list_composer": facets_count_dict["composer"],
+                    "list_period": facets_count_dict["period"],#list_period,
+                    "list_key": facets_count_dict["key"],#list_key,
+                    "list_timesig": facets_count_dict["timesig"],#list_timesig,
+                    "list_instrument": facets_count_dict["instrument"],#list_instrument,
+                    "list_numofparts": facets_count_dict["numofparts"],#list_numofparts,
+                    "list_numofmeasures": facets_count_dict["numofmeasures"]#list_numofmeasures
+                }
+
+            return HttpResponse(template.render(context, request))
+
+        elif request.method == 'POST':
+            #searchinput["pattern"] = None
+            #request.session["searchinput"] = searchinput
+            FilteredResultView(request)
 
     def HighlightMusicDocView(request, index_name, doc_id):
         # Highlight patterns while viewing a music document
@@ -865,7 +917,20 @@ class search_results:
             if searchinput["pattern"] or searchinput["pianopattern"]:
                 # if it is pattern search
                 searchcontext = search_results.read_pattern_search_into_search_context(searchinput)
-            else:
+                # now, send the refined search context to ES for a faceted search!
+                try:
+                    index_wrapper = IndexWrapper(searchinput["index_name"])
+                    # ES returns a "response" object with all the documents that matches query
+                    matching_docs = index_wrapper.search(searchcontext)
+
+                    # To be continued.
+                except Exception as ex:
+                    template = loader.get_template('search/search_errorpage.html')
+                    error_message = "Error when trying to call search with ES in IndexWrapper"
+                    context = {"indices_names": indices,  "ex": str(ex), "message": error_message}
+                    return HttpResponse(template.render(context, request))
+
+            elif searchinput["text"]:
                 # TODO: make it work for text search
                 print("we currently do not support faceting with text search!")
                 template = loader.get_template('error.html')
@@ -873,19 +938,13 @@ class search_results:
                 error_message += "Sorry, we currently do not support faceting with text search!"
                 context = {"message": error_message}
                 return HttpResponse(template.render(context, request))
-
-            # now, send the refined search context to ES for a faceted search!
-            try:
-                index_wrapper = IndexWrapper(searchinput["index_name"])
-                # ES returns a "response" object with all the documents that matches query
-                matching_docs = index_wrapper.search(searchcontext)
-
-                # To be continued.
-            except Exception as ex:
-                template = loader.get_template('search/search_errorpage.html')
-                error_message = "Error when trying to call search with ES in IndexWrapper"
-                context = {"indices_names": indices,  "ex": str(ex), "message": error_message}
-                return HttpResponse(template.render(context, request))
+            else:
+                # If there's no pattern or text, then it's discovery mode!!
+                # retrieve everything from all indices first, then filter later
+                index_wrapper = IndexWrapper()
+                matching_docs = index_wrapper.get_facet_for_initial_navigation(index_name = "ALL_INDICES")
+                # just for testing!
+                print(matching_docs.hits.hits)
 
             # Now if it's empty, return empty results
             if matching_docs.hits.hits == []:
