@@ -29,7 +29,7 @@ class SearchContext:
         self.facet_numofmeasures = ""
         self.facet_numofnotes = ""
         self.facet_timesig = ""
-        self.search_type = settings.CHROMATIC_SEARCH
+        self.search_type = "discovery"#settings.CHROMATIC_SEARCH
         self.pattern = ""
         self.pianopattern = ""
         self.text = ""

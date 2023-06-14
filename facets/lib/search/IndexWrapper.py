@@ -116,6 +116,37 @@ class IndexWrapper:
 
         return matching_docs
 
+
+    def navigate_with_facets(self, index_name):
+
+        if index_name == "ALL_INDICES":
+            search = Search(using=self.elastic_search)
+        else:
+            search = Search(using=self.elastic_search, index=index_name)
+            
+        search = search.params(size=settings.MAX_ITEMS_IN_RESULT)
+        #TODO
+        search = search.query("")
+
+        search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        #search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+        #search.aggs.bucket('per_keymode', 'terms', field='infos.key_mode.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+        search.aggs.bucket('per_key', 'terms', field='infos.key.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_period', 'terms', field='infos.period.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_parts', 'terms', field='infos.num_of_parts').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_measures', 'terms', field='infos.num_of_measures').metric('top_hits', 'terms', field = '_id', size=100000)
+        #search.aggs.bucket('per_notes', 'terms', field='infos.num_of_notes').metric('top_hits', 'terms', field = '_id', size=1000)
+        search.aggs.bucket('per_timesig', 'terms', field='infos.initial_time_signature').metric('top_hits', 'terms', field = '_id', size=100000)
+
+        # just for testing..
+        logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))
+        print ("Search doc sent to ElasticSearch: " + str(search.to_dict()).replace("'", "\""))
+
+        matching_docs = search.execute()
+
+        return matching_docs
+
     def get_all_composer_names(self):
         '''
         Get ALL composer names in ALL indexes
@@ -312,7 +343,7 @@ class IndexWrapper:
                 
                 # Get encoded MusicSummary of the current doc
                 encodedMS = self.get_MS_from_doc(index_name, doc_id)
-
+                
                 # Make sure the MusicSummary of this doc is on ES index, otherwise there is no way to locate
                 if encodedMS == None:
                     print("Can not find MusicSummary of this document on ES, please re-index:", doc_id)
@@ -348,6 +379,19 @@ class IndexWrapper:
 
                 # Locate ids of all matching patterns to highlight
                 matching_ids = msummary.find_matching_ids(pattern_sequence, search_context.search_type, search_context.mirror_search)
+
+
+            elif search_context["pianopattern"] == "" and search_context["pattern"] == "" and search_context["text"] == "":
+                #search_context.search_type == "Discovery":
+                if MusicDoc.objects.filter(doc_id=doc_id).exists():
+                        curr_musicdoc = MusicDoc.objects.filter(doc_id=doc_id)
+                        matching_ids = []
+                        num_occu = 1
+                        distance = 0
+                        best_occurrence = ""
+                else:
+                        print("Couldn't find the matching musicdoc in database, thus skipping it.")
+                        continue
 
             #elif search_context.is_text_search():
                 '''
@@ -453,6 +497,7 @@ class IndexWrapper:
         """
         Create the search object with ElasticSearch DSL
         """
+        
         search = Search(using=self.elastic_search, index=search_context.index)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
 
@@ -464,7 +509,6 @@ class IndexWrapper:
             q_lyrics = Q("match_phrase", lyrics__value=search_context.text)
             # Combine the search
             search = search.query(q_title | q_lyrics)
-
         # If there is a pattern to search
 
         if search_context.pattern != '' or search_context.pianopattern != '':
@@ -506,37 +550,41 @@ class IndexWrapper:
 
             elif search_context.search_type == settings.EXACT_SEARCH:
                 search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
+        
+        if search_context.pattern == '' and search_context.text == '' and search_context.pianopattern == '':
+            # Discovery mode
+            # search in all indices
+            if search_context.index == '' or search_context.index == "ALL_INDICES":
+                search = Search(using=self.elastic_search)
+            else:
+                search = Search(using=self.elastic_search, index=search_context.index)
+            search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+            
+            if search_context.facet_composers != "" and search_context.facet_composers != "Not selected":
+                q_co = Q("multi_match", query=search_context.facet_composers, fields=['composer.keyword'])
+            #if search_context.facet_instruments != "":
+                #q_in = Q("match_phrase", instrument__value=search_context.instruments)
+                #search = search.query("match_phrase", )
+            # TODO: to be continued..
+            search = search.query(q_co)
+            # search with facets
+            # SHOULD I SEND SEARCH DIFFERENTLY?
 
-            #print("***** FACETING")
-            #print("==========================")
-            search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            #search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            #search.aggs.bucket('per_keymode', 'terms', field='infos.key_mode.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            search.aggs.bucket('per_period', 'terms', field='infos.period.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            search.aggs.bucket('per_key', 'terms', field='infos.key.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            search.aggs.bucket('per_parts', 'terms', field='infos.num_of_parts').metric('top_hits', 'terms', field = '_id', size=1000)
-            search.aggs.bucket('per_measures', 'terms', field='infos.num_of_measures').metric('top_hits', 'terms', field = '_id', size=1000)
-            #search.aggs.bucket('per_notes', 'terms', field='infos.num_of_notes').metric('top_hits', 'terms', field = '_id', size=1000)
-            search.aggs.bucket('per_timesig', 'terms', field='infos.initial_time_signature.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
-            # and so on...
-
-            """
-            # TODO: test if this works
-            if search_context.facet_composers != None and search_context.facet_composers != [] and search_context.facet_composers != "":
-                # there is composers facets to filter
-                search.filter('terms', field='composer.keyword', tags = search_context.facet_composers)
-            if search_context.facet_instruments != None and search_context.facet_instruments != [] and search_context.facet_instruments != "":
-                search.filter('terms', field='infos.instruments.keyword', tags = search_context.facet_instruments)
-            if search_context.facet_keymode != None and search_context.facet_keymode != "":
-                search.filter('terms', field='infos.key_mode.keyword', tags = search_context.facet_keymode)
-            if search_context.facet_keytonicname != None and search_context.facet_keytonicname != "":
-                search.filter('terms', field='infos.key_tonic_name.keyword', tags = search_context.facet_keytonicname)
-            # TBC for more facets.. 
-            """
+        #print("***** FACETING")
+        #print("==========================")
+        search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        #search.aggs.bucket('per_keytonicname', 'terms', field='infos.key_tonic_name.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+        #search.aggs.bucket('per_keymode', 'terms', field='infos.key_mode.keyword').metric('top_hits', 'terms', field = '_id', size=1000)
+        search.aggs.bucket('per_period', 'terms', field='infos.period.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_key', 'terms', field='infos.key.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_parts', 'terms', field='infos.num_of_parts').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_measures', 'terms', field='infos.num_of_measures').metric('top_hits', 'terms', field = '_id', size=100000)
+        #search.aggs.bucket('per_notes', 'terms', field='infos.num_of_notes').metric('top_hits', 'terms', field = '_id', size=1000)
+        search.aggs.bucket('per_timesig', 'terms', field='infos.initial_time_signature.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
+        # and so on...
 
         return search
-
 
 class DescriptorIndex(InnerDoc):
     '''
