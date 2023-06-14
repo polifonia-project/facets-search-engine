@@ -45,7 +45,10 @@ class IndexWrapper:
             hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
             host = hp["host"]
             port = hp["port"]
-            self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], index=index_name)
+            if index_name != "ALL_INDICES" and index_name != "":
+                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], index=index_name)
+            else:
+                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}])
             """
             self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
                                             port=settings.ELASTIC_SEARCH["port"],
@@ -61,24 +64,28 @@ class IndexWrapper:
             hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
             host = hp["host"]
             port = hp["port"]
-            self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], 
+            if index_name != "ALL_INDICES" and index_name != "":
+                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], 
                                             index=index_name,
                                             http_auth=(auth_login, auth_password))
+            else:
+                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ],
+                                            http_auth=(auth_login, auth_password))
+
+        if index_name != "ALL_INDICES" and index_name != "":
+            # Open, and possibly create the index
+            self.index = Index(index_name, using=self.elastic_search)
             
+            if not self.index.exists(using=self.elastic_search):
+                # Create the index
+                self.index.create(using=self.elastic_search)
+                self.index.settings(number_of_shards=1, number_of_replicas=0)
 
-        # Open, and possibly create the index
-        self.index = Index(index_name, using=self.elastic_search)
+            self.index.open(using=self.elastic_search)
+
+            # Directory containing some pre-defined queries in JSON
+            #self.query_dir = settings.ES_QUERY_DIR
         
-        if not self.index.exists(using=self.elastic_search):
-            # Create the index
-            self.index.create(using=self.elastic_search)
-            self.index.settings(number_of_shards=1, number_of_replicas=0)
-
-        self.index.open(using=self.elastic_search)
-
-        # Directory containing some pre-defined queries in JSON
-        #self.query_dir = settings.ES_QUERY_DIR
-    
     def get_index_info(self):
         '''
         Obtain main infos on the index
@@ -93,7 +100,7 @@ class IndexWrapper:
         else:
             print("Showing facets in ",index_name, "on discovery page.")
             search = Search(using=self.elastic_search, index=index_name)
-            
+
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
         search = search.query("match_all")
 
@@ -119,14 +126,11 @@ class IndexWrapper:
 
     def navigate_with_facets(self, index_name):
 
-        if index_name == "ALL_INDICES":
+        if index_name == "ALL_INDICES" or index_name == "" or index_name == False:
             search = Search(using=self.elastic_search)
         else:
             search = Search(using=self.elastic_search, index=index_name)
-            
-        search = search.params(size=settings.MAX_ITEMS_IN_RESULT)
-        #TODO
-        search = search.query("")
+        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
 
         search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
         search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
@@ -154,6 +158,7 @@ class IndexWrapper:
         composer_names = []
         search = Search(using=self.elastic_search)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+
         search = search.query("match_all")
         doc_info = search.execute()
 
@@ -560,15 +565,25 @@ class IndexWrapper:
                 search = Search(using=self.elastic_search, index=search_context.index)
             search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
             
-            if search_context.facet_composers != "" and search_context.facet_composers != "Not selected":
-                q_co = Q("multi_match", query=search_context.facet_composers, fields=['composer.keyword'])
-            #if search_context.facet_instruments != "":
-                #q_in = Q("match_phrase", instrument__value=search_context.instruments)
-                #search = search.query("match_phrase", )
-            # TODO: to be continued..
-            search = search.query(q_co)
+            # Only allow selection of one facet in the beginning! 
+            if search_context.facet_composers != "":
+                q = Q("multi_match", query=search_context.facet_composers, fields=['composer.keyword'])
+            if search_context.facet_instruments != "":
+                q = Q("multi_match", query=search_context.facet_instruments, fields=['infos.instruments.keyword'])
+            if search_context.facet_key != "":
+                q = Q("multi_match", query=search_context.facet_key, fields=['infos.key.keyword'])
+            if search_context.facet_numofparts != "":
+                q = Q("multi_match", query=search_context.facet_numofparts, fields=['infos.num_of_parts'])
+            if search_context.facet_numofmeasures != "":
+                q = Q("multi_match", query=search_context.facet_numofmeasures, fields=['infos.num_of_measures'])
+            if search_context.facet_period != "":
+                q = Q("multi_match", query=search_context.facet_period, fields=['infos.period.keyword'])
+            if search_context.facet_timesig != "":
+                q = Q("multi_match", query=search_context.facet_timesig, fields=['infos.initial_time_signature.keyword'])
+            # just for testing
+            
+            search = search.query(q)
             # search with facets
-            # SHOULD I SEND SEARCH DIFFERENTLY?
 
         #print("***** FACETING")
         #print("==========================")

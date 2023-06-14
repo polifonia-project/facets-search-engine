@@ -91,7 +91,7 @@
               Time Signature
               </div>
               <select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
-              <optgroup label = "timesig">
+              <optgroup label = "Time Signature">
                   {% if searchinput.timesig %}
                   <option selected>{{searchinput.timesig}}</option>
                   {% for timesig in list_timesig %}
@@ -112,7 +112,7 @@
 
               <div class="card-header">
               <div>
-              Instrument
+              Instruments
               </div>
               <select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Instruments">
@@ -150,7 +150,7 @@
                   {% else %}
                   <option selected>Not selected</option>
                   {% for numofparts in list_numofparts %}
-                  <option value="{{ instrument }}">{{ numofparts | title }}</option>
+                  <option value="{{ numofparts }}">{{ numofparts | title }}</option>
                   {% endfor %}
                   {% endif %}
                   </optgroup>
@@ -174,7 +174,7 @@
                   {% else %}
                   <option selected>Not selected</option>
                   {% for numofmeasures in list_numofmeasures %}
-                  <option value="{{ instrument }}">{{ numofmeasures | title }}</option>
+                  <option value="{{ numofmeasures }}">{{ numofmeasures | title }}</option>
                   {% endfor %}
                   {% endif %}
                   </optgroup>

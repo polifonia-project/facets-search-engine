@@ -79,20 +79,22 @@ class SearchContext:
                 self.mirror_search = True
             else:
                 self.mirror_search = False
+
+        default_words_to_avoid = ["Not selected", "not selected", "Composer", "Composers", "composer", "composers", "instruments", "Instruments", "period", "Period", "Key", "key", "Number of parts", "number of parts", "Number of measures", "number of measures", "Time Signature", "Time signature", "time signature"]
         if "composer" in search_input:
             # This should be a list of composer names from the search input
             # TODO: when searchinput can be multiple selection, it needs to change from string to list
             #if type(search_input["composer"]) != list:
-            if search_input["composer"] != "Composers" and search_input["composer"] != "Composer":
+            if search_input["composer"] not in default_words_to_avoid:
                 # if no composer is selected, it should be Composers
                 self.facet_composers = search_input["composer"]
 
         if "instrument" in search_input:
-            if search_input["instrument"] != "instruments" and search_input["instrument"] != "Instruments":
+            if search_input["instrument"] not in default_words_to_avoid:
                 self.facet_instruments = search_input["instrument"]
 
         if "period" in search_input:
-            if search_input["period"] != "period" and search_input["period"] != "Period":
+            if search_input["period"] not in default_words_to_avoid:
                 self.facet_period = search_input["period"]
         """
         if "keymode" in search_input:
@@ -104,15 +106,15 @@ class SearchContext:
                 self.facet_keytonicname = search_input["keytonicname"]
         """
         if "key" in search_input:
-            if search_input["key"] != "Key" and search_input["key"] != "key":
+            if search_input["key"] not in default_words_to_avoid:
                 self.facet_key = search_input["key"]
 
         if "numofparts" in search_input:
-            if search_input["numofparts"] != "Number of parts" and search_input["numofparts"] != "number of parts" and search_input["numofparts"] != "Number Of Parts":
+            if search_input["numofparts"] not in default_words_to_avoid:
                 self.facet_numofparts = search_input["numofparts"]
 
         if "numofmeasures" in search_input:
-            if search_input["numofmeasures"] != "Number of measures" and search_input["numofmeasures"] != "number of measures" and search_input["numofmeasures"] != "Number Of Measures":
+            if search_input["numofmeasures"] not in default_words_to_avoid:
                 self.facet_numofmeasures = search_input["numofmeasures"]
         """
         if "numofnotes" in search_input:
@@ -120,7 +122,7 @@ class SearchContext:
                 self.facet_numofnotes = search_input["numofnotes"]
         """
         if "timesig" in search_input:
-            if search_input["timesig"] != "Time Signature" and search_input["timesig"] != "Time signature" and search_input["timesig"] != "time signature":
+            if search_input["timesig"] not in default_words_to_avoid:
                 self.facet_timesig = search_input["timesig"]
     
         # Other facets to be continued..

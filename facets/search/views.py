@@ -72,9 +72,9 @@ class search_results:
             # The search type names for ES should be all in lower case
             searchinput["type"] = searchinput["type"].lower()
             searchinput["index_name"] = request.POST.get('indexname', False)
-            # TO-DO: Forcing index_name to be all lower case might cause error.
             # Find a better fix: do not put the first letter as captial letter when displaying/send through request
-            searchinput["index_name"] = searchinput["index_name"].lower()
+            if searchinput["index_name"]:
+                searchinput["index_name"] = searchinput["index_name"].lower()
 
         # Ranking
         searchinput["rankby"] = request.POST.get('rankby', False)
@@ -455,6 +455,7 @@ class search_results:
                         common_list = []
 
             # TBC for more facets.. 
+
             return common_list
 
     def results(request):
@@ -585,7 +586,8 @@ class search_results:
 
                         score_info[doc_id] = []
                         score_info[doc_id].append(musicdoc.doc_type)
-                        docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
+                        #docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
+                        docurl = "http://"+hostname+ "/home/media/"+musicdoc.index.name+"/"+doc_id+"/"
 
                         score_info[doc_id].append(docurl)
                         if musicdoc.title:
@@ -596,6 +598,7 @@ class search_results:
                             score_info[doc_id].append(musicdoc.composer.name)
                         else:
                             score_info[doc_id].append("Unknown composer")
+                        score_info[doc_id].append(musicdoc.index.name)
 
                     # Paginator for the first page
                     if callpage == False or callpage == 0 or callpage == 1:
@@ -749,8 +752,7 @@ class search_results:
         es = Elasticsearch()
         try:
             indices = es.indices.get_alias().keys()
-            indice_list = list(indices)
-            index_wrapper = IndexWrapper(indice_list[0])
+            index_wrapper = IndexWrapper("ALL_INDICES")
         except:
             # if ES is not connected, it should be warned
             template = loader.get_template('home/es_errorpage.html')
@@ -772,6 +774,11 @@ class search_results:
                 # Get the matching doc ids with faceting
                 facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
 
+                print(len(matching_docs.hits.hits))
+                print(facets_count_dict)
+                print("hit id num", len(facet_hit_ids["composer"]))
+                #print(facet_hit_ids["composer"])
+                
                 facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
 
                 for facet_name in facets_name_list:
@@ -1034,8 +1041,11 @@ class search_results:
             context = search_results.paginate_search_result(request, callpage)
             return HttpResponse(template.render(context, request))
 
-
     def DiscoveryResultView(request):
+
+        # TODO: filtered discovery result view for further filtering!
+        # TODO: how about pagination? might be different from pattern search, both back and front end
+
         es = Elasticsearch()
         try:
             indices = es.indices.get_alias().keys()
@@ -1050,28 +1060,27 @@ class search_results:
 
             # then read new entered facets and rank method
             searchinput = {}
-            searchinput["type"] = "Discovery"
+            searchinput["type"] = "discovery"
             searchinput["pattern"] = ""
             searchinput["pianopattern"] = ""
             searchinput["text"] = ""
             searchinput["index_name"] = "ALL_INDICES"
 
             searchinput = search_results.read_search_input_from_request(request, searchinput)
-            print("searchinput", searchinput)
-            # just a list of names of facets supported..
+            
             facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
             request.session["facets_name_list"] = facets_name_list
 
             for facet_name in facets_name_list:
                 searchinput[facet_name] = request.POST.get(facet_name, False)
 
+            # get searchcontext 
             searchcontext = search_results.read_pattern_search_into_search_context(searchinput)
             
-            # retrieve everything from all indices first, then filter later
-            indice_list = list(indices)
-            index_wrapper = IndexWrapper(indice_list[0])
-            print(searchcontext)
+            index_wrapper = IndexWrapper(searchcontext.index)
+
             matching_docs = index_wrapper.search(searchcontext)
+            
             # Now if it's empty, return empty results
             if matching_docs.hits.hits == []:
                 # No matching results found in this index
@@ -1088,17 +1097,15 @@ class search_results:
             matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
             # for testing only
-            print("matching_doc_ids before faceting:", matching_doc_ids)
-
             facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
 
             # Get the matching doc ids with faceting
             matching_doc_ids = search_results.get_faceted_matching_ids(searchcontext, matching_doc_ids, facet_hit_ids)
 
-            print("matching_doc_ids after:", matching_doc_ids)
+            print("matching_doc_ids after faceting:", matching_doc_ids)
 
             if matching_doc_ids == [] or matching_doc_ids == None:
-                print("No document meets all the chosen faceting criteria...")
+                print("No document meets all the chosen criteria...")
                 template = loader.get_template('search/results.html')
                 context = {
                     "searchinput": searchinput,
@@ -1109,6 +1116,8 @@ class search_results:
                 }
                 return HttpResponse(template.render(context, request))
 
+            # save it for pagination
+            request.session["matching_doc_ids"] = matching_doc_ids
             """
             matching_locations = index_wrapper.locate_matching_patterns("", matching_doc_ids, searchcontext)
             # For rank by relevancy
@@ -1149,7 +1158,6 @@ class search_results:
                 
                 score_info[doc_id] = []
                 score_info[doc_id].append(musicdoc.doc_type)
-                #docurl = "http://"+hostname+ "/home/media/"+searchinput["index_name"]+"/"+doc_id+"/"
                 docurl = "http://"+hostname+ "/home/media/"+musicdoc.index.name+"/"+doc_id+"/"
 
                 score_info[doc_id].append(docurl)
