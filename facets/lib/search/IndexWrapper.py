@@ -48,7 +48,7 @@ class IndexWrapper:
             if index_name != "ALL_INDICES" and index_name != "":
                 self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], index=index_name)
             else:
-                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}])
+                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}], index="_all")
             """
             self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
                                             port=settings.ELASTIC_SEARCH["port"],
@@ -70,6 +70,7 @@ class IndexWrapper:
                                             http_auth=(auth_login, auth_password))
             else:
                 self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ],
+                                            index="_all",
                                             http_auth=(auth_login, auth_password))
 
         if index_name != "ALL_INDICES" and index_name != "":
@@ -96,12 +97,13 @@ class IndexWrapper:
 
         if index_name == "ALL_INDICES":
             print("Showing facets in all indices on discovery page.")
-            search = Search(using=self.elastic_search)
+            search = Search(using=self.elastic_search, index="_all")
         else:
             print("Showing facets in ",index_name, "on discovery page.")
             search = Search(using=self.elastic_search, index=index_name)
 
-        search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+        search = search.params(size=settings.MAX_ITEMS_IN_RESULT)
+        search = search.extra(track_total_hits=True)
         search = search.query("match_all")
 
         search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
@@ -113,7 +115,7 @@ class IndexWrapper:
         search.aggs.bucket('per_parts', 'terms', field='infos.num_of_parts').metric('top_hits', 'terms', field = '_id', size=100000)
         search.aggs.bucket('per_measures', 'terms', field='infos.num_of_measures').metric('top_hits', 'terms', field = '_id', size=100000)
         #search.aggs.bucket('per_notes', 'terms', field='infos.num_of_notes').metric('top_hits', 'terms', field = '_id', size=1000)
-        search.aggs.bucket('per_timesig', 'terms', field='infos.initial_time_signature').metric('top_hits', 'terms', field = '_id', size=100000)
+        search.aggs.bucket('per_timesig', 'terms', field='infos.initial_time_signature.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
 
         # just for testing..
         logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))
@@ -123,14 +125,14 @@ class IndexWrapper:
 
         return matching_docs
 
-
     def navigate_with_facets(self, index_name):
 
         if index_name == "ALL_INDICES" or index_name == "" or index_name == False:
-            search = Search(using=self.elastic_search)
+            search = Search(using=self.elastic_search, index = '_all')
         else:
             search = Search(using=self.elastic_search, index=index_name)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
+        search = search.extra(track_total_hits=True)
 
         search.aggs.bucket('per_composer', 'terms', field='composer.keyword').metric('top_hits', 'terms', field = '_id', size=100000)
         search.aggs.bucket('per_instrument', 'terms', field='infos.instruments.keyword').metric('top_hits', 'terms', field = '_id', size=100000)

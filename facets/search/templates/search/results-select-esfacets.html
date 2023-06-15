@@ -94,7 +94,7 @@
   <option selected>{{searchinput.key}}</option>
   {% for key in facet_key %}
   {% if searchinput.key != key %}
-  <option value="{{ keytonicname }}">{{ key | title }}</option>
+  <option value="{{ key }}">{{ key | title }}</option>
   {% endif %}
   {% endfor %}
   {% else %}

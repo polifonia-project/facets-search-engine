@@ -1,0 +1,204 @@
+<form action="/search/filtered_discovery_result/" method="post">
+
+<div class="alert alert-dark bg-white p-3 rounded shadow d-flex flex-column align-items-center">
+
+{% csrf_token %}
+
+<select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
+  <legend>Composer</legend>
+  {%comment%}
+  {% for composer in facet_composers %}
+  <input id="{{composer}}" type="checkbox" value="{{composer}}">
+  <label for="{{composer}}">{{composer}}</label>
+  {% endfor %}
+  {%endcomment%}
+
+  <optgroup label = "Composers">
+  {% if searchinput.composer %}
+  <option selected>{{searchinput.composer}}</option>
+  {% for composer in facet_composers %}
+  {% if searchinput.composer != composer %}
+  <option value="{{ composer }}">{{ composer | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for composer in facet_composers %}
+  <option value="{{ composer }}">{{ composer | title }}</option>
+{% endfor %}
+  {% endif %}
+  </optgroup>
+</select>
+
+<br/>
+<select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Period">
+  {% if searchinput.period %}
+  <option selected>{{searchinput.period}}</option>
+  {% for period in facet_period %}
+  {% if searchinput.period != period %}
+  <option value="{{ period }}">{{ period | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for period in facet_period %}
+  <option value="{{ period }}">{{ period | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
+<br/>
+{%comment%}
+<select multiple="true" name="keymode" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Key mode">
+  {% if searchinput.keymode %}
+  <option selected>{{searchinput.keymode}}</option>
+  {% for keymode in facet_keymode %}
+  {% if searchinput.keymode != keymode %}
+  <option value="{{ keymode }}">{{ keymode | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for keymode in facet_keymode %}
+  <option value="{{ keymode }}">{{ keymode | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
+<br/>
+
+<select multiple="true" name="keytonicname" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Key tonic name">
+  {% if searchinput.keytonicname %}
+  <option selected>{{searchinput.keytonicname}}</option>
+  {% for keytonicname in facet_keytonicname %}
+  {% if searchinput.keytonicname != keytonicname %}
+  <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for keytonicname in facet_keytonicname %}
+  <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+{%endcomment%}
+
+<select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Key">
+  {% if searchinput.key %}
+  <option selected>{{searchinput.key}}</option>
+  {% for key in facet_key %}
+  {% if searchinput.key != key %}
+  <option value="{{ key }}">{{ key | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for key in facet_key %}
+  <option value="{{ key }}">{{ key | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+
+<select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Time Signature">
+  {% if searchinput.timesig %}
+  <option selected>{{searchinput.timesig}}</option>
+  {% for timesig in facet_timesig %}
+  {% if searchinput.timesig != timesig %}
+  <option value="{{ timesig }}">{{ timesig | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for timesig in facet_timesig %}
+  <option value="{{ timesig }}">{{ timesig | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+<select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Instruments">
+  {% if searchinput.instrument %}
+  <option selected>{{searchinput.instrument}}</option>
+  {% for instrument in facet_instruments %}
+  {% if searchinput.instrument != instrument %}
+  <option value="{{ instrument }}">{{ instrument | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for instrument in facet_instruments %}
+  <option value="{{ instrument }}">{{ instrument | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+<select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Num of parts">
+  {% if searchinput.numofparts %}
+  <option selected>{{searchinput.numofparts}}</option>
+  {% for numofparts in facet_numofparts %}
+  {% if searchinput.numofparts != numofparts %}
+  <option value="{{ numofparts }}">{{ numofparts | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for numofparts in facet_numofparts %}
+  <option value="{{ numofparts }}">{{ numofparts | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+
+<br/>
+<select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Num of measures">
+  {% if searchinput.numofmeasures %}
+  <option selected>{{searchinput.numofmeasures}}</option>
+  {% for numofmeasures in facet_numofmeasures %}
+  {% if searchinput.numofmeasures != numofmeasures %}
+  <option value="{{ numofmeasures }}">{{ numofmeasures | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for numofmeasures in facet_numofmeasures %}
+  <option value="{{ numofmeasures }}">{{ numofmeasures | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
+{%comment%}
+<select multiple="true" name="numofnotes" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Num of notes">
+  {% if searchinput.numofnotes %}
+  <option selected>{{searchinput.numofnotes}}</option>
+  {% for numofnotes in facet_numofnotes %}
+  {% if searchinput.numofnotes != numofnotes %}
+  <option value="{{ numofnotes }}">{{ numofnotes | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for numofnotes in facet_numofnotes %}
+  <option value="{{ numofnotes }}">{{ numofnotes | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+{%endcomment%}
+
+<input class="px-4 mx-2 my-1" type="submit" value="Filter">
+
+</div>
+</form>
