@@ -169,7 +169,7 @@ def add_metadata(request):
             if metainfo["title"] not in invalid_title_names:
                 if musicdoc.title != None:
                     if musicdoc.title not in invalid_title_names:
-                        print("Won't update title of doc",doc_id, ": already exist!")
+                        print("Won't update title of doc", doc_id, ": already exist!")
                     else:
                         musicdoc.title = metainfo["title"]
             #Now composer needs to be a Person in database first, then take the name
@@ -198,12 +198,18 @@ def add_metadata(request):
                         curr_composer.name = composerfullname
                         if "year_birth" in composer_info_dict:
                             curr_composer.year_birth = composer_info_dict["year_birth"]
+                        elif "yearofbirth" in composer_info_dict:
+                            curr_composer.year_birth = composer_info_dict["yearofbirth"]
                         if "year_death" in composer_info_dict:
                             curr_composer.year_death = composer_info_dict["year_death"]
+                        elif "yearofdeath" in composer_info_dict:
+                            curr_composer.year_death = composer_info_dict["yearofdeath"]
                         if "country" in composer_info_dict:
                             curr_composer.country = composer_info_dict["country"]
                         if "dbpedia_uri" in composer_info_dict:
                             curr_composer.wikidata_url = composer_info_dict["dbpedia_uri"]
+                        elif "wikidata_url" in composer_info_dict:
+                            curr_composer.wikidata_url = composer_info_dict["wikidata_url"]
                         print("Creating new Person:", composerfullname)
                         curr_composer.save()
 

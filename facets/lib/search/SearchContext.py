@@ -61,8 +61,14 @@ class SearchContext:
 
     def read(self, search_input):
 
+        default_words_to_avoid = ["", "Not selected", "not selected", "Composer", "Composers", "composer", "composers", "instruments", "Instruments", "period", "Period", "Key", "key", "Number of parts", "number of parts", "Number of measures", "number of measures", "Time Signature", "Time signature", "time signature"]
+
         # Read from the input and make a SearchContext out of it
-        self.index = search_input["index_name"]
+        if search_input["index_name"] not in default_words_to_avoid:
+            self.index = search_input["index_name"]
+        else:
+            self.index = "ALL_INDICES"
+
         self.search_type = search_input["type"]
         if "pianopattern" in search_input:
             self.pianopattern = search_input["pianopattern"]
@@ -80,7 +86,6 @@ class SearchContext:
             else:
                 self.mirror_search = False
 
-        default_words_to_avoid = ["Not selected", "not selected", "Composer", "Composers", "composer", "composers", "instruments", "Instruments", "period", "Period", "Key", "key", "Number of parts", "number of parts", "Number of measures", "number of measures", "Time Signature", "Time signature", "time signature"]
         if "composer" in search_input:
             # This should be a list of composer names from the search input
             # TODO: when searchinput can be multiple selection, it needs to change from string to list

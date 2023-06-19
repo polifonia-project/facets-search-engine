@@ -19,19 +19,10 @@
               </div>
               <select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Composers">
-                  {% if searchinput.composer %}
-                  <option selected>{{searchinput.composer}}</option>
-                  {% for composer in list_composer %}
-                  {% if searchinput.composer != composer %}
-                  <option value="{{ composer }}">{{ composer | title }}</option>
-                  {% endif %}
-                  {% endfor %}
-                  {% else %}
                   <option selected>Not selected</option>
                   {% for composer in list_composer %}
                   <option value="{{ composer }}">{{ composer | title }}</option>
                   {% endfor %}
-                  {% endif %}
                   </optgroup>
               </select>
             </div>
@@ -43,19 +34,10 @@
               </div>
               <select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Period">
-                  {% if searchinput.period %}
-                  <option selected>{{searchinput.period}}</option>
-                  {% for period in list_period %}
-                  {% if searchinput.period != period %}
-                  <option value="{{ period }}">{{ period | title }}</option>
-                  {% endif %}
-                  {% endfor %}
-                  {% else %}
                   <option selected>Not selected</option>
                   {% for period in list_period %}
                   <option value="{{ period }}">{{ period | title }}</option>
                   {% endfor %}
-                  {% endif %}
                   </optgroup>
               </select>
               </div>
@@ -68,19 +50,10 @@
               </div>
               <select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Key">
-                  {% if searchinput.key %}
-                  <option selected>{{searchinput.key}}</option>
-                  {% for key in list_key %}
-                  {% if searchinput.key != key %}
-                  <option value="{{ key }}">{{ key | title }}</option>
-                  {% endif %}
-                  {% endfor %}
-                  {% else %}
                   <option selected>Not selected</option>
                   {% for key in list_key %}
                   <option value="{{ key }}">{{ key | title }}</option>
                   {% endfor %}
-                  {% endif %}
                   </optgroup>
               </select>
               </div>
@@ -92,19 +65,10 @@
               </div>
               <select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Time Signature">
-                  {% if searchinput.timesig %}
-                  <option selected>{{searchinput.timesig}}</option>
-                  {% for timesig in list_timesig %}
-                  {% if searchinput.timesig != timesig %}
-                  <option value="{{ timesig }}">{{ timesig | title }}</option>
-                  {% endif %}
-                  {% endfor %}
-                  {% else %}
                   <option selected>Not selected</option>
                   {% for timesig in list_timesig %}
                   <option value="{{ timesig }}">{{ timesig | title }}</option>
                   {% endfor %}
-                  {% endif %}
                   </optgroup>
               </select>
               </div>
@@ -116,19 +80,11 @@
               </div>
               <select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Instruments">
-                  {% if searchinput.instrument %}
-                  <option selected>{{searchinput.instrument}}</option>
-                  {% for instrument in list_instrument %}
-                  {% if searchinput.instrument != instrument %}
-                  <option value="{{ instrument }}">{{ instrument | title }}</option>
-                  {% endif %}
-                  {% endfor %}
-                  {% else %}
                   <option selected>Not selected</option>
                   {% for instrument in list_instrument %}
                   <option value="{{ instrument }}">{{ instrument | title }}</option>
                   {% endfor %}
-                  {% endif %}
+
                   </optgroup>
               </select>
               </div>
@@ -140,19 +96,10 @@
               </div>
               <select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Number of parts">
-                  {% if searchinput.numofparts %}
-                  <option selected>{{searchinput.numofparts}}</option>
-                  {% for numofparts in list_numofparts %}
-                  {% if searchinput.numofparts != numofparts %}
-                  <option value="{{ numofparts }}">{{ numofparts | title }}</option>
-                  {% endif %}
-                  {% endfor %}
-                  {% else %}
                   <option selected>Not selected</option>
                   {% for numofparts in list_numofparts %}
                   <option value="{{ numofparts }}">{{ numofparts | title }}</option>
                   {% endfor %}
-                  {% endif %}
                   </optgroup>
               </select>
               </div>
@@ -164,23 +111,30 @@
               </div>
               <select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "Number of measures">
-                  {% if searchinput.numofmeasures %}
-                  <option selected>{{searchinput.numofmeasures}}</option>
-                  {% for numofmeasures in list_numofmeasures %}
-                  {% if searchinput.numofmeasures != numofmeasure %}
-                  <option value="{{ numofmeasures }}">{{ numofmeasures | title }}</option>
-                  {% endif %}
-                  {% endfor %}
-                  {% else %}
                   <option selected>Not selected</option>
                   {% for numofmeasures in list_numofmeasures %}
                   <option value="{{ numofmeasures }}">{{ numofmeasures | title }}</option>
                   {% endfor %}
-                  {% endif %}
                   </optgroup>
               </select>
               </div>
               <br/><br/>
+
+              <div class="card-header">
+              <div>
+              Indices
+              </div>
+              <select multiple="true" name="indexname" class="px-4 mx-2 custom-select custom-select-sm">
+              <optgroup label = "Indices">
+                  <option selected>Not selected</option>
+                  {% for index in indices_names %}
+                  <option value="{{ index }}">{{ index | title }}</option>
+                  {% endfor %}
+                  </optgroup>
+              </select>
+              </div>
+              <br/><br/>
+
         </ul>
         <input class="px-4 mx-2 my-1" type="submit" value="Select">
       </div>

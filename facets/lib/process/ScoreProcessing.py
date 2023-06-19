@@ -713,6 +713,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                 # If there is composer info to update:
                 # find person in database
                 curr_composer = None
+                composerfullname = ""
                 if 'first_name' in composer_info_dict and 'last_name' in composer_info_dict:
                     composerfullname = composer_info_dict["first_name"] + " " + composer_info_dict["last_name"]
                 elif 'name' in composer_info_dict:

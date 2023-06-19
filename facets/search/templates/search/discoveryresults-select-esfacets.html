@@ -179,6 +179,26 @@
 </select>
 <br/>
 
+
+<br/>
+<select multiple="true" name="indexname" class="px-4 mx-2 custom-select custom-select-sm">
+  <optgroup label = "Indices">
+  {% if searchinput.index_name %}
+  <option selected>{{searchinput.index_name}}</option>
+  {% for index in indices_names %}
+  {% if searchinput.index_name != index %}
+  <option value="{{ index }}">{{ index | title }}</option>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <option selected>Not selected</option>
+  {% for index in indices_names %}
+  <option value="{{ index }}">{{ index | title }}</option>
+  {% endfor %}
+  {% endif %}
+</select>
+<br/>
+
 {%comment%}
 <select multiple="true" name="numofnotes" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Num of notes">

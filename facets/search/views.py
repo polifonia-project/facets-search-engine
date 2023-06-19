@@ -71,15 +71,22 @@ class search_results:
             searchinput["type"] = request.POST.get('searchtype', False)
             # The search type names for ES should be all in lower case
             searchinput["type"] = searchinput["type"].lower()
-            searchinput["index_name"] = request.POST.get('indexname', False)
-            # Find a better fix: do not put the first letter as captial letter when displaying/send through request
-            if searchinput["index_name"]:
-                searchinput["index_name"] = searchinput["index_name"].lower()
 
         # Ranking
         searchinput["rankby"] = request.POST.get('rankby', False)
 
+        # Index
+        searchinput["index_name"] = request.POST.get('indexname', False)
+        # Find a better fix: do not put the first letter as captial letter when displaying/send through request
+        
+        invalid_names = ["", "Not selected", "not selected"]
+        if searchinput["index_name"]:
+            if searchinput["index_name"] not in invalid_names:
+                searchinput["index_name"] = searchinput["index_name"].lower()
+            # otherwise ignore the input
+
         # Facets
+
         searchinput["composer"] = request.POST.get('composer', False)
         searchinput["instrument"] = request.POST.get('instrument', False)
         searchinput["period"] = request.POST.get('period', False)
@@ -102,7 +109,11 @@ class search_results:
         searchcontext.read(searchinput)
         
         # print the content of SearchContext object, for testing
-        print("\n\nSearching in index: ", searchcontext.index)
+        if searchcontext.index != "ALL_INDICES":
+            print("\n\nSearching in index: ", searchcontext.index)
+        else:
+            print("\n\nSearching in all indices ")
+
         print("Search type: ", searchcontext.search_type)
         
         if searchcontext.pattern:
@@ -212,7 +223,7 @@ class search_results:
                     facets_count_dict = {}
 
                     # for filtering out invalid names
-                    invalid_name = ["", "composers", "Composers", "instruments", "Instruments", "Period", "period", "Key mode", "Key Mode", "Key tonic name", "key tonic name", "Num of parts", "num of parts", "Num of measures", "num of measures", "num of notes", "Num of notes", "Time signature", "Time Signature", "Key", "key"]
+                    invalid_name = ["", "composers", "Composers", "instruments", "Instruments", "Period", "period", "Key mode", "Key Mode", "Key tonic name", "key tonic name", "Num of parts", "num of parts", "Num of measures", "num of measures", "num of notes", "Num of notes", "Time signature", "Time Signature", "Key", "key", "Not selected", "not selected"]
 
                     # Get a dictionary of all composer names in the matching docs and the number of docs for each compoer
                     facet_composers = {}
@@ -774,10 +785,9 @@ class search_results:
                 # Get the matching doc ids with faceting
                 facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
 
-                print(len(matching_docs.hits.hits))
-                print(facets_count_dict)
-                print("hit id num", len(facet_hit_ids["composer"]))
-                #print(facet_hit_ids["composer"])
+                print("total hits", len(matching_docs.hits.hits))
+                #print(facets_count_dict)
+                print("hit id num, composer", len(facet_hit_ids["composer"]))
                 
                 facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
 
@@ -789,7 +799,7 @@ class search_results:
                 #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
                 context = {
-                    #"indices": indices,
+                    "indices_names": indices,
                     #"facets_count_dict": facets_count_dict, 
                     #"facet_hit_ids": facet_hit_ids
                     "list_composer": facets_count_dict["composer"],
@@ -1060,12 +1070,16 @@ class search_results:
             # then read new entered facets and rank method
             searchinput = {}
             searchinput["type"] = "discovery"
-            searchinput["pattern"] = ""
-            searchinput["pianopattern"] = ""
-            searchinput["text"] = ""
-            searchinput["index_name"] = "ALL_INDICES"
-
+            #searchinput["pattern"] = ""
+            #searchinput["pianopattern"] = ""
+            #searchinput["text"] = ""
+            
             searchinput = search_results.read_search_input_from_request(request, searchinput)
+
+            if "index_name" not in searchinput:
+                searchinput["index_name"] = "ALL_INDICES"
+            elif searchinput["index_name"] == "":
+                searchinput["index_name"] = "ALL_INDICES"
             
             facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
             request.session["facets_name_list"] = facets_name_list
@@ -1100,8 +1114,6 @@ class search_results:
 
             # Get the matching doc ids with faceting
             matching_doc_ids = search_results.get_faceted_matching_ids(searchcontext, matching_doc_ids, facet_hit_ids)
-
-            print("matching_doc_ids after faceting:", matching_doc_ids)
 
             if matching_doc_ids == [] or matching_doc_ids == None:
                 print("No document meets all the chosen criteria...")
@@ -1229,13 +1241,17 @@ class search_results:
 
             searchinput = {}
             searchinput["type"] = "discovery"
-            searchinput["pattern"] = ""
-            searchinput["pianopattern"] = ""
-            searchinput["text"] = ""
-            searchinput["index_name"] = "ALL_INDICES"
-            
+            #searchinput["pattern"] = ""
+            #searchinput["pianopattern"] = ""
+            #searchinput["text"] = ""
+
             searchinput = search_results.read_search_input_from_request(request, searchinput)
-            
+
+            if "index_name" not in searchinput:
+                searchinput["index_name"] = "ALL_INDICES"
+            elif searchinput["index_name"] == "":
+                searchinput["index_name"] = "ALL_INDICES"
+
             facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
 
             for facet_name in facets_name_list:

@@ -45,10 +45,11 @@ class IndexWrapper:
             hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
             host = hp["host"]
             port = hp["port"]
-            if index_name != "ALL_INDICES" and index_name != "":
+            if index_name != "ALL_INDICES" and index_name != "" and index_name != "Not selected":
                 self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], index=index_name)
             else:
-                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}], index="_all")
+                # if not specified, search in all indices
+                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}])
             """
             self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
                                             port=settings.ELASTIC_SEARCH["port"],
@@ -127,8 +128,8 @@ class IndexWrapper:
 
     def navigate_with_facets(self, index_name):
 
-        if index_name == "ALL_INDICES" or index_name == "" or index_name == False:
-            search = Search(using=self.elastic_search, index = '_all')
+        if index_name == "ALL_INDICES" or index_name == "" or index_name == "Not selected" or index_name == "not selected" or index_name == False:
+            search = Search(using=self.elastic_search)
         else:
             search = Search(using=self.elastic_search, index=index_name)
         search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
@@ -564,10 +565,13 @@ class IndexWrapper:
             if search_context.index == '' or search_context.index == "ALL_INDICES":
                 search = Search(using=self.elastic_search)
             else:
+                # search in chosen index
                 search = Search(using=self.elastic_search, index=search_context.index)
             search = search.params (size=settings.MAX_ITEMS_IN_RESULT)
             
             # Only allow selection of one facet in the beginning! 
+            # initialize q, if no facet is selected then send a "match_all"
+            q = Q("match_all")
             if search_context.facet_composers != "":
                 q = Q("multi_match", query=search_context.facet_composers, fields=['composer.keyword'])
             if search_context.facet_instruments != "":
@@ -582,8 +586,7 @@ class IndexWrapper:
                 q = Q("multi_match", query=search_context.facet_period, fields=['infos.period.keyword'])
             if search_context.facet_timesig != "":
                 q = Q("multi_match", query=search_context.facet_timesig, fields=['infos.initial_time_signature.keyword'])
-            # just for testing
-            
+
             search = search.query(q)
             # search with facets
 
