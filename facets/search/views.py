@@ -788,12 +788,29 @@ class search_results:
                 print("total hits", len(matching_docs.hits.hits))
                 #print(facets_count_dict)
                 print("hit id num, composer", len(facet_hit_ids["composer"]))
-                
+
                 facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
 
                 for facet_name in facets_name_list:
                     request.session[facet_name] = facets_count_dict[facet_name]
                 request.session["facets_name_list"] = facets_name_list
+
+                # get the number of matching for each facet
+                # comment later, just for testing!
+                #for facetname in facets_count_dict:
+                #    for name in facets_count_dict[facetname]:
+                #        print(facetname, name, len(facet_hit_ids[facetname][name]))
+
+                #countnum_composer = {}
+                #for composername in facet_hit_ids["composer"]:
+                #    countnum_composer[composername] = len(composername)
+                                
+                countnum = {}
+                for facet_name in facets_name_list:
+                    countnum[facet_name] = {}
+                    for item in facet_hit_ids[facet_name]:
+                        countnum[facet_name][item] = len(facet_hit_ids[facet_name][item])
+                print(countnum)
 
                 # Get all the matching document ids and their facets info
                 #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
@@ -802,13 +819,15 @@ class search_results:
                     "indices_names": indices,
                     #"facets_count_dict": facets_count_dict, 
                     #"facet_hit_ids": facet_hit_ids
+                    "countnum": countnum,
                     "list_composer": facets_count_dict["composer"],
                     "list_period": facets_count_dict["period"],#list_period,
                     "list_key": facets_count_dict["key"],#list_key,
                     "list_timesig": facets_count_dict["timesig"],#list_timesig,
                     "list_instrument": facets_count_dict["instrument"],#list_instrument,
                     "list_numofparts": facets_count_dict["numofparts"],#list_numofparts,
-                    "list_numofmeasures": facets_count_dict["numofmeasures"]#list_numofmeasures
+                    "list_numofmeasures": facets_count_dict["numofmeasures"],#list_numofmeasures
+                    #"count_composer": facet_hit_ids["composer"],
                 }
 
             return HttpResponse(template.render(context, request))

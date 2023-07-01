@@ -4,7 +4,6 @@
 {% include 'navbar.html' %}
 
 <form action="/search/discovery_result/" method="post">
-
 <div class="container">
 {% csrf_token %}
 
@@ -134,7 +133,25 @@
               </select>
               </div>
               <br/><br/>
+{%comment%}
 
+              {% for i, v in countnum.items %}
+              <div>
+                  {{i}}
+              </div>
+                  <br/>
+                  <select multiple="true" name={{i}} class="px-4 mx-2 custom-select custom-select-sm">
+                  <optgroup label = {{i}}>
+                  {%for x, y in v.items %}
+                  <option value ="{{i}}"> {{x |title}}</option>
+                  {{y}}
+                  {%endfor%}
+                </optgroup>
+              </select>
+                  <br/>
+              {%endfor%}
+
+{%endcomment%}
         </ul>
         <input class="px-4 mx-2 my-1" type="submit" value="Select">
       </div>
