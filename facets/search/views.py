@@ -618,6 +618,7 @@ class search_results:
                 context = {
                     "searchinput": searchinput,
                     "index_name": searchinput["index_name"],
+                    "pianopattern": searchinput["pianopattern"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
                     "facet_composers": facets_count_dict["composer"],
@@ -1010,6 +1011,7 @@ class search_results:
 
             context = {
                     "searchinput": searchinput,
+                    "pianopattern": searchinput["pianopattern"],
                     "index_name": searchinput["index_name"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
