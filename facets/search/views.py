@@ -947,7 +947,7 @@ class search_results:
                 template = loader.get_template('search/results.html')
                 context = {
                     "searchinput": searchinput,
-                    "index_name": index_name,
+                    "index_name": searchinput["index_name"],
                     "matching_doc_ids": False,
                     "abcpattern": searchinput["pattern"],
                     "num_matching_patterns": 0 
@@ -975,7 +975,7 @@ class search_results:
                 return HttpResponse(template.render(context, request))
 
             # for highlighting
-            matching_locations = request.session["matching_locations"]
+            matching_locations = request.session.get["matching_locations"]
 
             # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")
