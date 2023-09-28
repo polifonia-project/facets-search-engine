@@ -703,6 +703,7 @@ class search_results:
 
         context = {
                     "searchinput": searchinput,
+                    "pianopattern": searchinput["pianopattern"],
                     "index_name": searchinput["index_name"],
                     "match_dict_display": match_dict_display,
                     "indices_names": indices,
