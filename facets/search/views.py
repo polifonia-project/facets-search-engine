@@ -270,38 +270,6 @@ class search_results:
                     facet_period = list(set(facet_period)-set(invalid_name))
                     facets_count_dict["period"] = facet_period
 
-                    """
-                    facet_keymode = {}
-                    facet_hit_ids['keymode'] = {}
-                    # Get a dictionary of all  names in the matching docs and the number of matches for each instrument
-                    for keymode in matching_docs.aggregations.per_keymode.buckets:
-                        #print(keymode) # just for testing
-                        facet_keymode[keymode.key] = keymode.doc_count
-                        list_ids_curr_keym = []
-                        # get each hit doc id for curr composer
-                        for item in keymode.top_hits.buckets:
-                            list_ids_curr_keym.append(item['key'])
-                        facet_hit_ids['keymode'][keymode.key] = list_ids_curr_keym
-                        #print("following docs:", list_ids_curr_keym, "are in key mode:", keymode.key)
-
-                    facet_keymode = list(set(facet_keymode)-set(invalid_name))
-                    facets_count_dict["keymode"] = facet_keymode
-
-                    facet_keytonicname = {}
-                    facet_hit_ids['keytonicname'] = {}
-                    # Get a dictionary of all  names in the matching docs and the number of matches for each instrument
-                    for keytonicname in matching_docs.aggregations.per_keytonicname.buckets:
-                        #print(keytonicname) # just for testing
-                        facet_keytonicname[keytonicname.key] = keytonicname.doc_count                        
-                        list_ids_curr_keyt = []
-                        # get each hit doc id for curr composer
-                        for item in keytonicname.top_hits.buckets:
-                            list_ids_curr_keyt.append(item['key'])
-                        facet_hit_ids['keytonicname'][keytonicname.key] = list_ids_curr_keyt
-
-                    facet_keytonicname = list(set(facet_keytonicname)-set(invalid_name))
-                    facets_count_dict["keytonicname"] = facet_keytonicname
-                    """
                     facet_key = {}
                     facet_hit_ids['key'] = {}
                     # Get a dictionary of all key names in the matching docs and the number of matches for each key
@@ -975,7 +943,7 @@ class search_results:
                 return HttpResponse(template.render(context, request))
 
             # for highlighting
-            matching_locations = request.session.get["matching_locations"]
+            matching_locations = request.session.get("matching_locations")
 
             # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")

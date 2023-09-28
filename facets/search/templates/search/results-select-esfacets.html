@@ -4,9 +4,10 @@
 
 {% csrf_token %}
 
+{% if searchinput.composer or facet_composers %}
 <select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
-  <legend>Composer</legend>
   {%comment%}
+  <legend>Composer</legend>
   {% for composer in facet_composers %}
   <input id="{{composer}}" type="checkbox" value="{{composer}}">
   <label for="{{composer}}">{{composer}}</label>
@@ -17,7 +18,7 @@
   {% if searchinput.composer %}
   <option selected>{{searchinput.composer}}</option>
   {% for composer in facet_composers %}
-  {% if searchinput.composer != composer %}
+  {% if searchinput.composer != composer%}
   <option value="{{ composer }}">{{ composer | title }}</option>
   {% endif %}
   {% endfor %}
@@ -25,12 +26,14 @@
   <option selected>Not selected</option>
   {% for composer in facet_composers %}
   <option value="{{ composer }}">{{ composer | title }}</option>
-{% endfor %}
+  {% endfor %}
   {% endif %}
   </optgroup>
 </select>
-
 <br/>
+{% endif %}
+
+{% if searchinput.period or facet_period %}
 <select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Period">
   {% if searchinput.period %}
@@ -47,47 +50,10 @@
   {% endfor %}
   {% endif %}
 </select>
-
 <br/>
-{%comment%}
-<select multiple="true" name="keymode" class="px-4 mx-2 custom-select custom-select-sm">
-  <optgroup label = "Key mode">
-  {% if searchinput.keymode %}
-  <option selected>{{searchinput.keymode}}</option>
-  {% for keymode in facet_keymode %}
-  {% if searchinput.keymode != keymode %}
-  <option value="{{ keymode }}">{{ keymode | title }}</option>
-  {% endif %}
-  {% endfor %}
-  {% else %}
-  <option selected>Not selected</option>
-  {% for keymode in facet_keymode %}
-  <option value="{{ keymode }}">{{ keymode | title }}</option>
-  {% endfor %}
-  {% endif %}
-</select>
+{% endif %}
 
-<br/>
-
-<select multiple="true" name="keytonicname" class="px-4 mx-2 custom-select custom-select-sm">
-  <optgroup label = "Key tonic name">
-  {% if searchinput.keytonicname %}
-  <option selected>{{searchinput.keytonicname}}</option>
-  {% for keytonicname in facet_keytonicname %}
-  {% if searchinput.keytonicname != keytonicname %}
-  <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
-  {% endif %}
-  {% endfor %}
-  {% else %}
-  <option selected>Not selected</option>
-  {% for keytonicname in facet_keytonicname %}
-  <option value="{{ keytonicname }}">{{ keytonicname | title }}</option>
-  {% endfor %}
-  {% endif %}
-</select>
-<br/>
-{%endcomment%}
-
+{% if searchinput.key or facet_key %}
 <select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Key">
   {% if searchinput.key %}
@@ -105,8 +71,9 @@
   {% endif %}
 </select>
 <br/>
+{% endif %}
 
-
+{% if searchinput.timesig or facet_timesig %}
 <select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Time Signature">
   {% if searchinput.timesig %}
@@ -124,7 +91,9 @@
   {% endif %}
 </select>
 <br/>
+{% endif %}
 
+{% if searchinput.instrument or facet_instrument %}
 <select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Instruments">
   {% if searchinput.instrument %}
@@ -142,7 +111,9 @@
   {% endif %}
 </select>
 <br/>
+{% endif %}
 
+{% if searchinput.numofparts or facet_numofparts %}
 <select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Num of parts">
   {% if searchinput.numofparts %}
@@ -159,8 +130,10 @@
   {% endfor %}
   {% endif %}
 </select>
-
 <br/>
+{% endif %}
+
+{% if searchinput.numofmeasures or facet_numofmeasures %}
 <select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Num of measures">
   {% if searchinput.numofmeasures %}
@@ -178,7 +151,7 @@
   {% endif %}
 </select>
 <br/>
-
+{% endif %}
 
 {%comment%}
 <select multiple="true" name="numofnotes" class="px-4 mx-2 custom-select custom-select-sm">

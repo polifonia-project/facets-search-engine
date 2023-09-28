@@ -103,7 +103,7 @@ class IndexWrapper:
             print("Showing facets in ",index_name, "on discovery page.")
             search = Search(using=self.elastic_search, index=index_name)
 
-        search = search.params(size=settings.MAX_ITEMS_IN_RESULT)
+        #search = search.params(size=settings.MAX_ITEMS_IN_RESULT)
         search = search.extra(track_total_hits=True)
         search = search.query("match_all")
 
@@ -122,8 +122,7 @@ class IndexWrapper:
         logger.info ("Search doc sent to ElasticSearch: " + str(search.to_dict()))
         print ("Search doc sent to ElasticSearch: " + str(search.to_dict()).replace("'", "\""))
 
-        matching_docs = search.execute()
-
+        matching_docs = search.execute() #scan does not work for aggs.
         return matching_docs
 
     def navigate_with_facets(self, index_name):
