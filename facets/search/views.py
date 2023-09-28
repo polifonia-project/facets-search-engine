@@ -76,14 +76,15 @@ class search_results:
         searchinput["rankby"] = request.POST.get('rankby', False)
 
         # Index
-        searchinput["index_name"] = request.POST.get('indexname', False)
-        # Find a better fix: do not put the first letter as captial letter when displaying/send through request
-        
-        invalid_names = ["", "Not selected", "not selected"]
-        if searchinput["index_name"]:
-            if searchinput["index_name"] not in invalid_names:
-                searchinput["index_name"] = searchinput["index_name"].lower()
-            # otherwise ignore the input
+        if "index_name" not in searchinput:
+            searchinput["index_name"] = request.POST.get('indexname', False)
+            # Find a better fix: do not put the first letter as captial letter when displaying/send through request
+
+            invalid_names = ["", "Not selected", "not selected"]
+            if searchinput["index_name"]:
+                if searchinput["index_name"] not in invalid_names:
+                    searchinput["index_name"] = searchinput["index_name"].lower()
+        # otherwise ignore the input
 
         # Facets
 
@@ -638,6 +639,7 @@ class search_results:
                 request.session["match_dict_display"] = match_dict_display
                 # using default ranking method at the first call: rank by similarity
                 request.session["ranking_method"] = "Similarity"
+                #request.session["index_name"] = searchinput["index_name"]
 
                 # save facets in request session:
                 for facet_name in facets_name_list:
@@ -904,7 +906,7 @@ class search_results:
             template = loader.get_template('search/filtered_result.html')
             
             searchinput = request.session.get('searchinput')
-            
+
             # then read new entered facets and rank method
             searchinput = search_results.read_search_input_from_request(request, searchinput)
 
@@ -945,7 +947,7 @@ class search_results:
                 template = loader.get_template('search/results.html')
                 context = {
                     "searchinput": searchinput,
-                    "index_name": searchinput["index_name"],
+                    "index_name": index_name,
                     "matching_doc_ids": False,
                     "abcpattern": searchinput["pattern"],
                     "num_matching_patterns": 0 
@@ -973,7 +975,8 @@ class search_results:
                 return HttpResponse(template.render(context, request))
 
             # for highlighting
-            matching_locations = request.session.get("matching_locations")
+            matching_locations = request.session["matching_locations"]
+
             # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")
 
@@ -1018,7 +1021,6 @@ class search_results:
 
                 score_info[doc_id].append(musicdoc.index.name)
 
-                #print("match_dict_display:", match_dict_display)
                 # Re-calculate the number of matching patterns
                 num_matching_patterns += match_dict_display[doc_id]
 
@@ -1026,6 +1028,7 @@ class search_results:
             request.session["score_info"] = score_info
             request.session["num_matching_docs"] = len(score_info)
             request.session["num_matching_patterns"] =  num_matching_patterns
+            request.session["matching_doc_ids"] = matching_doc_ids
 
             # Pagination for filtered view:
             callpage = request.POST.get('page', False)
@@ -1207,6 +1210,7 @@ class search_results:
             request.session["score_info"] = score_info
             request.session["num_matching_docs"] = len(score_info)
             request.session["num_matching_patterns"] =  num_matching_patterns
+            #request.session["index_name"] = searchinput["index_name"]
 
             # Pagination for filtered view:
             callpage = request.POST.get('page', False)
@@ -1270,6 +1274,7 @@ class search_results:
                 searchinput["index_name"] = "ALL_INDICES"
             elif searchinput["index_name"] == "":
                 searchinput["index_name"] = "ALL_INDICES"
+            # TODO: get index_name from request.session?
 
             facets_name_list = ["composer", "period", "instrument", "key", "timesig", "numofparts", "numofmeasures"]
 
