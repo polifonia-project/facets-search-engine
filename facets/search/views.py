@@ -19,16 +19,13 @@ import urllib.parse
 
 from rest.models import *
 
-# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
 hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-print("\n\n**es****", hp)
-host=hp["host"]
-port=hp["port"]
+elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
 
 
 def index(request):
     try:
-        es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
+        es = Elasticsearch(elastic_params)
         indices = es.indices.get_alias().keys()
     except:
         template = loader.get_template('home/es_errorpage.html')
@@ -440,7 +437,7 @@ class search_results:
 
     def results(request):
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:
@@ -652,7 +649,7 @@ class search_results:
     def paginate_search_result(request, callpage):
         # Pagination for the search results
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:
@@ -732,7 +729,7 @@ class search_results:
 
     def DiscoveryView(request):
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
             index_wrapper = IndexWrapper("ALL_INDICES")
@@ -862,9 +859,8 @@ class search_results:
         # TO-SOLVE: re-rank by similarity
         # TO-SOLVE: re-send request to ES according to the new requests
         
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
-            # es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
             indices = es.indices.get_alias().keys()
         except:
             # If ES is not connected, it should be warned
@@ -1048,7 +1044,7 @@ class search_results:
 
         # TODO: how about pagination? might be different from pattern search, both back and front end
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:
@@ -1221,7 +1217,7 @@ class search_results:
 
     def DiscoveryFilteredResultView(request):
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:

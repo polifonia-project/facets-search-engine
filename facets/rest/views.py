@@ -41,12 +41,11 @@ def establish_es_connection():
     try:
 		# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
         hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-        host=hp["host"]
-        port=hp["port"]
-        es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
+        elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
+        es = Elasticsearch(elastic_params)
         return es
     except:
-        print("\n\n**rest**** Error connecting to Elasticsearch, please check your if it is running.")
+        print("\n\n**rest**** Error connecting to Elasticsearch, please check if it is running.")
     
 
 class JSONResponse(HttpResponse):
@@ -250,7 +249,6 @@ def document(request, index_name, doc_id):
                 curl -X GET  http://localhost:8000/index/lklk/
         '''
         try:
-            #es = Elasticsearch(hosts=[{'host': settings.ELASTIC_SEARCH["host"], 'port': settings.ELASTIC_SEARCH["port"]}],)
             es = establish_es_connection()
         except:
             return JSONResponse({"Error connecting to Elasticsearch, please check your connection."})
@@ -275,7 +273,6 @@ def document(request, index_name, doc_id):
     elif request.method == "PUT":
         try:
                 es = establish_es_connection()
-                #es = Elasticsearch(hosts=[{'host': settings.ELASTIC_SEARCH["host"], 'port': settings.ELASTIC_SEARCH["port"]}],)
         except:
                 return JSONResponse({"Error connecting to Elasticsearch, please check your connection."})
         
