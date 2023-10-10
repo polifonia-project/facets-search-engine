@@ -34,6 +34,7 @@ A preliminary version is live on the [NEUMA platform](http://neuma.huma-num.fr).
 
 ## Installation
 
+````
 $ git clone git@github.com:polifonia-project/facets-search-engine.git
 $ cd facets
 $ python -m venv venv
@@ -42,4 +43,5 @@ $ pip install -r requirements-versions.txt
 $ mkdir staticfiles
 $ sudo docker start facets-es # or any other ElasticSearch start method
 $ python manage.py migrate
-$ python manage.py runserver 
+$ python manage.py runserver
+````
