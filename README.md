@@ -30,7 +30,7 @@ bibliography: n/a
 
 This repository is dedicated to the Docker image of the FACETS pilot, focusing on the development of a faceted search-engine for musical documents. 
 
-A preliminary version is live on the [NEUMA platform](http://neuma.huma-num.fr).
+A demo version is live on the [HumaNum platform](http://neuma-dev.huma-num.fr), and an older version powers the search on the [NEUMA platform](http://neuma.huma-num.fr).
 
 ## Running with Docker
 
