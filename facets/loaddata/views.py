@@ -46,6 +46,7 @@ def uploaddata(request):
         indices = es.indices.get_alias().keys()
     except:
         template = loader.get_template('home/es_errorpage.html')
+        print("*** loaddata, error connecting to es:",elastic_params)
         context = {}
         return HttpResponse(template.render(context, request))
     

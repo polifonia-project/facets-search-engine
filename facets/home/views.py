@@ -13,6 +13,7 @@ from elasticsearch_dsl import Search
 from lib.search.IndexWrapper import IndexWrapper
 
 from rest.models import *
+import os
 
 hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
 elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
@@ -95,7 +96,8 @@ def OverviewDataView(request):
         indices = es.indices.get_alias()
     except:
         # if ES is not connected, it should be warned
-        print("home**** Error connecting to Elasticsearch, please check your if it is running.")
+        print("*** dashboard: Error connecting to Elasticsearch, please check if it is running.")
+        print(elastic_params, os.environ.get("DOCKER"))
         template = loader.get_template('home/es_errorpage.html')
         context = {}
         return HttpResponse(template.render(context, request))
