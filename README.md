@@ -32,7 +32,16 @@ This repository is dedicated to the Docker image of the FACETS pilot, focusing o
 
 A preliminary version is live on the [NEUMA platform](http://neuma.huma-num.fr).
 
-## Installation
+## Running with Docker
+
+````
+$ git clone git@github.com:polifonia-project/facets-search-engine.git
+$ docker-compose up --build
+````
+Leave the terminal open, wait a bit so that Django and ElasticSearch are up.
+Then go to [http://0.0.0.0:8000]().
+
+## Running Django
 
 ````
 $ git clone git@github.com:polifonia-project/facets-search-engine.git
