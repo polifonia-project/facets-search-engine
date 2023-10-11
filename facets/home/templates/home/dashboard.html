@@ -28,7 +28,11 @@
 
 			<div class="card text-center">
 				<div class="card-header">
-					There are {{ indices_number }} indices.
+          {% if indices_number > 1%}
+          There are {{ indices_number }} indices.
+          {% else %}
+          There is {{ indices_number }} index.
+          {% endif%}
 				</div>
 				<ul class="list-group ">
 					{% for k, v in indices_stats.items %}
