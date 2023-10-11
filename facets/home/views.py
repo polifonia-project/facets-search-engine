@@ -133,7 +133,7 @@ def IndexView(request, index_name):
 
         if index_name in indices:
             info = {}
-            info["docs_number"] = es.indices.stats(index_name).get('_all').get('primaries').get('docs').get('count')
+            info["docs_number"] = es.indices.stats(index=index_name).get('_all').get('primaries').get('docs').get('count')
             
             doc_results = {}
             # Here we run a query to retrieve some ids

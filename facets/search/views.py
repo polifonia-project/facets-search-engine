@@ -50,12 +50,13 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 class search_results:
+    hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+    elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
 
     def __init__(self):
         return
 
     def read_search_input_from_request(request, searchinput):
-        
         if searchinput == {}:
             # if it is the first entry of search with pattern, read them
             searchinput["pattern"] = request.POST.get('pattern', False)
@@ -730,8 +731,10 @@ class search_results:
     def DiscoveryView(request):
 
         es = Elasticsearch(elastic_params)
+        print("es", elastic_params)
+        print(es)
         try:
-            indices = es.indices.get_alias().keys()
+            indices = es.indices.get_alias() #.keys()
             index_wrapper = IndexWrapper("ALL_INDICES")
         except:
             # if ES is not connected, it should be warned
@@ -785,7 +788,7 @@ class search_results:
                 #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
                 context = {
-                    "indices_names": indices,
+                    "indices_names": indices.keys(),
                     #"facets_count_dict": facets_count_dict, 
                     #"facet_hit_ids": facet_hit_ids
                     "countnum": countnum,
