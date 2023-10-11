@@ -39,7 +39,7 @@ $ git clone git@github.com:polifonia-project/facets-search-engine.git
 $ docker-compose up --build
 ````
 Leave the terminal open, wait a bit so that Django and ElasticSearch are up.
-Then go to [http://0.0.0.0:8000]().
+Then go to [http://0.0.0.0:8000](http://0.0.0.0:8000).
 
 ## Running Django
 
