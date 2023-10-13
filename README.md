@@ -30,22 +30,23 @@ bibliography: n/a
 
 This repository is dedicated to the Docker image of the FACETS pilot, focusing on the development of a faceted search-engine for musical documents. 
 
-A preliminary version is live on the [NEUMA platform](http://neuma.huma-num.fr).
+A demo version is live on the [HumaNum platform](http://neuma-dev.huma-num.fr), and an older version powers the search on the [NEUMA platform](http://neuma.huma-num.fr).
 
 ## Running with Docker
 
 ````
-$ git clone git@github.com:polifonia-project/facets-search-engine.git
+$ git clone https://github.com/polifonia-project/facets-search-engine.git
+$ cd facets-search-engine
 $ docker-compose up --build
 ````
 Leave the terminal open, wait a bit so that Django and ElasticSearch are up.
-Then go to [http://0.0.0.0:8000]().
+Then go to [http://0.0.0.0:8000](http://0.0.0.0:8000).
 
 ## Running Django
 
 ````
-$ git clone git@github.com:polifonia-project/facets-search-engine.git
-$ cd facets
+$ git clone https://github.com/polifonia-project/facets-search-engine.git
+$ cd facets-search-engine/facets
 $ python -m venv venv
 $ source venv/bin/activate
 $ pip install -r requirements-versions.txt
