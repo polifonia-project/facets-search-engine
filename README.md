@@ -42,7 +42,7 @@ $ docker-compose up --build
 Leave the terminal open, wait a bit so that Django and ElasticSearch are up.
 Then go to [http://0.0.0.0:8000](http://0.0.0.0:8000).
 
-Alternatively, one can use `$ docker-compose up --build *-d*` (notice the `-d`, for detaching), then use `docker logs Facets-WEB -f` or `docker logs Facets-ES -f` to view logs for the web app or Elasticsearch respectively.
+Alternatively, one can use `$ docker-compose up --build -d` (notice the `-d`, for detaching), then use `docker logs Facets-WEB -f` or `docker logs Facets-ES -f` to view logs for the web app or Elasticsearch respectively.
 
 ## Running Django
 
