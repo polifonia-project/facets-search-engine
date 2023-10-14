@@ -54,10 +54,10 @@ echo -e "\n\nCreating index ${INDEX_NAME}"
 curl -X PUT http://${ES_URL}/${INDEX_NAME}
 
 #NB_FILES=`unzip -t ../data/francoise.zip |grep -v "/.*/"|wc -l`
-echo "importing files from archive francoise.zip"
+echo -e "\nimporting files from archive francoise.zip"
 for file in `ls ../data/francoise.zip`
 do
   curl -X PUT -H "Content-type: application/zip" http://${URL}/rest/index/${INDEX_NAME}/francoisezip/ --data-binary @${file}
 done
 
-echo "Done! You can now try FACETS at http://${URL}/!"
+echo -e"\nDone! You can now try FACETS at http://${URL}/!"
