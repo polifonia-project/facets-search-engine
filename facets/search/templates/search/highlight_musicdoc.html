@@ -3,6 +3,7 @@
 {% block content %}
 {% include 'navbar.html' %}
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
 <div class="container">
     <div class="row mb-8">
 
@@ -46,130 +47,61 @@
             success: function(data) {
                 let svg = vrvToolkit.renderData(data);
 
+                // some re-formatting is needed for getting a neat htmlcollection of ids to highlight
+                // first get the highlight_ids, encode and split them
+                var todecode = "{{highlight_ids}}"
+                // decode html so " symbol can be read
+                var decoded = decodeHTMLEntities(todecode)
 
+                var highlightids = [];
+                highlightids = decoded.split(", ");
+                
+                // then get rid of "[" and "]" in the first and last item of the list
+                highlightids[0] = highlightids[0].split('[')[1];
+                numids = highlightids.length;
+                highlightids[numids-1] = highlightids[numids-1].split(']')[0];
+
+                for (var i = 0; i < highlightids.length; i++) {
+                    //get rid of the "" in each string, replace each element in highlightids
+                    temp = highlightids[i].split('"');
+                    highlightids[i] = temp[1];
+                    //console.log(highlightids[i])
+                }
+                
                 document.getElementById("notation").innerHTML = svg;
-
+                let filecontent = document.getElementById("notation")
+                // now get all the note elements from svg 
+                var notes = filecontent.getElementsByClassName("note")
+                for(var i = 0; i < notes.length; i++) {
+                    var match = false
+                    var match = highlightids.includes(notes[i].id)
+                    // check if the current note needs highlighting
+                    if (match != false) {
+                        //if yes, highlight it
+                        notes[i].style.stroke = "#ff0487";
+                        notes[i].style.fill = "#ff0000";
+                        notes[i].style.fillOpacity = 1.0;
+                    }
+                }
+                // ATTENTION: the current version works for MEI but is problematic with XML, as the highlightids are not using the same representation as what's in svg, thus it's impossible to find matched ids to highlight. need to fix!
+                
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 console.log("Error with document {{doc_url}} " + xhr.status);
             }
-
         });
     });
 
     </script>
 
-{%comment%}
-        function displayWithVerovio(highlights) {
-            /* Highlight the score elements */
-            for (var i = 0; i < highlights.length; i++) {
-                match = document.getElementById(highlights[i]);
-                if (match != null) {
-                    match.style.stroke = "#ff0487";
-                    match.style.fill = "#ff0000";
-                    match.style.fillOpacity = 1.0;
-                }
-            }
-{%endcomment%}
-        
         <div id="notation" >
             score placeholder
         </div>
-
-        <script type="text/javascript">
-
-        document.addEventListener("DOMContentLoaded", function() {
-            /* Highlight the score elements */
-
-            var todecode = "{{highlight_ids}}"
-            // decode html so " symbol can be read
-            var decoded = decodeHTMLEntities(todecode)
-
-            var highlightids = [];
-            highlightids = decoded.split(", ");
-            
-            //get rid of "[" and "]" in the first and last item of the list
-            highlightids[0] = highlightids[0].split('[')[1];
-            numids = highlightids.length;
-            highlightids[numids-1] = highlightids[numids-1].split(']')[0];
-
-            for (var i = 0; i < highlightids.length; i++) {
-                // finally, get rid of quote symbol in each highlightid
-                temp = highlightids[i].split('"');
-                highlightids[i] = temp[1];
-                //console.log(highlightids[i]);
-
-                /*
-                //match = document.getElementById(highlightids[i]);
-                //var element = document.querySelector("#" + highlightids[i]);
-                var element = document.querySelector("#" + "m-124");
-                if (element) {
-                console.log("works! " + element);
-                    var classes =
-                        element.getAttribute("class");
-                    var classlist = classes.split(" ");
-                    var outclass = "";
-                    for (var i=0; i<classlist.length; i++) {
-                        if
-                        (classlist[i] == "highlight") {
-                            continue;
-                        }
-                        outclass
-                            += " " + classlist[i];
-                    }
-                    outclass += " highlight";
-                    element.setAttribute("class", outclass);
-                }
-                */
-                   // if (match != null) {
-                   //         console.log(match);
-                   //         match.strokeStyle = "#ff0487";
-                   //         match.fillStyle = "#ff0000";
-                   //         match.fillOpacityStyle = 1.0;
-                   // }
-            }
-            allnotes = document.getElementsByClassName('note')
-            //console.log(allnotes)
-
-                for (var i = 0; i < highlightids.length; i++) {
-                        match = document.getElementById(highlightids[i]);
-                        //var match = document.querySelector(highlightids[i]);
-
-                        //match = document.getElementById("notation").getSVGDocument().getElementById(highlightids[i])
-
-                        //match = document.querySelector('p#highlighids[i].note')
-
-                        if (match != null) {
-                            match.strokeStyle = "#ff0487";
-                            //match.style.stroke = "#ff0487";
-                            //match.style.fill = "#ff0000";
-                            //match.style.fillOpacity = 1.0;
-                            
-                        }
-                        console.log(match);
-                }
-
-            });
-        /*
-        // TODO: in the following test code, the id of a displayed note from the html page is used, yet getElementById still returns null.
-        window.onload = function(){
-            testforbwv48 = "m-124";
-            testelement = document.querySelector("#m-124");
-            // testforbwv48 = "dle1498";
-            // testelement = document.getElementById(testforbwv48);
-            console.log(testelement);
-            testelement.strokeStyle = "#ff0487";
-        }*/
-
-    </script>
     
-                {% else %}
-                no score to display
-                {% endif %}
-            </div>
+        {% else %}
+        no score to display
+        {% endif %}
         </div>
-
-        <div class="col-lg-2 mx-auto">
         </div>
 
 
