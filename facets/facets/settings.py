@@ -141,7 +141,7 @@ USE_TZ = True
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_ROOT = BASE_DIR.as_posix()+ "/static"
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'bootstrap'), os.path.join(BASE_DIR, 'staticfiles')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'bootstrap')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -167,9 +167,14 @@ LYRICS_SEARCH = "lyrics"
 
 ES_QUERY_DIR = os.path.join(BASE_DIR, "static/queries")
 
-ELASTIC_SEARCH = {
-    "hosts": [{'host': "localhost", 'port': 9200}]
-}
+if os.environ.get("DOCKER") == "1":
+    ELASTIC_SEARCH = {
+            "hosts": [{'host': "es", 'port': 9200}]
+            }
+else:
+    ELASTIC_SEARCH = {
+            "hosts": [{'host': "localhost", 'port': 9200}]
+            }
 
 ITEMS_PER_PAGE = 20
 SCORES_PER_PAGE = 5

@@ -6,7 +6,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from rest_framework import renderers
-import json
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
@@ -14,13 +13,10 @@ from elasticsearch_dsl import Search
 from lib.search.IndexWrapper import IndexWrapper
 
 from rest.models import *
+import os
 
-# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
 hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-print("\n\n**es****", hp)
-host=hp["host"]
-port=hp["port"]
-
+elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
 
 # class DocsView(TemplateView):
     # template_name = "home/docs.html"
@@ -96,19 +92,19 @@ def fetch_musicdoc(request, index_name, doc_id):
 def OverviewDataView(request):
     template = loader.get_template('home/dashboard.html')
     try:
-        es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
+        es = Elasticsearch(elastic_params)
         indices = es.indices.get_alias()
     except:
         # if ES is not connected, it should be warned
-        print("\n\n**home**** Error connecting to Elasticsearch, please check your if it is running.")
+        print("*** dashboard: Error connecting to Elasticsearch, please check if it is running.")
+        print(elastic_params, os.environ.get("DOCKER"))
         template = loader.get_template('home/es_errorpage.html')
         context = {}
         return HttpResponse(template.render(context, request))
     
     indices_stats = {}
     for key in indices.keys():
-        # stats[key] = es.indices.stats(key)
-        indices_stats[key] = es.indices.stats(key).get('_all').get('primaries').get('docs').get('count')
+        indices_stats[key] = es.indices.stats(index=key).get('_all').get('primaries').get('docs').get('count')
 
     if settings.DISABLE_SCORELIB:
         context = {"indices_number": len(indices_stats)-1, "indices_stats": indices_stats,  
@@ -129,7 +125,7 @@ def IndexView(request, index_name):
         template = loader.get_template('home/indexview.html')
 
         try:
-            es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
+            es = Elasticsearch(elastic_params)
             indices = es.indices.get_alias()
         except:
             # if ES is not connected, it should be warned
@@ -139,7 +135,7 @@ def IndexView(request, index_name):
 
         if index_name in indices:
             info = {}
-            info["docs_number"] = es.indices.stats(index_name).get('_all').get('primaries').get('docs').get('count')
+            info["docs_number"] = es.indices.stats(index=index_name).get('_all').get('primaries').get('docs').get('count')
             
             doc_results = {}
             # Here we run a query to retrieve some ids

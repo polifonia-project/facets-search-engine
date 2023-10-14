@@ -41,20 +41,15 @@ class IndexWrapper:
         """
            Connect to the ElasticSearch server, and open the index
         """
+        hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+        elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
         if auth_login is None:
-            hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-            host = hp["host"]
-            port = hp["port"]
             if index_name != "ALL_INDICES" and index_name != "" and index_name != "Not selected":
-                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], index=index_name)
+                # self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], index=index_name)
+                self.elastic_search = Elasticsearch(elastic_params)
             else:
                 # if not specified, search in all indices
-                self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}])
-            """
-            self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"], 
-                                            port=settings.ELASTIC_SEARCH["port"],
-                                            index=index_name)
-            """
+                self.elastic_search = Elasticsearch(elastic_params)
         else:
             """
             self.elastic_search = Elasticsearch(host=settings.ELASTIC_SEARCH["host"],
@@ -62,9 +57,6 @@ class IndexWrapper:
                                             index=index_name,
                                             http_auth=(auth_login, auth_password))
             """
-            hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-            host = hp["host"]
-            port = hp["port"]
             if index_name != "ALL_INDICES" and index_name != "":
                 self.elastic_search = Elasticsearch(hosts=[ {'host': host, 'port': port}, ], 
                                             index=index_name,

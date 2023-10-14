@@ -6,65 +6,16 @@
 
 <div class="container">
   <div class="row mb-8">
-    <div class="col-lg-12 mx-auto">
 
-        <h1 class="text-center">Data management</h1>
+<div class="col-lg-12 mx-auto">
+  <h1 class="text-center">Data management</h1>
 
-        <div class="alert alert-warning mt-3">
-          <h3 class="alert-heading">Load documents</h3>
-            <h6 class="alert-heading">
-            FACETS support the search of music documents in MEI, MusicXML, XML, HUMDRUM and ABC formats. <br/>
-            For loading multiple music documents, they may be uploaded as a ZIP. Metadata files may also be included in ZIP. Note that the ZIP should not include any folder.<br/>
-            It is highly recommended to include title and composer in the music score or metadata file, in order to allow faceted search navigation.
-            <br/>
-            </h6>
-
-          <br/>
-          <form action="/loaddata/results/" method="POST" enctype="multipart/form-data">
-
-          {% csrf_token %}
-          <input type="file" name="myfile">
-
-          <br/><br/>
-
-          <select name="indexname" class="px-4 mr-2 custom-select-sm" style="width: 10rem;">
-          <option selected>Index name</option>
-          {% if disable_scorelib %}
-          {% for index in indices_names %}
-          {% if index != 'scorelib' and index != 'Scorelib' %}
-          <option value="{{ index }}">{{ index | title }}</option>
-          {%endif%}
-          {% endfor %}
-          {%else%}
-          {% for index in indices_names %}
-          <option value="{{ index }}">{{ index | title }}</option>
-          {% endfor %}
-          {%endif%}
-          </select>
-          
-          <select name="fileformat" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
-          <option selected>File format</option>
-          <option value="mei">MEI</option>
-          <option value="musicxml">MusicXML</option>
-          <option value="xml">XML</option>
-          <option value="abc">ABC</option>
-          <option value="krn">Humdrum</option>
-          <option value="zip">ZIP</option>
-          </select>
-
-          <input type="submit">
-          </form>
-        </div>
+    {%include  'loaddata/add_docs-card.html' %}
+    {%include  'loaddata/add_index-card.html' %}
+    {%include  'loaddata/add_metadata-card.html' %}
+</div>
 
   </div>
-
-
-<br/>
-{%include  'loaddata/add_index.html' %}
-<br/>
-{%include  'loaddata/add_metadata.html' %}
-
-  </div>
-  </div>
+</div>
 
 {% endblock %}

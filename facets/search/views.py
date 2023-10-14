@@ -19,16 +19,13 @@ import urllib.parse
 
 from rest.models import *
 
-# host = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"]
 hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
-print("\n\n**es****", hp)
-host=hp["host"]
-port=hp["port"]
+elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
 
 
 def index(request):
     try:
-        es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
+        es = Elasticsearch(elastic_params)
         indices = es.indices.get_alias().keys()
     except:
         template = loader.get_template('home/es_errorpage.html')
@@ -53,12 +50,13 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 class search_results:
+    hp = getattr(settings, "ELASTIC_SEARCH", "localhost")["hosts"][0]
+    elastic_params = "http://"+hp["host"]+":"+str(hp["port"])
 
     def __init__(self):
         return
 
     def read_search_input_from_request(request, searchinput):
-        
         if searchinput == {}:
             # if it is the first entry of search with pattern, read them
             searchinput["pattern"] = request.POST.get('pattern', False)
@@ -440,7 +438,7 @@ class search_results:
 
     def results(request):
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:
@@ -652,7 +650,7 @@ class search_results:
     def paginate_search_result(request, callpage):
         # Pagination for the search results
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:
@@ -732,9 +730,11 @@ class search_results:
 
     def DiscoveryView(request):
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
+        print("es", elastic_params)
+        print(es)
         try:
-            indices = es.indices.get_alias().keys()
+            indices = es.indices.get_alias() #.keys()
             index_wrapper = IndexWrapper("ALL_INDICES")
         except:
             # if ES is not connected, it should be warned
@@ -788,7 +788,7 @@ class search_results:
                 #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
                 context = {
-                    "indices_names": indices,
+                    "indices_names": indices.keys(),
                     #"facets_count_dict": facets_count_dict, 
                     #"facet_hit_ids": facet_hit_ids
                     "countnum": countnum,
@@ -862,9 +862,8 @@ class search_results:
         # TO-SOLVE: re-rank by similarity
         # TO-SOLVE: re-send request to ES according to the new requests
         
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
-            # es = Elasticsearch(hosts=[ {'host': host, 'port': port}, ])
             indices = es.indices.get_alias().keys()
         except:
             # If ES is not connected, it should be warned
@@ -1048,7 +1047,7 @@ class search_results:
 
         # TODO: how about pagination? might be different from pattern search, both back and front end
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:
@@ -1221,7 +1220,7 @@ class search_results:
 
     def DiscoveryFilteredResultView(request):
 
-        es = Elasticsearch()
+        es = Elasticsearch(elastic_params)
         try:
             indices = es.indices.get_alias().keys()
         except:

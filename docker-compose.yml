@@ -1,21 +1,24 @@
-version: "3"
+# https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
+version: '3'
 
 services:
   web:
-    container_name: "FACETS-WEB"
-    image: python:3.10
+    container_name: "Facets-WEB"
+    build: ./facets
+    #command: python manage.py runserver 0.0.0.0:8000
+    command: bash -c "python manage.py migrate; python manage.py runserver 0.0.0.0:8000 --insecure"
     volumes:
-      - ./facets:/facets
+      - ./facets/:/usr/src/facets/
     links:
       - elasticsearch:es 
-    command: bash -c "cd /facets && cp local_settings-docker.py facets/local_settings.py && pip install -r requirements-versions.txt && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     ports:
-      - "8000:8000"
+      - 8000:8000
+    env_file:
+      - ./.env.dev
     depends_on:
       - elasticsearch
-
   elasticsearch:
-    container_name: "FACETS-ES"
+    container_name: "Facets-ES"
     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
     volumes:
       - ./data/elastic:/var/lib/elasticsearch/data
@@ -30,11 +33,3 @@ services:
         hard: -1
     ports:
       - 9200:9200
-
-  #kibana:
-    #image: docker.elastic.co/kibana/kibana:7.16.2
-    #container_name: "FACETS-KI"
-    #environment:
-      #- "ELASTICSEARCH_HOSTS=http://es01-test:9200"
-    #ports:
-      #- "5601:5601"
