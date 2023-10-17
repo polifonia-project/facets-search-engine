@@ -35,9 +35,9 @@ A demo version is live on the [HumaNum platform](http://neuma-dev.huma-num.fr), 
 ## Running with Docker
 
 ````
-$ git clone https://github.com/polifonia-project/facets-search-engine.git
+$ git clone https://github.com/polifonia-project/facets-search-engine
 $ cd facets-search-engine
-$ docker-compose up --build
+$ sudo docker-compose up --build
 ````
 Leave the terminal open, wait a bit so that Django and ElasticSearch are up.
 Then go to [http://0.0.0.0:8000](http://0.0.0.0:8000).
