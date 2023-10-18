@@ -35,9 +35,13 @@ A demo version is live on the [HumaNum platform](http://neuma-dev.huma-num.fr), 
 ## Running with Docker
 
 First, install Docker:
+
 For linux users, see [https://docs.docker.com/desktop/install/linux-install/](https://docs.docker.com/desktop/install/linux-install/#generic-installation-steps)
+
 For Mac users, see https://docs.docker.com/desktop/install/mac-install/
+
 For Windows users, see https://docs.docker.com/desktop/install/windows-install/
+
 
 Once Docker is installed on your machine, run the following commands in terminals:
 ````
