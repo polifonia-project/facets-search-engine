@@ -34,6 +34,9 @@ A demo version is live on the [HumaNum platform](http://neuma-dev.huma-num.fr), 
 
 ## Running with Docker
 
+First, install Docker:
+https://docs.docker.com/get-docker/
+
 ````
 $ git clone https://github.com/polifonia-project/facets-search-engine
 $ cd facets-search-engine
