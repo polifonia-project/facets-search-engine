@@ -34,10 +34,20 @@ A demo version is live on the [HumaNum platform](http://neuma-dev.huma-num.fr), 
 
 ## Running with Docker
 
+First, install Docker:
+
+For linux users, see [https://docs.docker.com/desktop/install/linux-install/](https://docs.docker.com/desktop/install/linux-install/#generic-installation-steps)
+
+For Mac users, see https://docs.docker.com/desktop/install/mac-install/
+
+For Windows users, see https://docs.docker.com/desktop/install/windows-install/
+
+
+Once Docker is installed on your machine, run the following commands in terminals:
 ````
-$ git clone https://github.com/polifonia-project/facets-search-engine.git
+$ git clone https://github.com/polifonia-project/facets-search-engine
 $ cd facets-search-engine
-$ docker-compose up --build
+$ sudo docker-compose up --build
 ````
 Leave the terminal open, wait a bit so that Django and ElasticSearch are up.
 Then go to [http://0.0.0.0:8000](http://0.0.0.0:8000).
@@ -55,6 +65,13 @@ $ sh getting-started.sh
 
 It should be somewhat long, but in the end you will have 3 indices on your FACETS platform, with various number of documents.
 You will then be able to try the search and discovery features.
+
+## Import score collections of your choice
+Alternatively, you could freely choose data to import by using "Load Data" GUI interface:
+First, create an index by entering a name that describes the content of data that you wish to import, and click "submit".
+Then, click the "choose file" button, and choose a score or a zip of scores to import, and select the name of index that you wish to import the file in, and file format accordingly, and click "submit".
+
+After file imports, you may browse the score contents in "Dashboard" section, discover imported file collections in "Discovery" section, or search for patterns using the search engine in "Search" section.
 
 ## Running with Django
 
