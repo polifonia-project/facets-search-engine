@@ -66,6 +66,7 @@ $ sh getting-started.sh
 It should be somewhat long, but in the end you will have 3 indices on your FACETS platform, with various number of documents.
 You will then be able to try the search and discovery features.
 
+## Import score collections of your choice
 Alternatively, you could freely choose data to import by using "Load Data" GUI interface:
 First, create an index by entering a name that describes the content of data that you wish to import, and click "submit".
 Then, click the "choose file" button, and choose a score or a zip of scores to import, and select the name of index that you wish to import the file in, and file format accordingly, and click "submit".
