@@ -57,6 +57,7 @@ class search_results:
         return
 
     def read_search_input_from_request(request, searchinput):
+
         if searchinput == {}:
             # if it is the first entry of search with pattern, read them
             searchinput["pattern"] = request.POST.get('pattern', False)
@@ -366,23 +367,6 @@ class search_results:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
-            """
-            if search_context.facet_keymode != None and search_context.facet_keymode != "":
-                if search_context.facet_keymode in facet_hit_ids["keymode"]:
-                    temp_matching_ids = facet_hit_ids["keymode"][search_context.facet_keymode]
-                    if (set(temp_matching_ids) & set(common_list)):
-                        common_list = list(set(temp_matching_ids) & set(common_list))
-                    else:
-                        common_list = []
-
-            if search_context.facet_keytonicname != None and search_context.facet_keytonicname != "":
-                if search_context.facet_keytonicname in facet_hit_ids["keytonicname"]:
-                    temp_matching_ids = facet_hit_ids["keytonicname"][search_context.facet_keytonicname]
-                    if (set(temp_matching_ids) & set(common_list)):
-                        common_list = list(set(temp_matching_ids) & set(common_list))
-                    else:
-                        common_list = []
-            """
 
             if search_context.facet_period != None and search_context.facet_period != "":
                 if search_context.facet_period in facet_hit_ids["period"]:
@@ -524,10 +508,10 @@ class search_results:
                     # Get a dictionary of counting for facets from aggregation for each facets
                     facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
                     
-
                     try:
                         # Get matching ids(positions) of patterns in MusicSummary for highlighting
                         matching_locations = index_wrapper.locate_matching_patterns(searchinput["index_name"], matching_doc_ids, searchcontext)
+                        
                     except Exception as ex:
                         template = loader.get_template('search/search_errorpage.html')
                         error_message = "Error when trying to locate matching patterns in IndexWrapper"
@@ -537,15 +521,25 @@ class search_results:
                     # Display the list: number of pattern occurrences in every matching doc
                     # For rank by relevancy
                     match_dict_display = {}
+                    sim_score = {}
+                    occlocs = {}
                     num_matching_patterns = 0
                     for mat_doc in matching_locations:
                         num_matching_patterns += mat_doc["num_occu"]
                         print("There are", mat_doc["num_occu"]," matching patterns in doc id:", mat_doc["doc"])
                         print("ids of all matching notes are:", mat_doc["matching_ids"], "\n")
+                        print("locations of the matching notes are:", mat_doc["occloc"])
+                        print("The distance between best matching pattern and query pattern:", mat_doc["distance"], '\n')
+                        # save matching locations for display
                         match_dict_display[mat_doc["doc"]] = mat_doc["num_occu"]
+                        # save the locations of each matching note in case the formatting issue cause problem
+                        occlocs[mat_doc["doc"]] = mat_doc["occloc"]
+                        # save the scores for ranking by similarity
+                        sim_score[mat_doc["doc"]] = mat_doc["distance"]
 
-                    if searchinput["rankby"] == "Relevancy":
-                        matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
+                    # Default: rank by relevancy (number of matching patterns)
+                    #matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
+                    matching_doc_ids = search_results.rank_the_results_by_relevancy(match_dict_display)
 
                     hostname = request.get_host()
                     score_info = {}
@@ -604,7 +598,11 @@ class search_results:
                 request.session["score_info"] = score_info
                 request.session["match_dict_display"] = match_dict_display
                 # using default ranking method at the first call: rank by similarity
-                request.session["ranking_method"] = "Similarity"
+                request.session["ranking_method"] = "Relevancy"
+                # for ranking by similarity
+                request.session["sim_score"] = sim_score
+                # in case the matching ids won't match the ids for highlighting, we use location numbers
+                request.session["occlocs"] = occlocs
                 #request.session["index_name"] = searchinput["index_name"]
 
                 # save facets in request session:
@@ -813,6 +811,9 @@ class search_results:
         template = loader.get_template('search/highlight_musicdoc.html')
 
         all_matching = request.session.get('matching_locations')
+        
+        occlocs = request.session.get("occlocs")
+
         highlight_ids = []
         # Find the list of ids to highlight in this doc
         for dict_i in all_matching:
@@ -839,16 +840,26 @@ class search_results:
         }
         return HttpResponse(template.render(context, request))
 
-    def re_rank_the_results(ranking_method, match_dict_display):
-        # Given a new ranking method, return the ranked list of matching doc ids for display
-        if ranking_method == "Relevancy" or ranking_method == "relevancy":
-            matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
-            matching_doc_ids = list(reversed(matching_doc_ids))
-            return matching_doc_ids
-        # TODO: rank by similarity... quick way
-        #elif ranking_method == "Similarity" or ranking_method == "similarity":
-            # RANK BY SIM
-            # SAVE A SCORE OF THE SIMILARITY AS PART OF THE SEARCH RESULT! TODO IN IndexWrapper
+    def rank_the_results_by_relevancy(match_dict_display):
+
+        # return the ranked list of matching doc ids for display
+        matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
+        matching_doc_ids = list(reversed(matching_doc_ids))
+        for temp in matching_doc_ids:
+            print(temp, "number of patterns:", match_dict_display[temp])
+        return matching_doc_ids
+
+    def rank_the_results_by_sim(sim_score):
+
+        # rank by the similarity score of the best matching pattern
+        matching_doc_ids = sorted(sim_score, key=sim_score.get)
+        # the smaller the score is, the more similar they are.
+        # just print to test
+        for temp in matching_doc_ids:
+            print(temp, "score:", sim_score[temp])
+
+        return matching_doc_ids
+
 
     def FilteredResultView(request):
         # Ideally, this page does not display the search input anymore 
@@ -893,8 +904,8 @@ class search_results:
                     index_wrapper = IndexWrapper(searchinput["index_name"])
                     # ES returns a "response" object with all the documents that matches query
                     matching_docs = index_wrapper.search(searchcontext)
+                    # this gives the order by similarity
 
-                    # To be continued.
                 except Exception as ex:
                     template = loader.get_template('search/search_errorpage.html')
                     error_message = "Error when trying to call search with ES in IndexWrapper"
@@ -948,12 +959,17 @@ class search_results:
 
             # for ranking by relevancy
             match_dict_display = request.session.get("match_dict_display")
+            # for ranking by sim
+            sim_score = request.session.get("sim_score")
 
-            # if a new rank method is entered TODO!!!
-            if searchinput["rankby"] != False and searchinput["rankby"] != request.session["ranking_method"]:
-                matching_doc_ids = search_results.re_rank_the_results(searchinput["rankby"], match_dict_display)
-                # remember the new order and new rank method in request.session
-                request.session["matching_doc_ids"] = matching_doc_ids
+            if (request.session["ranking_method"] == "Relevancy" and searchinput["rankby"] == False) or (searchinput["rankby"] == "Relevancy" or searchinput["rankby"] == "relevancy"):
+                matching_doc_ids = search_results.rank_the_results_by_relevancy(match_dict_display)
+
+            if (request.session["ranking_method"] == "Similarity" and searchinput["rankby"] == False) or (searchinput["rankby"] == "Similarity" or searchinput["rankby"] == "similarity"):
+                matching_doc_ids = search_results.rank_the_results_by_sim(sim_score)
+
+            if request.session["ranking_method"] != searchinput["rankby"]:
+                # if a new method is entered
                 request.session["ranking_method"] = searchinput["rankby"]
 
             hostname = request.get_host()
@@ -1135,7 +1151,7 @@ class search_results:
                 matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
 
             if searchinput["rankby"] != False and searchinput["rankby"] != request.session["ranking_method"]:
-                matching_doc_ids = search_results.re_rank_the_results(searchinput["rankby"], match_dict_display)
+                matching_doc_ids = search_results.rank_the_results(searchinput["rankby"], match_dict_display)
                 # remember the new order and new rank method in request.session
                 request.session["matching_doc_ids"] = matching_doc_ids
                 request.session["ranking_method"] = searchinput["rankby"]

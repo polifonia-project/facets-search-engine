@@ -73,6 +73,7 @@
                 // now get all the note elements from svg 
                 var notes = filecontent.getElementsByClassName("note")
                 for(var i = 0; i < notes.length; i++) {
+                    console.log(notes[i])
                     var match = false
                     var match = highlightids.includes(notes[i].id)
                     // check if the current note needs highlighting

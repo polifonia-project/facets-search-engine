@@ -3,7 +3,6 @@
  **/
 
 /**
- * Use Verovio to load and display a MEI doc.
  * 
  * TODO: either discard this or change this?
  */
@@ -15,7 +14,6 @@ function displayWithVerovio(opusRef, meiUrl, target, highlights) {
 		scale : 35,
 		pageHeight : 20000,
 		adjustPageHeight : 1,
-		border : 0,
 		ignoreLayout : 1
 	};
 	vrvToolkit.setOptions(vrvOptions);
@@ -107,7 +105,6 @@ function displayComparisonWithVerovio(opusRef, meiUrl, target, highlights) {
 	/* Create the Vevorio toolkit instance */
 	var vrvToolkit = new verovio.toolkit();
 	var vrvOptions = {
-		inputFormat : 'mei',
 		scale : 35,
 		pageHeight : 20000,
 		adjustPageHeight : 1,

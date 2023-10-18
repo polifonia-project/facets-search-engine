@@ -442,7 +442,7 @@ def extract_info_from_score(m21_score):
     for part in m21_score.parts:
         info["num_of_measures"] += len(part)
 
-    info["num_of_notes"] = len(m21_score.flatten().getElementsByClass(note.Note))
+    #info["num_of_notes"] = len(m21_score.flatten().getElementsByClass(note.Note))
 
     info["instruments"] = []
     if instrument.partitionByInstrument(m21_score) != None:

@@ -377,7 +377,7 @@ class IndexWrapper:
                     logger.info ("Found best occurrence : " + str(best_occurrence) + " with distance " + str(distance))
 
                 # Locate ids of all matching patterns to highlight
-                matching_ids = msummary.find_matching_ids(pattern_sequence, search_context.search_type, search_context.mirror_search)
+                occloc, matching_ids = msummary.find_matching_ids(pattern_sequence, search_context.search_type, search_context.mirror_search)
 
 
             elif search_context["pianopattern"] == "" and search_context["pattern"] == "" and search_context["text"] == "":
@@ -465,7 +465,7 @@ class IndexWrapper:
                                     matching_ids.append(m_id)
                 '''
 
-            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "num_occu": num_occu, "distance": distance, "best_occurrence": str(best_occurrence)})
+            opera.append({"doc": doc_id, "matching_ids": json.dumps(matching_ids), "occloc": occloc, "num_occu": num_occu, "distance": distance, "best_occurrence": str(best_occurrence)})
 
         return opera
 

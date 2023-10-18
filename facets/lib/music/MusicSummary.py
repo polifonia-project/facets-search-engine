@@ -82,15 +82,18 @@ class MusicSummary:
 
     def find_matching_ids(self, pattern, search_type, mirror_setting = False):
         ids = list()
+        occloc = list()
         for part_id, part in self.parts.items():
             for voice_id, voice in part.items():
                 #Calling find_positions() in Sequence.py
                 occurrences = voice.find_positions(pattern, search_type, mirror_setting)
                 for occ in occurrences: 
+                    #print(occ)
                     for i in occ:
+                        occloc.append(voice_id+str(i))
                         # print ("Item match  " + str(i) + " : " + str(voice.items[i]))
                         ids.append(voice.items[i].id)
-        return ids
+        return occloc, ids
 
     def find_sequences(self, pattern, search_type, mirror_setting = False):
         sequences = list()
