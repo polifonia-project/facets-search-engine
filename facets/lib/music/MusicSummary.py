@@ -88,7 +88,6 @@ class MusicSummary:
                 #Calling find_positions() in Sequence.py
                 occurrences = voice.find_positions(pattern, search_type, mirror_setting)
                 for occ in occurrences: 
-                    #print(occ)
                     for i in occ:
                         occloc.append(voice_id+str(i))
                         # print ("Item match  " + str(i) + " : " + str(voice.items[i]))
@@ -106,6 +105,7 @@ class MusicSummary:
                     If iterating over items within sequence is needed,
                     Use "for item in voice.get_items_from_sequence()"
                 '''
+                
                 #Calling find_positions() in Sequence.py
                 occurrences = voice.find_positions(pattern, search_type, mirror_setting)
                 for o in occurrences:

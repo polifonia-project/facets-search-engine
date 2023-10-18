@@ -1,36 +1,36 @@
 {% extends 'base.html'%}
 <link rel="stylesheet" href="search/static/search/style.css">
+{%comment%}
+<link rel="stylesheet" href="static/css/dropdownmenu.css">
+{%endcomment%}
 {% block content %}
 {% include 'navbar.html' %}
 
 <form action="/search/discovery_result/" method="post">
 <div class="container">
+
 {% csrf_token %}
 
   <div class="row mb-5">
     <div class="col-lg-12 mx-auto">
       <h1 class="text-center">Discovery</h1>
         <div class="card text-center">
-        <ul class="list-group ">
-              <div class="card-header">
-              <div>
-              Composers
-              </div>
-              <select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm">
-              <optgroup label = "">
-                  <option selected>Not selected</option>
-                  {% for composer in list_composer %}
-                  <option value="{{ composer }}">{{ composer | title }}</option>
-                  {% endfor %}
-                  </optgroup>
+            <div class="card-header">
+            <label>Composers</label>
+            <select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm">
+              <optgroup>
+                <option selected>Not selected</option>
+                {% for composer in list_composer %}
+                <option value="{{ composer }}">{{ composer | title }}</option>
+                {% endfor %}
+              </optgroup>
               </select>
             </div>
+
               <br/>
               
               <div class="card-header">
-              <div>
-              Period
-              </div>
+              <label>Period</label>
               <select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "">
                   <option selected>Not selected</option>
@@ -40,13 +40,11 @@
                   </optgroup>
               </select>
               </div>
+
               <br/><br/>
 
-
               <div class="card-header">
-              <div>
               Key
-              </div>
               <select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "">
                   <option selected>Not selected</option>
@@ -59,9 +57,7 @@
               <br/><br/>
 
               <div class="card-header">
-              <div>
               Time Signature
-              </div>
               <select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "">
                   <option selected>Not selected</option>
@@ -74,9 +70,7 @@
               <br/><br/>
 
               <div class="card-header">
-              <div>
               Instruments
-              </div>
               <select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "">
                   <option selected>Not selected</option>
@@ -90,9 +84,7 @@
               <br/><br/>
 
               <div class="card-header">
-              <div>
               Number of parts
-              </div>
               <select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "">
                   <option selected>Not selected</option>
@@ -105,9 +97,7 @@
               <br/><br/>
 
               <div class="card-header">
-              <div>
               Number of measures
-              </div>
               <select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "">
                   <option selected>Not selected</option>
@@ -120,9 +110,7 @@
               <br/><br/>
 
               <div class="card-header">
-              <div>
               Indices
-              </div>
               <select multiple="true" name="indexname" class="px-4 mx-2 custom-select custom-select-sm">
               <optgroup label = "">
                   <option selected>Not selected</option>
@@ -134,7 +122,6 @@
               </div>
               <br/><br/>
 {%comment%}
-
               {% for i, v in countnum.items %}
               <div>
                   {{i}}
@@ -150,16 +137,13 @@
               </select>
                   <br/>
               {%endfor%}
-
 {%endcomment%}
-        </ul>
+
         <input class="px-4 mx-2 my-1" type="submit" value="Select">
       </div>
-
     </div>
   </div>
 </div>
-
 </form>
 
 

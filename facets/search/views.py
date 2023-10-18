@@ -238,7 +238,7 @@ class search_results:
                         for item in composer.top_hits.buckets:
                             list_ids_curr_composer.append(item['key'])
                         facet_hit_ids['composer'][composer.key] = list_ids_curr_composer
-                    facet_composers = list(set(facet_composers)-set(invalid_name))
+                    facet_composers = sorted(list(set(facet_composers)-set(invalid_name)))
                     facets_count_dict["composer"] = facet_composers
 
                     facet_instruments = {}
@@ -252,9 +252,8 @@ class search_results:
                         for item in instrument.top_hits.buckets:
                             list_ids_curr_instr.append(item['key'])
                         facet_hit_ids['instrument'][instrument.key] = list_ids_curr_instr
-                    facet_instruments = list(set(facet_instruments)-set(invalid_name))
+                    facet_instruments = sorted(list(set(facet_instruments)-set(invalid_name)))
                     facets_count_dict["instrument"] = facet_instruments
-
 
                     facet_period = {}
                     facet_hit_ids['period'] = {}                    
@@ -266,7 +265,7 @@ class search_results:
                         for item in period.top_hits.buckets:
                             list_ids_curr_per.append(item['key'])
                         facet_hit_ids['period'][period.key] = list_ids_curr_per
-                    facet_period = list(set(facet_period)-set(invalid_name))
+                    facet_period = sorted(list(set(facet_period)-set(invalid_name)))
                     facets_count_dict["period"] = facet_period
 
                     facet_key = {}
@@ -281,7 +280,7 @@ class search_results:
                             list_ids_curr_key.append(item['key'])
                         facet_hit_ids['key'][key.key] = list_ids_curr_key
 
-                    facet_key = list(set(facet_key)-set(invalid_name))
+                    facet_key = sorted(list(set(facet_key)-set(invalid_name)))
                     facets_count_dict["key"] = facet_key
                     
                     facet_numofparts = {}
@@ -295,7 +294,7 @@ class search_results:
                             list_ids_curr_parts.append(item['key'])
                         facet_hit_ids['numofparts'][numofparts.key] = list_ids_curr_parts
 
-                    facet_numofparts = list(set(facet_numofparts)-set(invalid_name))
+                    facet_numofparts = sorted(list(set(facet_numofparts)-set(invalid_name)))
                     facets_count_dict["numofparts"] = facet_numofparts
 
                     facet_numofmeasures = {}
@@ -309,7 +308,7 @@ class search_results:
                             list_ids_curr_mea.append(item['key'])
                         facet_hit_ids['numofmeasures'][numofmeasures.key] = list_ids_curr_mea
 
-                    facet_numofmeasures = list(set(facet_numofmeasures)-set(invalid_name))
+                    facet_numofmeasures = sorted(list(set(facet_numofmeasures)-set(invalid_name)))
                     facets_count_dict["numofmeasures"] = facet_numofmeasures
                     """
                     facet_numofnotes = {}
@@ -327,7 +326,7 @@ class search_results:
                     facets_count_dict["numofnotes"] = facet_numofnotes
                     """
                     facet_timesig = {}
-                    facet_hit_ids['timesig']= {}
+                    facet_hit_ids['timesig'] = {}
                     for timesig in matching_docs.aggregations.per_timesig.buckets:
                         #print(numofnotes) # just for testing
                         facet_timesig[timesig.key] = timesig.doc_count
@@ -337,7 +336,7 @@ class search_results:
                             list_ids_curr_timesig.append(item['key'])
                         facet_hit_ids['timesig'][timesig.key] = list_ids_curr_timesig
 
-                    facet_timesig = list(set(facet_timesig)-set(invalid_name))
+                    facet_timesig = sorted(list(set(facet_timesig)-set(invalid_name)))
                     facets_count_dict["timesig"] = facet_timesig
 
                     # TO BE CONTINUED: other facets
@@ -786,7 +785,7 @@ class search_results:
                 #matching_doc_ids, matching_info = search_results.get_info_from_matching_docs(matching_docs)
 
                 context = {
-                    "indices_names": indices.keys(),
+                    "indices_names": sorted(indices.keys()),
                     #"facets_count_dict": facets_count_dict, 
                     #"facet_hit_ids": facet_hit_ids
                     "countnum": countnum,
