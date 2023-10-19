@@ -10,30 +10,35 @@
 <div class="container">
 
 {% csrf_token %}
+<h1 class="text-center">Discovery</h1>
+  <div class="row mb-6 justify-content-evenly">
 
-  <div class="row mb-5">
-    <div class="col-lg-12 mx-auto">
-      <h1 class="text-center">Discovery</h1>
-        <div class="card text-center">
-            <div class="card-header">
-            <label>Composers</label>
-            <select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm">
+    <div class="col-lg-6 mx-auto">
+        <div class="p-3 card-header my-4">
+            <label><h4>Composers</h4></label>
+            </br>
+            <select class="px-4 mx-2 form-select form-select-lg" name="composer" >
               <optgroup>
-                <option selected>Not selected</option>
-                {% for composer in list_composer %}
-                <option value="{{ composer }}">{{ composer | title }}</option>
-                {% endfor %}
+                  <option selected>
+                  Not selected
+                  </option>
+                  {% for composer in list_composer %}
+                  <option value="{{ composer }}">{{ composer | title }}</option>
+                  {% endfor %}
               </optgroup>
               </select>
             </div>
 
               <br/>
               
-              <div class="card-header">
-              <label>Period</label>
-              <select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
-              <optgroup label = "">
-                  <option selected>Not selected</option>
+              <div class="p-3 rounded shadow my-4">
+              <label><h4>Period</h4></label>
+              </br>
+              <select name="period" class="px-4 mx-2 form-select form-select-lg">
+              <optgroup>
+                  <option selected>
+                  Not selected
+                  </option>
                   {% for period in list_period %}
                   <option value="{{ period }}">{{ period | title }}</option>
                   {% endfor %}
@@ -41,11 +46,11 @@
               </select>
               </div>
 
-              <br/><br/>
+              <br/>
 
-              <div class="card-header">
-              Key
-              <select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
+              <div class="p-3 card-header my-4">
+              <label><h4>Key</h4></label></br>
+              <select name="key" class="px-4 mx-2 form-select form-select-lg">
               <optgroup label = "">
                   <option selected>Not selected</option>
                   {% for key in list_key %}
@@ -54,12 +59,12 @@
                   </optgroup>
               </select>
               </div>
-              <br/><br/>
+              <br/>
 
-              <div class="card-header">
-              Time Signature
-              <select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
-              <optgroup label = "">
+              <div class="p-3 rounded shadow my-4">
+              <label><h4>Time Signature</h4></label></br>
+              <select name="timesig" class="px-4 mx-2 form-select form-select-lg">
+              <optgroup>
                   <option selected>Not selected</option>
                   {% for timesig in list_timesig %}
                   <option value="{{ timesig }}">{{ timesig | title }}</option>
@@ -67,11 +72,14 @@
                   </optgroup>
               </select>
               </div>
-              <br/><br/>
+              <br/>
 
-              <div class="card-header">
-              Instruments
-              <select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
+      </div>
+      <div class="col-lg-6 mx-auto">
+
+              <div class="p-3 rounded shadow my-4">
+              <label><h4>Instruments</h4></label></br>
+              <select name="instrument" class="px-4 mx-2 form-select form-select-lg">
               <optgroup label = "">
                   <option selected>Not selected</option>
                   {% for instrument in list_instrument %}
@@ -81,11 +89,11 @@
                   </optgroup>
               </select>
               </div>
-              <br/><br/>
+              <br/>
 
-              <div class="card-header">
-              Number of parts
-              <select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
+              <div class="p-3 card-header my-4 ">
+              <label><h4>Number of parts</h4></label></br>
+              <select name="numofparts" class="px-4 mx-2 form-select form-select-lg">
               <optgroup label = "">
                   <option selected>Not selected</option>
                   {% for numofparts in list_numofparts %}
@@ -94,11 +102,11 @@
                   </optgroup>
               </select>
               </div>
-              <br/><br/>
+              <br/>
 
-              <div class="card-header">
-              Number of measures
-              <select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
+              <div class="p-3 rounded shadow my-4">
+              <label><h4>Number of measures</h4></label></br>
+              <select  name="numofmeasures" class="px-4 mx-2 form-select form-select-lg">
               <optgroup label = "">
                   <option selected>Not selected</option>
                   {% for numofmeasures in list_numofmeasures %}
@@ -107,11 +115,11 @@
                   </optgroup>
               </select>
               </div>
-              <br/><br/>
+              <br/>
 
-              <div class="card-header">
-              Indices
-              <select multiple="true" name="indexname" class="px-4 mx-2 custom-select custom-select-sm">
+              <div class="p-3 card-header my-4">
+              <label><h4>Indices</h4></label></br>
+              <select name="indexname" class="px-4 mx-2 form-select form-select-lg">
               <optgroup label = "">
                   <option selected>Not selected</option>
                   {% for index in indices_names %}
@@ -120,14 +128,14 @@
                   </optgroup>
               </select>
               </div>
-              <br/><br/>
+              <br/>
 {%comment%}
               {% for i, v in countnum.items %}
               <div>
                   {{i}}
               </div>
                   <br/>
-                  <select multiple="true" name={{i}} class="px-4 mx-2 custom-select custom-select-sm">
+                  <select  name={{i}} class="px-4 mx-2 form-select form-select-lg">
                   <optgroup label = {{i}}>
                   {%for x, y in v.items %}
                   <option value ="{{i}}"> {{x |title}}</option>
@@ -139,9 +147,12 @@
               {%endfor%}
 {%endcomment%}
 
-        <input class="px-4 mx-2 my-1" type="submit" value="Select">
       </div>
+      
     </div>
+    <h4 class="text-center">
+        <input class="px-4 mx-2 my-1" type="submit" value="Select">
+      </h4>
   </div>
 </div>
 </form>
