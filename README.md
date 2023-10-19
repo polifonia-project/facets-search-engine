@@ -84,5 +84,5 @@ $ pip install -r requirements-versions.txt
 $ mkdir staticfiles
 $ sudo docker start facets-es # or any other ElasticSearch starting method
 $ python manage.py migrate
-$ python manage.py runserver
+$ python manage.py runserver --insecure
 ````
