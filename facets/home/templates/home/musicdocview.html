@@ -51,9 +51,17 @@
 
                 <table class="preview"><tr>
                     <td valign="top"> </td>
-                    <td>     <div id="notation">score placeholder</div> </td>
+                    <td>     <div id="notation">
+                    score placeholder
+                    </div> </td>
                 </tr>
                 </table>
+                
+        {%if doc_type == 'krn'%}
+        <div>
+        The support of visualization of Humdrum files is coming soon...
+        </div>
+        {%endif%}
                 {% else %}
                 no score to display
                 {% endif %}
