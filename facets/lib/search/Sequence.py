@@ -458,11 +458,11 @@ class Sequence:
          the goal is to find p_intervals_list in s_intervals_list
         """
         occurrences = []
+        m_intervals = ""
 
         if search_type == settings.RHYTHMIC_SEARCH:
             p_intervals = pattern.get_rhythms()
-            s_intervals = self.get_rhythms()
-            m_intervals = ""
+            s_intervals = self.get_rhythms()    
 
         elif search_type == settings.CHROMATIC_SEARCH:
             p_intervals = pattern.get_intervals(settings.CHROMATIC_DESCR)
@@ -488,7 +488,7 @@ class Sequence:
             s_intervals_list = self.notes_to_symbols(s_intervals)
         else:
             p_intervals_list = pattern.get_intervals_as_list(p_intervals)
-            m_intervals_list = pattern.get_intervals_as_list(m_intervals)
+            
             s_intervals_list = pattern.get_intervals_as_list(s_intervals)
         
         # Find patterns positions in list
@@ -496,6 +496,7 @@ class Sequence:
 
         #If it is mirror search, the function also finds the positions of mirror patterns
         if mirror_setting == True:
+            m_intervals_list = pattern.get_intervals_as_list(m_intervals)
             mirror_occ_indexes = self.find_sub_list(m_intervals_list, s_intervals_list)
 
             #Add mirror pattern occurrences into occurrences_indexes

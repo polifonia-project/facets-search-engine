@@ -215,6 +215,7 @@ def get_metadata_from_score(doctype, score, m21_score):
                     metainfo["period"] = str(int(yearofdeath/100))+"century"
                 print("period:", metainfo["period"])
         except:
+            metainfo["period"] = "Unknown period"
             print("Can not get more info of this composer through wikidata.")
 
     else:
@@ -276,7 +277,7 @@ def save_data(index_name, docid, doctype, score, m21_score):
         if metainfo["composer"] != '':
             if Person.objects.filter(name=metainfo["composer"]).exists():
                 curr_composer = Person.objects.get(name = metainfo["composer"])
-                # if there's no period info and we get period info, update it 
+                # if there's no period info and we got period info, update it 
                 if curr_composer.period == None and metainfo['period'] != '':
                     curr_composer.period = metainfo['period']
                     print("Updating period info of composer:",metainfo["composer"])

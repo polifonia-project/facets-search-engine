@@ -5,14 +5,7 @@
 {% csrf_token %}
 
 {% if searchinput.composer or facet_composers %}
-<select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
-  {%comment%}
-  <legend>Composer</legend>
-  {% for composer in facet_composers %}
-  <input id="{{composer}}" type="checkbox" value="{{composer}}">
-  <label for="{{composer}}">{{composer}}</label>
-  {% endfor %}
-  {%endcomment%}
+<select name="composer" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
 
   <optgroup label = "Composers">
   {% if searchinput.composer %}
@@ -34,7 +27,7 @@
 {% endif %}
 
 {% if searchinput.period or facet_period %}
-<select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
+<select  name="period" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
   <optgroup label = "Period">
   {% if searchinput.period %}
   <option selected>{{searchinput.period}}</option>
@@ -54,7 +47,7 @@
 {% endif %}
 
 {% if searchinput.key or facet_key %}
-<select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
+<select name="key" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
   <optgroup label = "Key">
   {% if searchinput.key %}
   <option selected>{{searchinput.key}}</option>
@@ -74,7 +67,7 @@
 {% endif %}
 
 {% if searchinput.timesig or facet_timesig %}
-<select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
+<select name="timesig" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
   <optgroup label = "Time Signature">
   {% if searchinput.timesig %}
   <option selected>{{searchinput.timesig}}</option>
@@ -94,7 +87,7 @@
 {% endif %}
 
 {% if searchinput.instrument or facet_instrument %}
-<select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
+<select name="instrument" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
   <optgroup label = "Instruments">
   {% if searchinput.instrument %}
   <option selected>{{searchinput.instrument}}</option>
@@ -114,7 +107,7 @@
 {% endif %}
 
 {% if searchinput.numofparts or facet_numofparts %}
-<select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
+<select name="numofparts" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
   <optgroup label = "Num of parts">
   {% if searchinput.numofparts %}
   <option selected>{{searchinput.numofparts}}</option>
@@ -134,7 +127,7 @@
 {% endif %}
 
 {% if searchinput.numofmeasures or facet_numofmeasures %}
-<select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
+<select name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
   <optgroup label = "Num of measures">
   {% if searchinput.numofmeasures %}
   <option selected>{{searchinput.numofmeasures}}</option>

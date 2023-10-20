@@ -90,8 +90,6 @@ class search_results:
         searchinput["composer"] = request.POST.get('composer', False)
         searchinput["instrument"] = request.POST.get('instrument', False)
         searchinput["period"] = request.POST.get('period', False)
-        #searchinput["keymode"] = request.POST.get('keymode', False)
-        #searchinput["keytonicname"] = request.POST.get('keytonicname', False)
         searchinput["key"] = request.POST.get('key', False)
         searchinput["numofparts"] = request.POST.get('numofparts', False)
         searchinput["numofmeasures"] = request.POST.get('numofmeasures', False)
@@ -353,7 +351,7 @@ class search_results:
                 # note: this needs to change when it's a list instead of one input for faceting
                 if search_context.facet_composers in facet_hit_ids["composer"]:
                     temp_matching_ids = facet_hit_ids["composer"][search_context.facet_composers]
-                    if (set(temp_matching_ids) & set(common_list)):
+                    if (set(temp_matching_ids) & set(common_list)) != {}:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -362,7 +360,7 @@ class search_results:
                 # note: this needs to change when it's a list instead of one input for faceting
                 if search_context.facet_instruments in facet_hit_ids["instrument"]:
                     temp_matching_ids = facet_hit_ids["instrument"][search_context.facet_instruments]
-                    if (set(temp_matching_ids) & set(common_list)):
+                    if (set(temp_matching_ids) & set(common_list)) != {}:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -370,7 +368,7 @@ class search_results:
             if search_context.facet_period != None and search_context.facet_period != "":
                 if search_context.facet_period in facet_hit_ids["period"]:
                     temp_matching_ids = facet_hit_ids["period"][search_context.facet_period]
-                    if (set(temp_matching_ids) & set(common_list)):
+                    if (set(temp_matching_ids) & set(common_list)) != {}:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -378,7 +376,7 @@ class search_results:
             if search_context.facet_key != None and search_context.facet_key != "":
                 if search_context.facet_key in facet_hit_ids["key"]:
                     temp_matching_ids = facet_hit_ids["key"][search_context.facet_key]
-                    if (set(temp_matching_ids) & set(common_list)):
+                    if (set(temp_matching_ids) & set(common_list)) != {}:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -386,7 +384,7 @@ class search_results:
             if search_context.facet_numofparts != None and search_context.facet_numofparts != "":
                 if search_context.facet_numofparts in facet_hit_ids["numofparts"]:
                     temp_matching_ids = facet_hit_ids["numofparts"][search_context.facet_numofparts]
-                    if (set(temp_matching_ids) & set(common_list)):
+                    if (set(temp_matching_ids) & set(common_list)) != {}:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -394,7 +392,7 @@ class search_results:
             if search_context.facet_numofmeasures != None and search_context.facet_numofmeasures != "":
                 if search_context.facet_numofmeasures in facet_hit_ids["numofmeasures"]:
                     temp_matching_ids = facet_hit_ids["numofmeasures"][search_context.facet_numofmeasures]
-                    if (set(temp_matching_ids) & set(common_list)):
+                    if (set(temp_matching_ids) & set(common_list)) != {}:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -410,7 +408,7 @@ class search_results:
             if search_context.facet_timesig != None and search_context.facet_timesig != "":
                 if search_context.facet_timesig in facet_hit_ids["timesig"]:
                     temp_matching_ids = facet_hit_ids["timesig"][search_context.facet_timesig]
-                    if (set(temp_matching_ids) & set(common_list)):
+                    if (set(temp_matching_ids) & set(common_list)) != {}:
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -537,7 +535,6 @@ class search_results:
                         sim_score[mat_doc["doc"]] = mat_doc["distance"]
 
                     # Default: rank by relevancy (number of matching patterns)
-                    #matching_doc_ids = sorted(match_dict_display, key=match_dict_display.get)
                     matching_doc_ids = search_results.rank_the_results_by_relevancy(match_dict_display)
 
                     hostname = request.get_host()
@@ -593,10 +590,9 @@ class search_results:
                 request.session["searchinput"] = searchinput
                 request.session["num_matching_patterns"] = num_matching_patterns
                 request.session["matching_doc_ids"] = matching_doc_ids
-                request.session["matching_locations"] = matching_locations
                 request.session["score_info"] = score_info
                 request.session["match_dict_display"] = match_dict_display
-                # using default ranking method at the first call: rank by similarity
+                # using default ranking method at the first call
                 request.session["ranking_method"] = "Relevancy"
                 # for ranking by similarity
                 request.session["sim_score"] = sim_score
@@ -805,6 +801,7 @@ class search_results:
             DiscoveryResultView(request)
 
     def HighlightMusicDocView(request, index_name, doc_id):
+
         # Highlight patterns while viewing a music document
     
         template = loader.get_template('search/highlight_musicdoc.html')
@@ -868,8 +865,7 @@ class search_results:
         # Here score_info is changed for filtered or re-ranked display, 
         # statitstics(number of patterns and docs) are also changed.
 
-        # TO-SOLVE(minor): if re-rank, the composer facet will be reset
-        # TO-SOLVE: re-rank by similarity
+        # TO-SOLVE(minor): if re-rank, facets will reset
         # TO-SOLVE: re-send request to ES according to the new requests
         
         es = Elasticsearch(elastic_params)
@@ -884,16 +880,24 @@ class search_results:
         if request.method == 'POST':
             template = loader.get_template('search/filtered_result.html')
             
+            # first get what's in the previous session
             searchinput = request.session.get('searchinput')
 
-            # then read new entered facets and rank method
+            # then read new entered facets and (new) rank method
             searchinput = search_results.read_search_input_from_request(request, searchinput)
 
             # just a list of names of facets supported..
             facets_name_list = request.session.get("facets_name_list")
 
-            for facet_name in facets_name_list:
-                searchinput[facet_name] = request.POST.get(facet_name, False)
+            # Save the updated searchinput when new facets are coming
+            if searchinput["rankby"] != False:
+                # then it means some facets are submitted
+                request.session["searchinput"] = searchinput
+                #for facet_name in facets_name_list:
+                #    searchinput[facet_name] = request.POST.get(facet_name, False)
+            else:
+                # then it was redirected from "re-rank"
+                request.session["ranking_method"] = searchinput["rankby"]
 
             if searchinput["pattern"] != "" or searchinput["pianopattern"] != "":
                 # if it is pattern search
@@ -903,8 +907,7 @@ class search_results:
                     index_wrapper = IndexWrapper(searchinput["index_name"])
                     # ES returns a "response" object with all the documents that matches query
                     matching_docs = index_wrapper.search(searchcontext)
-                    # this gives the order by similarity
-
+                                
                 except Exception as ex:
                     template = loader.get_template('search/search_errorpage.html')
                     error_message = "Error when trying to call search with ES in IndexWrapper"
@@ -938,7 +941,7 @@ class search_results:
 
             facets_count_dict, facet_hit_ids = search_results.count_facets_from_agg(matching_docs)
 
-            # Get the matching doc ids with faceting
+            # Update matching doc ids with faceting
             matching_doc_ids = search_results.get_faceted_matching_ids(searchcontext, matching_doc_ids, facet_hit_ids)
 
             if matching_doc_ids == [] or matching_doc_ids == None:
@@ -957,19 +960,29 @@ class search_results:
             matching_locations = request.session.get("matching_locations")
 
             # for ranking by relevancy
-            match_dict_display = request.session.get("match_dict_display")
+            old_match_dict_display = request.session.get("match_dict_display")
             # for ranking by sim
-            sim_score = request.session.get("sim_score")
+            old_sim_score = request.session.get("sim_score")
+            # get the filtered ones
 
-            if (request.session["ranking_method"] == "Relevancy" and searchinput["rankby"] == False) or (searchinput["rankby"] == "Relevancy" or searchinput["rankby"] == "relevancy"):
-                matching_doc_ids = search_results.rank_the_results_by_relevancy(match_dict_display)
+            match_dict_display = {}
+            sim_score = {}
+            for doc_id in matching_doc_ids:
+                match_dict_display[doc_id] = old_match_dict_display[doc_id]
+                sim_score[doc_id] = old_sim_score[doc_id]
 
-            if (request.session["ranking_method"] == "Similarity" and searchinput["rankby"] == False) or (searchinput["rankby"] == "Similarity" or searchinput["rankby"] == "similarity"):
-                matching_doc_ids = search_results.rank_the_results_by_sim(sim_score)
-
-            if request.session["ranking_method"] != searchinput["rankby"]:
-                # if a new method is entered
-                request.session["ranking_method"] = searchinput["rankby"]
+            # get the filtered ones
+            if searchinput["rankby"] != False:
+                # if a ranking method is chosen:
+                if searchinput["rankby"] == "Similarity" or searchinput["rankby"] == "similarity":
+                    matching_doc_ids = search_results.rank_the_results_by_sim(sim_score)
+                else:#if searchinput["rankby"] == "Relevancy" or searchinput["rankby"] == "relevancy":
+                    matching_doc_ids = search_results.rank_the_results_by_relevancy(match_dict_display)
+            else:
+                if request.session.get("ranking_method") == "Similarity" or request.session.get("ranking_method") == "similarity":
+                    matching_doc_ids = search_results.rank_the_results_by_sim(sim_score)
+                else:
+                    matching_doc_ids = search_results.rank_the_results_by_relevancy(match_dict_display)
 
             hostname = request.get_host()
             score_info = {}
@@ -1036,8 +1049,6 @@ class search_results:
                     "matching_locations": matching_locations,
                     "facet_composers": facets_count_dict["composer"],
                     "facet_instruments": facets_count_dict["instrument"],
-                    #"facet_keymode": facets_count_dict["keymode"],
-                    #"facet_keytonicname": facets_count_dict["keytonicname"],
                     "facet_key": facets_count_dict["key"],
                     "facet_period": facets_count_dict["period"],
                     "facet_numofparts": facets_count_dict["numofparts"],

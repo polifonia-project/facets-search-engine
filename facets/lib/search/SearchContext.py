@@ -21,8 +21,6 @@ class SearchContext:
         # TODO: FOR NOW facet_composers and facet_instruments are strings, when there're multiple selections we change to []
         self.facet_composers = "" 
         self.facet_instruments = ""
-        #self.facet_keymode = ""
-        #self.facet_keytonicname = ""
         self.facet_key = ""
         self.facet_period = ""
         self.facet_numofparts = ""
@@ -72,8 +70,6 @@ class SearchContext:
         self.search_type = search_input["type"]
         if "pianopattern" in search_input:
             self.pianopattern = search_input["pianopattern"]
-            # decode, get a sequence of items
-            #self.decode_piano_pattern()
         if "pattern" in search_input:
             # Only if there is no input from piano. Otherwise we discard ABC pattern to avoid confusion
             if not self.pianopattern:
@@ -90,16 +86,16 @@ class SearchContext:
             # This should be a list of composer names from the search input
             # TODO: when searchinput can be multiple selection, it needs to change from string to list
             #if type(search_input["composer"]) != list:
-            if search_input["composer"] not in default_words_to_avoid:
+            if search_input["composer"] not in default_words_to_avoid and search_input["composer"]!=False:
                 # if no composer is selected, it should be Composers
                 self.facet_composers = search_input["composer"]
 
-        if "instrument" in search_input:
-            if search_input["instrument"] not in default_words_to_avoid:
+        if "instrument" in search_input :
+            if search_input["instrument"] not in default_words_to_avoid and search_input["instrument"] != False:
                 self.facet_instruments = search_input["instrument"]
 
         if "period" in search_input:
-            if search_input["period"] not in default_words_to_avoid:
+            if search_input["period"] not in default_words_to_avoid  and search_input["period"] != False:
                 self.facet_period = search_input["period"]
         """
         if "keymode" in search_input:
@@ -111,15 +107,15 @@ class SearchContext:
                 self.facet_keytonicname = search_input["keytonicname"]
         """
         if "key" in search_input:
-            if search_input["key"] not in default_words_to_avoid:
+            if search_input["key"] not in default_words_to_avoid and search_input["key"] != False:
                 self.facet_key = search_input["key"]
 
         if "numofparts" in search_input:
-            if search_input["numofparts"] not in default_words_to_avoid:
+            if search_input["numofparts"] not in default_words_to_avoid and search_input["numofparts"] != False:
                 self.facet_numofparts = search_input["numofparts"]
 
         if "numofmeasures" in search_input:
-            if search_input["numofmeasures"] not in default_words_to_avoid:
+            if search_input["numofmeasures"] not in default_words_to_avoid and search_input["numofmeasures"] != False:
                 self.facet_numofmeasures = search_input["numofmeasures"]
         """
         if "numofnotes" in search_input:
@@ -127,7 +123,7 @@ class SearchContext:
                 self.facet_numofnotes = search_input["numofnotes"]
         """
         if "timesig" in search_input:
-            if search_input["timesig"] not in default_words_to_avoid:
+            if search_input["timesig"] not in default_words_to_avoid and search_input["timesig"] != False:
                 self.facet_timesig = search_input["timesig"]
     
         # Other facets to be continued..

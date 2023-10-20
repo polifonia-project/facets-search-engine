@@ -492,6 +492,51 @@ class IndexWrapper:
 
         return matching_docs
 
+    def get_faceted_search(self, search_context):
+        q_facets = ""
+
+        if search_context.facet_composers != "" and search_context.facet_composers != False:
+                q_facets = Q("multi_match", query=search_context.facet_composers, fields=['composer.keyword'])
+        if search_context.facet_instruments != "" and search_context.facet_instruments != False:
+                q_instruments = Q("multi_match", query=search_context.facet_instruments, fields=['infos.instruments.keyword'])
+                if q_facets == "":
+                    q_facets = q_instruments
+                else:
+                    q_facets = Q(q_facets & q_instruments)
+        if search_context.facet_key != "" and search_context.facet_key != False:
+                q_key = Q("multi_match", query=search_context.facet_key, fields=['infos.key.keyword'])
+                if q_facets == "":
+                    q_facets = q_key
+                else:
+                    q_facets = Q(q_facets & q_key)
+        if search_context.facet_numofparts != "" and search_context.facet_numofparts != False:
+                q_numofparts = Q("multi_match", query=search_context.facet_numofparts, fields=['infos.num_of_parts'])
+                if q_facets == "":
+                    q_facets = q_numofparts
+                else:
+                    q_facets = Q(q_facets & q_numofparts)
+        if search_context.facet_numofmeasures != "" and search_context.facet_numofmeasures != False:
+                q_numofmeasures = Q("multi_match", query=search_context.facet_numofmeasures, fields=['infos.num_of_measures'])
+                if q_facets == "":
+                    q_facets = q_numofmeasures
+                else:
+                    q_facets = Q(q_facets & q_numofmeasures)
+        if search_context.facet_period != "" and search_context.facet_period != False:
+                q_period = Q("multi_match", query=search_context.facet_period, fields=['infos.period.keyword'])
+                if q_facets == "":
+                    q_facets = q_period
+                else:
+                    q_facets = Q(q_facets & q_period)
+        if search_context.facet_timesig != "" and search_context.facet_timesig != False:
+                q_timesig = Q("multi_match", query=search_context.facet_timesig, fields=['infos.initial_time_signature.keyword'])
+                if q_facets == "":
+                    q_facets = q_timesig
+                else:
+                    q_facets = Q(q_facets & q_timesig)
+
+        #print("facets ES query: ", q_facets)
+        return q_facets
+
     def get_search(self, search_context):
         """
         Create the search object with ElasticSearch DSL
@@ -511,8 +556,13 @@ class IndexWrapper:
         # If there is a pattern to search
 
         if search_context.pattern != '' or search_context.pianopattern != '':
+            q_facets = self.get_faceted_search(search_context)
             if search_context.search_type == settings.RHYTHMIC_SEARCH:
-                search = search.query("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())
+                q = Q("match_phrase", rhythm__value=search_context.get_rhythmic_pattern())
+                if q_facets != "":
+                    search = search.query(q & q_facets)
+                else:
+                    search = search.query(q)
 
             elif search_context.search_type == settings.CHROMATIC_SEARCH:
                 # If mirror search mode is on, search the mirror patterns too.
@@ -526,10 +576,18 @@ class IndexWrapper:
                     # Search for the mirror patterns
                     q_mr = Q("match_phrase", chromatic__value=mr_patterns)
                     # Combine the search
-                    search = search.query(q_og | q_mr)
+                    q = Q(q_og | q_mr)
+                    if q_facets != "":
+                        search = search.query(q & q_facets)
+                    else:
+                        search = search.query(q)
                 else:
                     # Otherwise only search for the original chromatic patterns
-                    search = search.query("match_phrase", chromatic__value=search_context.get_chromatic_pattern())
+                    q = Q("match_phrase", chromatic__value=search_context.get_chromatic_pattern())
+                    if q_facets != "":
+                        search = search.query(q & q_facets)
+                    else:
+                        search = search.query(q)
 
             elif search_context.search_type == settings.DIATONIC_SEARCH:
                 # If mirror search mode is on
@@ -542,10 +600,18 @@ class IndexWrapper:
                     mr_patterns = dia_patterns[1]
                     q_og = Q("match_phrase", diatonic__value=og_patterns)
                     q_mr = Q("match_phrase", diatonic__value=mr_patterns)
-                    search = search.query(q_og | q_mr)
+                    q = Q(q_og | q_mr)
+                    if q_facets != "":
+                        search = search.query(q & q_facets)
+                    else:
+                        search = search.query(q)
                 else:
                     # Otherwise only search for the original diatonic patterns
-                    search = search.query("match_phrase", diatonic__value=search_context.get_diatonic_pattern())
+                    q = Q("match_phrase", diatonic__value=search_context.get_diatonic_pattern())
+                    if q_facets != "":
+                        search = search.query(q & q_facets)
+                    else:
+                        search = search.query(q)
 
             elif search_context.search_type == settings.EXACT_SEARCH:
                 search = search.query("match_phrase", notes__value=search_context.get_notes_pattern())
@@ -577,9 +643,11 @@ class IndexWrapper:
                 q = Q("multi_match", query=search_context.facet_period, fields=['infos.period.keyword'])
             if search_context.facet_timesig != "":
                 q = Q("multi_match", query=search_context.facet_timesig, fields=['infos.initial_time_signature.keyword'])
-
+            #q_facets = self.get_faceted_search(search_context)
+            #if q_facets != "":
+            #    search = search.query(q_facets)
+            #else:
             search = search.query(q)
-            # search with facets
 
         #print("***** FACETING")
         #print("==========================")
