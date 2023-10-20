@@ -18,8 +18,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # From Neuma:
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
-# MEDIA_ROOT = BASE_DIR.as_posix()+ "/media"
+#MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+MEDIA_ROOT = BASE_DIR.as_posix()+ "/media"
 
 
 MEDIA_URL = '/media/'
