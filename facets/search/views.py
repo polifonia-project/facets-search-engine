@@ -351,7 +351,7 @@ class search_results:
                 # note: this needs to change when it's a list instead of one input for faceting
                 if search_context.facet_composers in facet_hit_ids["composer"]:
                     temp_matching_ids = facet_hit_ids["composer"][search_context.facet_composers]
-                    if (set(temp_matching_ids) & set(common_list)) != {}:
+                    if (set(temp_matching_ids) & set(common_list)) != set():
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -360,7 +360,7 @@ class search_results:
                 # note: this needs to change when it's a list instead of one input for faceting
                 if search_context.facet_instruments in facet_hit_ids["instrument"]:
                     temp_matching_ids = facet_hit_ids["instrument"][search_context.facet_instruments]
-                    if (set(temp_matching_ids) & set(common_list)) != {}:
+                    if (set(temp_matching_ids) & set(common_list)) != set():
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -368,7 +368,7 @@ class search_results:
             if search_context.facet_period != None and search_context.facet_period != "":
                 if search_context.facet_period in facet_hit_ids["period"]:
                     temp_matching_ids = facet_hit_ids["period"][search_context.facet_period]
-                    if (set(temp_matching_ids) & set(common_list)) != {}:
+                    if (set(temp_matching_ids) & set(common_list)) != set():
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -376,7 +376,7 @@ class search_results:
             if search_context.facet_key != None and search_context.facet_key != "":
                 if search_context.facet_key in facet_hit_ids["key"]:
                     temp_matching_ids = facet_hit_ids["key"][search_context.facet_key]
-                    if (set(temp_matching_ids) & set(common_list)) != {}:
+                    if (set(temp_matching_ids) & set(common_list)) != set():
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -384,7 +384,7 @@ class search_results:
             if search_context.facet_numofparts != None and search_context.facet_numofparts != "":
                 if search_context.facet_numofparts in facet_hit_ids["numofparts"]:
                     temp_matching_ids = facet_hit_ids["numofparts"][search_context.facet_numofparts]
-                    if (set(temp_matching_ids) & set(common_list)) != {}:
+                    if (set(temp_matching_ids) & set(common_list)) != set():
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -392,7 +392,7 @@ class search_results:
             if search_context.facet_numofmeasures != None and search_context.facet_numofmeasures != "":
                 if search_context.facet_numofmeasures in facet_hit_ids["numofmeasures"]:
                     temp_matching_ids = facet_hit_ids["numofmeasures"][search_context.facet_numofmeasures]
-                    if (set(temp_matching_ids) & set(common_list)) != {}:
+                    if (set(temp_matching_ids) & set(common_list)) != set():
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
@@ -408,7 +408,7 @@ class search_results:
             if search_context.facet_timesig != None and search_context.facet_timesig != "":
                 if search_context.facet_timesig in facet_hit_ids["timesig"]:
                     temp_matching_ids = facet_hit_ids["timesig"][search_context.facet_timesig]
-                    if (set(temp_matching_ids) & set(common_list)) != {}:
+                    if (set(temp_matching_ids) & set(common_list)) != set():
                         common_list = list(set(temp_matching_ids) & set(common_list))
                     else:
                         common_list = []
