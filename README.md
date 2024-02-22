@@ -15,11 +15,9 @@ licence: GNU GPLv3
 release link: 
 image:
 logo:
-demo: http://neuma-dev.huma-num.fr
-links: 
-  - http://neuma.huma-num.fr
+demo: 
 running-instance:
-credits: CNAM vertigo Team
+credits:
 related-components:
 bibliography: n/a
 ---
