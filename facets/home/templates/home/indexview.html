@@ -46,12 +46,11 @@
                         <td>{{ v.source.title }}</td>
 						<td>{{ v.source.composer }}</td>
 						<td ><a href="#" onclick="toggle_visibility('res{{ forloop.counter }}');">
-						<button type="button" class="btn btn-primary" aria-label="abstract"> Toggle doc </button> </a>
+						<button type="button" class="btn btn-sm btn-secondary" aria-label="abstract"> Toggle doc </button></a>
 						</td>
 					</tr>
-					<tr>
-						<td colspan="4"><div id="res{{ forloop.counter }}"
-                                style="display:none;">{{ v.source }}</div></td>
+					<tr id="res{{ forloop.counter }}" style="display:none;">
+						<td colspan="4"><div>{{ v.source }}</div></td>
 					</tr>
 					{% endfor %}
 				</tbody>

@@ -1,49 +1,57 @@
 <div class="card text-center my-4 pb-3">
   <div class="card-header">
-    <h3>Document loading</h3>
+    <h3>Upload a document</h3>
   </div>
-  <p class="text-left my-3 px-3 py-1">
-    FACETS support the search of music documents in MEI, MusicXML, XML, HUMDRUM
-    and ABC formats. Loading multiple music documents may be done by uploading a
-    ZIP archive. Metadata files may also be included in this ZIP archive. Note
-    that the ZIP archive should not include any folder. It is highly recommended
-    to include title and composer in the music score or metadata file, in order
-    to allow for faceted search navigation.
-  </p>
+  <div class="row" >
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-6 pl-3 align-self-center text-left">
+      <form action="/loaddata/results/" method="POST" enctype="multipart/form-data">
 
-  <br/>
-  <form action="/loaddata/results/" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="myfile">
 
-    {% csrf_token %}
-    <input type="file" name="myfile">
+        <br/><br/>
 
-    <br/><br/>
+        <select name="indexname" class="px-4 mr-2 custom-select-sm" >
+          <option selected>Add to index...</option>
+          {% if disable_scorelib %}
+          {% for index in indices_names %}
+          {% if index != 'scorelib' and index != 'Scorelib' %}
+          <option value="{{ index }}">{{ index | title }}</option>
+          {%endif%}
+          {% endfor %}
+          {%else%}
+          {% for index in indices_names %}
+          <option value="{{ index }}">{{ index | title }}</option>
+          {% endfor %}
+          {%endif%}
+        </select>
 
-    <select name="indexname" class="px-4 mr-2 custom-select-sm" style="width: 10rem;">
-      <option selected>Index name</option>
-      {% if disable_scorelib %}
-      {% for index in indices_names %}
-      {% if index != 'scorelib' and index != 'Scorelib' %}
-      <option value="{{ index }}">{{ index | title }}</option>
-      {%endif%}
-      {% endfor %}
-      {%else%}
-      {% for index in indices_names %}
-      <option value="{{ index }}">{{ index | title }}</option>
-      {% endfor %}
-      {%endif%}
-    </select>
+        <select name="fileformat" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
+          <option selected>Select file format</option>
+          <option value="mei">MEI</option>
+          <option value="musicxml">MusicXML</option>
+          <option value="xml">XML</option>
+          <option value="abc">ABC</option>
+          <option value="krn">Humdrum</option>
+          <option value="zip">ZIP</option>
+        </select>
 
-    <select name="fileformat" class="px-4 mr-2 custom-select custom-select-sm" style="width: 10rem;">
-      <option selected>File format</option>
-      <option value="mei">MEI</option>
-      <option value="musicxml">MusicXML</option>
-      <option value="xml">XML</option>
-      <option value="abc">ABC</option>
-      <option value="krn">Humdrum</option>
-      <option value="zip">ZIP</option>
-    </select>
+        <input type="submit" value="Upload document">
+      </form>
+    </div>
 
-    <input type="submit">
-  </form>
-</div>
+    <div class="col-md-4">
+      <p class="text-justify my-3 px-1 py-1">
+      FACETS support the search of music documents in MEI, MusicXML, XML, HUMDRUM
+      and ABC formats. Loading multiple music documents may be done by uploading a
+      ZIP archive. Metadata files may also be included in this ZIP archive. Note
+      that the ZIP archive should not include any folder. It is highly recommended
+      to include title and composer in the music score or metadata file, in order
+      to allow for faceted search navigation.
+      </p>
+    </div>
+
+  </div>
+  </div>

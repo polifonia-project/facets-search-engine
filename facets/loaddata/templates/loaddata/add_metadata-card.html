@@ -3,14 +3,10 @@
     <h3>Metadata for indexed music documents</h3>
   </div>
 
-  <p class="text-left my-3 px-3 py-1">
-	See Help to find example of supported metadata files.	<br/>
-	It should be in json format, strictly named after the document id of the corresponding already indexed document. If you are not sure about the document id, or which index the document belongs to, please see Dashboard.	<br/>
-	Once metadata is uploaded, it can not be erased. If you wish to update any information, you may upload a new metadata file to cover the previous version.
-	
-  </p>
-	<br/>
-
+  <div class="row" >
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-6 pl-3 align-self-center text-left">
 	{% csrf_token %}
 
 			<form action="/loaddata/loaded_metadata/" method="POST" enctype="multipart/form-data">
@@ -29,5 +25,20 @@
           
           <input type="submit">
       </form>
+    </div>
 
+    <div class="col-md-4">
+  <p class="text-justify my-3 px-3 py-1">
+
+  See <a href="/home/docs">Help</a> to find example of supported metadata files.
+  <br/> They should be in json format, strictly named after the document id of
+  the corresponding already indexed document. If you are not sure about the
+  document id, or which index the document belongs to, please see Dashboard.
+  <br/> Once metadata is uploaded, it can not be erased. If you wish to update
+  any information, you may upload a new metadata file to overwrite the previous
+  version.
+	
+  </p>
+    </div>
+  </div>
 </div>

@@ -2,17 +2,26 @@
   <div class="card-header">
     <h3>Add a new index</h3>
   </div>
-  <p class="text-left my-3 px-3 py-1">
-  The index name should not include any special characters.
-  </p>
 
 
-  {% csrf_token %}
-  <form action="/loaddata/index_added/" method="POST" enctype="multipart/form-data">
-    {%comment%}<label for="indexname">Index name:</label><br>{%endcomment%}
-    Index name:
-    <input type="text" id="indexname" name="indexname"><br><br>
-    <input type="submit">
-  </form>
+  <div class="row" >
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-6 pl-3 align-self-center text-left">
+      {% csrf_token %}
+      <form action="/loaddata/index_added/" method="POST" enctype="multipart/form-data">
+        {%comment%}<label for="indexname">Index name:</label><br>{%endcomment%}
+        Index name:
+        <input type="text" id="indexname" name="indexname">
+        <input style="margin-left:4px;" type="submit" value="Add index">
+      </form>
+    </div>
+
+    <div class="col-md-4">
+      <p class="text-justify my-3 px-3 py-1">
+      The index name should not include any special characters.
+      </p>
+    </div>
+  </div>
 </div>
 
