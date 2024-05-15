@@ -3,13 +3,98 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-<div class="container">
+<div class="container" style="font-size: 18px">
   <div class="row mb-8">
-    <div class="col-lg-12 mx-auto">
+    <div class="col-lg-10 mx-auto">
       <h1 class="text-center">Documentation</h1>
 
       <div class="my-4 pb-3">
-        <h2><a name="tuto">Get started with FACETS' command line interface</a></h2>
+
+        <h2>What is FACETS?</h2>
+        <p>
+        Facets is a component to be integrated in the website of a cultural
+        institution to easily share music documents stored in a symbolic format.
+        Musicologists may also use it to give access to their corpora to their
+        colleagues.
+
+        The envisioned workflow is the following:
+        <ol>
+          <li>a collection manager uploads some documents (mostly relying on the
+            <a href="/loaddata">Data management</a> and <a
+              href="/dashboard">Dashboard</a> tabs)</li>
+          <li>end users may explore the collections the <a
+              href="/discovery">Discovery</a> or <a href="search">Search</a>
+            interfaces. </li>
+        </ol>
+        </p>
+
+        <h3>Detailed presentation of the FACETS platform and its features</h3>
+        <ul>
+
+        <li> <b>Index/indices:</b> FACETS collections are called indices
+          (index). There is no hierarchy between indices, and thus it is
+          recommended to use meaningful names for indices, reflecting their
+          content. However, FACETS is built on ElasticSearch and may be able to
+          handle a very large number of documents inside a single index. </li>
+
+        <li> The <b>Data management</b> tab contains a form to create those
+          indices. Once you have created an index, you may populate it with
+          data. The Data management tab has several forms to upload data files
+          and metadata. </li> 
+
+
+        <li> The <b>Dashboard</b> tab allows to view the current state of the
+          platform. It first presents the list of indices. Once you click on an
+          index, you get the list of documents that belong to this index. </li>
+
+        <li> The <b>Discovery</b> tab proposes an exploration of the collections
+          through facets, <i>i.e.,</i> some values are computed on every
+          document and filters associated to those values are presented. It
+          helps in exploring and navigating the collections, without requiring
+          the user to have a precise idea beforehand. </li>
+
+        <li> The <b>Search</b> tab offers the user the possibility to search for
+          a melodic or rhythmic pattern in an index, and to find where the
+          occurrences of this pattern are located in every document. Search
+          results are presented very similarly as a traditional text-based
+          search engine. The search input can be made through a piano-like
+          keyboard, or in the ABC format (text-based). </li>
+
+        <li> There is also a <a href="#tuto-rest">REST API</a>. You will find below
+          example commands to use FACETS from the command line. </li>
+
+        </ul>
+
+
+        <h3>Dissemination and sustainability</h3>
+
+        FACETS is written in <a href="">Django (Python)</a>, with <a
+          href="http://elastic.co">ElasticSearch</a> as a backend. This choice
+        of open source components enables anyone to fork the <a
+          href="https://github.com/polifonia-project/facets-search-engine">Github
+          repository</a> and get started on customising FACETS to their specific
+        needs. A <a href="">Docker image</a> is also available to ease the
+        adoption of the tool.
+
+        A <a href="http://neuma-dev.huma-num.fr/">demo website is available on
+          Huma-Num</a>, a reference platform hosting many French human sciences
+        projects (funded by the French CNRS agency).
+
+        FACETS started as a component from the <a
+          href="http://neuma.huma-num.fr/">NEUMA</a> platform.
+
+        {% comment %}<ul>{% endcomment %}
+          {% comment %}<li>{% endcomment %}
+
+          {% comment %}</li>{% endcomment %}
+        {% comment %}</ul>{% endcomment %}
+
+      </div> 
+
+      <hr>
+
+      <div class="my-4 pb-3">
+        <h2><a name="tuto-rest">Get started with FACETS' command line interface</a></h2>
 
         <button type="button" class="collapsible">Toggle tutorial commands</button>
         <div class="collapsiblecontent">

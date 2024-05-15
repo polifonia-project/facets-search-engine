@@ -14,21 +14,19 @@
 
             <div class="card">
                 <div class="card-header">
-                    <ul>
-                        <li>Document ID: {{ doc_id }} </li>
-                        {% if title != null and title != "" %}
-                        <li> Title: {{ title }} </li>
-                        {% else %}
-                        {% endif %}
-                        {% if composer != null and composer != ""%}
-                        <li> Composer: {{ composer }} </li>
-                        {% else %}
-                        {% endif %}
-                        <li>Score format: {{ doc_type }} </li>
-                        {%comment%}
-                        <li>Matching locations: {{ highlight_ids }} </li>
-                        {%endcomment%}
-                    </ul>
+                  Document ID: {{ doc_id }} <br/>
+                  {% if title != null and title != "" %}
+                  Title: {{ title }} <br/>
+                  {% else %}
+                  {% endif %}
+                  {% if composer != null and composer != ""%}
+                  Composer: {{ composer }} <br/>
+                  {% else %}
+                  {% endif %}
+                  Score format: {{ doc_type }}<br/>
+                  {%comment%}
+                  <li>Matching locations: {{ highlight_ids }} </li>
+                  {%endcomment%}
                 </div>
                 {% if doc_url %}
 
@@ -96,7 +94,7 @@
 
     </script>
 
-        <div id="notation" >
+        <div id="notation"  style="padding: 12px">
         score placeholder
         </div>
     

@@ -7,26 +7,26 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link text-white" href="/home">Home</a>
+      <li class="nav-item mx-1">
+        <a class="nav-link home {% if "/home/" in request.path and not "/about/" in request.path and not "/docs/" in request.path and not "/dashboard/" in request.path %}text-dark navactive{% endif %}" href="/home">Home</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link text-white" href="/search/discovery">Discovery</a>
+      <li class="nav-item mx-1">
+        <a class="nav-link loaddata {% if "/loaddata/" in request.path %}text-white navactive{% endif %}" href="/loaddata">Data management</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link text-white" href="/search">Search</a>
+      <li class="nav-item mx-1">
+        <a class="nav-link dashboard {% if "/dashboard/" in request.path %}text-dark navactive{% endif %}" href="/home/dashboard">Dashboard</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link text-white" href="/loaddata">Load data</a>
+      <li class="nav-item mx-1">
+        <a class="nav-link discovery {% if "/discovery/" in request.path %}text-white navactive{% endif %}" href="/search/discovery">Discovery</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link text-white" href="/home/dashboard">Dashboard</a>
+      <li class="nav-item mx-1">
+        <a class="nav-link search {% if "/search/" in request.path and not "/discovery/" in request.path%}text-dark navactive{% endif %}" href="/search">Search</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link text-white" href="/home/docs">Help</a>
+      <li class="nav-item mx-1">
+        <a class="nav-link docs {% if "/docs/" in request.path %}text-dark navactive{% endif %}" href="/home/docs">Help</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link text-white" href="/home/about">About</a>
+      <li class="nav-item mx-1">
+        <a class="nav-link about {% if "/about/" in request.path %}text-dark navactive{% endif %}" href="/home/about">About</a>
       </li>
     </ul>
   </div>

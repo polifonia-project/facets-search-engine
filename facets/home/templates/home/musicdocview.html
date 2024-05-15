@@ -9,25 +9,20 @@
 
 
         <div class="col-lg-10 mx-auto">
-            <h1 class="text-center">{{ globalvariables.sitename }} MusicDoc View</h1>
+            <h1 class="text-center">{{ doc_id }} ({{ doc_type }}) </h1>
 
-            <div class="card text-center">
+            <div class="card">
                 <div class="card-header">
-                    {% comment %}URL of the score is <a href="{{ doc_url }}">URL</a>
-                    {% endcomment %}
-                    <ul>
-                        <li>Document ID: {{ doc_id }} </li>
-                        {% comment %}
-                        { % if doc_title %}
-                        <li> Title: {{ doc_title }} </li>
-                        {% endif %}
-                        {% if doc_composer %}
-                        <li> Composer: {{ doc_composer }} </li>
-                        {% endif %}
-                        <li>docurl: {{ doc_url }} </li>
-                        {% endcomment %}
-                        <li>Score format: {{ doc_type }} </li>
-                    </ul>
+                  Document ID: {{ doc_id }} <br/>
+                  {% if title != null and title != "" %}
+                  Title: {{ title }} <br/>
+                  {% else %}
+                  {% endif %}
+                  {% if composer != null and composer != ""%}
+                  Composer: {{ composer }} <br/>
+                  {% else %}
+                  {% endif %}
+                  Score format: {{ doc_type }}
                 </div>
     
                 {% if doc_url %}
@@ -49,9 +44,10 @@
                 });
                 </script>       
 
-                <table class="preview"><tr>
-                    <td valign="top"> </td>
-                    <td>     <div id="notation">
+                <table class="preview">
+                  <tr>
+                    {% comment %}<td valign="top"> </td>{% endcomment %}
+                    <td>     <div id="notation" style="padding: 12px">
                     score placeholder
                     </div> </td>
                 </tr>

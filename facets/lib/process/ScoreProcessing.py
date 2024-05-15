@@ -203,16 +203,16 @@ def get_metadata_from_score(doctype, score, m21_score):
             if "dob" in compo.info:
                 dateofbirth = compo.info["dob"]
                 yearofbirth = int(dateofbirth.split('-')[0])
-                metainfo["period"] = str(int(yearofbirth/100))+"century"
+                metainfo["period"] = str(int(yearofbirth/100))+"th century"
             if 'dod' in compo.info:
                 dateofdeath = compo.info["dod"]
                 yearofdeath = int(dateofdeath.split('-')[0])
                 if metainfo["period"] != "":
                     # another century add to period
                     if int(yearofbirth/100) != int(yearofdeath/100):
-                        metainfo["period"] += " to "+str(int(yearofdeath/100))+"century"
+                        metainfo["period"] += " to "+str(int(yearofdeath/100))+"th century"
                 else:
-                    metainfo["period"] = str(int(yearofdeath/100))+"century"
+                    metainfo["period"] = str(int(yearofdeath/100))+"th century"
                 print("period:", metainfo["period"])
         except:
             metainfo["period"] = "Unknown period"
@@ -729,7 +729,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                             if "year_birth" in composer_info_dict:
                                 curr_composer.year_birth = composer_info_dict["year_birth"]
                                 birthcentury = int(composer_info_dict["year_birth"]/100)
-                                curr_composer.period = str(birthcentury)+"century"
+                                curr_composer.period = str(birthcentury)+"th century"
                                 print("year of birth:", yearofbirth)
                                 print("Updated Person:", curr_composer.name, "'s period")
                         if curr_composer.year_death == None or curr_composer.year_death == "":
@@ -741,10 +741,10 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                                         # if there is birth year
                                         if birthcentury!=deathcentury:
                                             # if year birth and year death are in dif centuries.
-                                            curr_composer.period += " to "+str(deathcentury)+"century"
+                                            curr_composer.period += " to "+str(deathcentury)+"th century"
                                 else:
                                     #if there's no birth year info, only death year info
-                                    curr_composer.period = str(deathcentury)+"century"
+                                    curr_composer.period = str(deathcentury)+"th century"
                                 print("Updated Person:", curr_composer.name, "'s period")
                         if curr_composer.country == None or curr_composer.country == "":
                             if "country" in composer_info_dict:
@@ -765,7 +765,7 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                         if "year_birth" in composer_info_dict:
                             curr_composer.year_birth = composer_info_dict["year_birth"]
                             birthcentury = int(composer_info_dict["year_birth"]/100)
-                            curr_composer.period = str(birthcentury)+"century"
+                            curr_composer.period = str(birthcentury)+"th century"
                         if "year_death" in composer_info_dict:
                             curr_composer.year_death = composer_info_dict["year_death"]
                             deathcentury = int(composer_info_dict["year_death"]/100)
@@ -773,10 +773,10 @@ def load_meta_from_zip(index_name, all_metas, valid_score_ids):
                                 if "year_birth" in composer_info_dict:
                                     if birthcentury != deathcentury:
                                         # if year birth and year death are in dif centuries.
-                                        curr_composer.period += " to "+str(int(yearofdeath/100))+"century"
+                                        curr_composer.period += " to "+str(int(yearofdeath/100))+"th century"
                             else:
                                 #if there's no birth year info, only death year info
-                                curr_composer.period = str(deathcentury)+"century"
+                                curr_composer.period = str(deathcentury)+"th century"
                         if "country" in composer_info_dict:
                             curr_composer.country = composer_info_dict["country"]
                         if "dbpedia_uri" in composer_info_dict:
