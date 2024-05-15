@@ -17,10 +17,10 @@
         <a class="nav-link dashboard {% if "/dashboard/" in request.path %}text-dark navactive{% endif %}" href="/home/dashboard">Dashboard</a>
       </li>
       <li class="nav-item mx-1">
-        <a class="nav-link discovery {% if "/discovery/" in request.path %}text-white navactive{% endif %}" href="/search/discovery">Discovery</a>
+        <a class="nav-link discovery {% if "/discovery/" in request.path or "/discovery_result/" in request.path %}text-white navactive{% endif %}" href="/search/discovery">Explore</a>
       </li>
       <li class="nav-item mx-1">
-        <a class="nav-link search {% if "/search/" in request.path and not "/discovery/" in request.path%}text-dark navactive{% endif %}" href="/search">Search</a>
+        <a class="nav-link search {% if "/search/" in request.path and not "/discovery/" in request.path and not "/discovery_result/" in request.path%}text-dark navactive{% endif %}" href="/search">Search</a>
       </li>
       <li class="nav-item mx-1">
         <a class="nav-link docs {% if "/docs/" in request.path %}text-dark navactive{% endif %}" href="/home/docs">Help</a>

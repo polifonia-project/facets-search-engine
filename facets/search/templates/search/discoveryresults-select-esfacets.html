@@ -1,10 +1,9 @@
 <form action="/search/filtered_discovery_result/" method="post">
 
-<div class="alert alert-dark bg-white p-3 rounded shadow d-flex flex-column align-items-center">
+<div class="card alert alert-dark bg-white p-3 rounded shadow align-items-center h-100">
 
 {% csrf_token %}
-
-<select multiple="true" name="composer" class="px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
+<select multiple="true" name="composer" class="my-1 px-4 mx-2 custom-select custom-select-sm" multiple class="chosen-select">
   <legend>Composer</legend>
   {%comment%}
   {% for composer in facet_composers %}
@@ -30,8 +29,7 @@
   </optgroup>
 </select>
 
-<br/>
-<select multiple="true" name="period" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="period" class="my-1 px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Period">
   {% if searchinput.period %}
   <option selected>{{searchinput.period}}</option>
@@ -50,7 +48,7 @@
 
 <br/>
 {%comment%}
-<select multiple="true" name="keymode" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="keymode" class="my-1 px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Key mode">
   {% if searchinput.keymode %}
   <option selected>{{searchinput.keymode}}</option>
@@ -69,7 +67,7 @@
 
 <br/>
 
-<select multiple="true" name="keytonicname" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="keytonicname" class="my-1 px-4 mx-2 custom-select custom-select-sm">
   <optgroup label = "Key tonic name">
   {% if searchinput.keytonicname %}
   <option selected>{{searchinput.keytonicname}}</option>
@@ -88,7 +86,7 @@
 <br/>
 {%endcomment%}
 
-<select multiple="true" name="key" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="key" class="px-4 mx-2 my-1 custom-select custom-select-sm">
   <optgroup label = "Key">
   {% if searchinput.key %}
   <option selected>{{searchinput.key}}</option>
@@ -107,7 +105,7 @@
 <br/>
 
 
-<select multiple="true" name="timesig" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="timesig" class="px-4 mx-2 my-1 custom-select custom-select-sm">
   <optgroup label = "Time Signature">
   {% if searchinput.timesig %}
   <option selected>{{searchinput.timesig}}</option>
@@ -125,7 +123,7 @@
 </select>
 <br/>
 
-<select multiple="true" name="instrument" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="instrument" class="px-4 mx-2 my-1 custom-select custom-select-sm">
   <optgroup label = "Instruments">
   {% if searchinput.instrument %}
   <option selected>{{searchinput.instrument}}</option>
@@ -143,7 +141,7 @@
 </select>
 <br/>
 
-<select multiple="true" name="numofparts" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="numofparts" class="px-4 mx-2 my-1 custom-select custom-select-sm">
   <optgroup label = "Num of parts">
   {% if searchinput.numofparts %}
   <option selected>{{searchinput.numofparts}}</option>
@@ -161,7 +159,7 @@
 </select>
 
 <br/>
-<select multiple="true" name="numofmeasures" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="numofmeasures" class="px-4 mx-2 my-1 custom-select custom-select-sm">
   <optgroup label = "Num of measures">
   {% if searchinput.numofmeasures %}
   <option selected>{{searchinput.numofmeasures}}</option>
@@ -181,7 +179,7 @@
 
 
 <br/>
-<select multiple="true" name="indexname" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="indexname" class="px-4 mx-2 my-1 custom-select custom-select-sm">
   <optgroup label = "Indices">
   {% if searchinput.index_name %}
   <option selected>{{searchinput.index_name}}</option>
@@ -200,7 +198,7 @@
 <br/>
 
 {%comment%}
-<select multiple="true" name="numofnotes" class="px-4 mx-2 custom-select custom-select-sm">
+<select multiple="true" name="numofnotes" class="px-4 mx-2 my-1 custom-select custom-select-sm">
   <optgroup label = "Num of notes">
   {% if searchinput.numofnotes %}
   <option selected>{{searchinput.numofnotes}}</option>

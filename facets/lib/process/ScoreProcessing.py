@@ -126,6 +126,7 @@ def get_metadata_from_score(doctype, score, m21_score):
         if m21_score.metadata.composer != None and m21_score.metadata.composer != "":
             # found composer info in m21 stream
             metainfo["composer"] = m21_score.metadata.composer
+            print("*********",metainfo["composer"])
         else:
             # try to find <name role="composer">SOMEONE</name>
             composernames = re.findall('<name.*role="composer".*>(.*)</name>', score)

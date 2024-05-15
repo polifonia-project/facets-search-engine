@@ -15,22 +15,22 @@
 			<div class="card text-center">
 				<div class="card-header">
           {% if indices_number > 1%}
-          There are {{ indices_number }} indices.
+          <h3>{{ indices_number }} indices</h3>
           {% else %}
-          There is {{ indices_number }} index.
+          <h3>{{ indices_number }} index</h3>
           {% endif%}
 				</div>
-				<ul class="list-group ">
+				<ul class="list-group">
 					{% for k, v in indices_stats.items %}
 					{% if disable_scorelib == False %}
 					<li class="list-group-item d-flex justify-content-between align-items-center ">
 						{{ k }}
-						<span class="badge badge-primary badge-pill"><a href="{{ k }}/">{{ v }} docs</a></span>
+						<span class="badge badge-light badge-pill foobar"><a href="{{ k }}/">{{ v }} docs</a></span>
 					</li>
 					{% elif k != 'scorelib' and k != 'Scorelib' %}
 					<li class="list-group-item d-flex justify-content-between align-items-center ">
 						{{ k }}
-						<span class="badge badge-primary badge-pill"><a href="{{ k }}/">{{ v }} docs</a></span>
+						<span class="badge badge-light badge-pill"><a href="{{ k }}/">{{ v }} docs</a></span>
 					</li>
 					{% endif %}
 					{% endfor %}					

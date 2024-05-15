@@ -7,7 +7,7 @@
 <div class="container">
 
 {% csrf_token %}
-<h1 class="text-center">Discovery</h1>
+<h1 class="text-center">Explore</h1>
   <div class="row mb-6 justify-content-evenly">
 
     <div class="col-lg-6 mx-auto">
@@ -126,29 +126,12 @@
               </select>
               </div>
               <br/>
-{%comment%}
-              {% for i, v in countnum.items %}
-              <div>
-                  {{i}}
-              </div>
-                  <br/>
-                  <select  name={{i}} class="px-4 mx-2 form-select form-select-lg">
-                  <optgroup label = {{i}}>
-                  {%for x, y in v.items %}
-                  <option value ="{{i}}"> {{x |title}}</option>
-                  {{y}}
-                  {%endfor%}
-                </optgroup>
-              </select>
-                  <br/>
-              {%endfor%}
-{%endcomment%}
 
       </div>
       
     </div>
     <h4 class="text-center">
-        <input class="px-4 mx-2 my-1" type="submit" value="Select">
+        <input class="btn text-white navactive discovery px-4 mx-2 my-1" type="submit" value="Explore">
       </h4>
   </div>
 </div>
