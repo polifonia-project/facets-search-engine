@@ -1,9 +1,17 @@
+	<div class="row mb-8 text-center my-3">
+<div class="col-lg-1"> </div>
+<div class="col-lg-8">
 {% if matching_doc_ids %}
   {% if num_matching_patterns %}
   <i>{{num_matching_patterns}} matching patterns found in {{num_matching_docs}} documents</i>
   {%else%}
   <i>{{num_matching_docs}} documents found</i>
   {%endif%}
+        <!--<a href="/" class="mx-2 text-white btn-info btn btn-lg" role="button" aria-pressed="true">Export results</a>-->
+</div>
+<!--<div class="col-lg-1"> </div>-->
+</div>
+
 {% else %}
 	<div class="row mb-8">
 <div class="col-lg-8 mx-auto alert alert-warning rounded shadow" role="alert" style="width: 720px;">
