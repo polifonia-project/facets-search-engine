@@ -1,6 +1,6 @@
 def mycontext(request):
     globalvariables = {
         "sitename": "FACETS",
-        "longname": "FACETS music collection exploration tool"
+        "longname": "Polifonia — FACETS"
     }
     return {'globalvariables': globalvariables}
