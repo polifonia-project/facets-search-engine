@@ -1,23 +1,7 @@
 #! /bin/bash
 
 URL="0.0.0.0:8000"
-ES_URL="0.0.0.0:9200"
-
-# Index chorals
-INDEX_NAME="chorals"
-echo "Creating index ${INDEX_NAME}"
-#curl -X PUT http://${URL}/rest/index/${INDEX_NAME}
-curl -X PUT http://${ES_URL}/${INDEX_NAME}
-
-NB_FILES=`ls ../data/chorals/*mei | wc -l`
-N=1
-for file in `ls ../data/chorals/*mei` 
-do
-  echo -e "\n$N/${NB_FILES}: $file"
-  docid=`basename $file .mei | sed "s:\.:-:g"`
-  curl -X PUT -H "Content-type: application/mei" http://${URL}/rest/index/${INDEX_NAME}/${docid}/ -d @${file}
-  let "N+=1" 
-done
+ES_URL="0.0.0.0:9201"
 
 #Index Misc
 INDEX_NAME="misc"
@@ -55,9 +39,27 @@ curl -X PUT http://${ES_URL}/${INDEX_NAME}
 
 #NB_FILES=`unzip -t ../data/francoise.zip |grep -v "/.*/"|wc -l`
 echo -e "\nimporting files from archive francoise.zip"
-for file in `ls ../data/francoise.zip`
+for file in `ls ../data/data_to_use/francoise.zip`
 do
   curl -X PUT -H "Content-type: application/zip" http://${URL}/rest/index/${INDEX_NAME}/francoisezip/ --data-binary @${file}
 done
+exit 0
+
+# Index chorals
+INDEX_NAME="chorals"
+echo "Creating index ${INDEX_NAME}"
+#curl -X PUT http://${URL}/rest/index/${INDEX_NAME}
+curl -X PUT http://${ES_URL}/${INDEX_NAME}
+
+NB_FILES=`ls ../data/chorals/*mei | wc -l`
+N=1
+for file in `ls ../data/chorals/*mei` 
+do
+  echo -e "\n$N/${NB_FILES}: $file"
+  docid=`basename $file .mei | sed "s:\.:-:g"`
+  curl -X PUT -H "Content-type: application/mei" http://${URL}/rest/index/${INDEX_NAME}/${docid}/ -d @${file}
+  let "N+=1" 
+done
+
 
 echo -e"\nDone! You can now try FACETS at http://${URL}/!"

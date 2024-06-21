@@ -52,16 +52,15 @@
     </script>
 
     <div> <!-- for score preview -->
-        <table class="preview"><tr>
-        <td valign=""> </td>
-        <td>     <div id="notation{{i}}">loading score...</div> </td>
+      <table class="preview"><tr>
+          <td valign=""> </td>
+          <td>     <div id="notation{{i}}">loading score...</div> </td>
         </tr>
-        </table>
-            </div> <!-- for score preview -->
-
-            </div>
-            <br/>
-    {% endfor %}
+      </table>
+    </div> <!-- for score preview -->
+</div>
+<br/>
+{% endfor %}
 
 <div class="pagination justify-content-center mt-3" >
 <span class="step-links">
@@ -87,7 +86,7 @@
 </div>
             
     {% else %}
-    <table class="preview"><tr>
+    <table class="preview mb-5"><tr>
         <td valign="top"> </td>
         <td>     <div>Please re-enter your search!</div> </td>
     </tr>
