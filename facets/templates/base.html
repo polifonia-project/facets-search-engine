@@ -8,187 +8,61 @@
 
     {% comment %}<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>{% endcomment %}
     <link
-      rel="icon"
-      href="https://polifonia.disi.unibo.it/patterns/favicon-270.png"
-    />
+        rel="icon"
+        href="https://polifonia.disi.unibo.it/patterns/favicon-270.png"
+        />
 
     <!-- Bootstrap CSS -->
     {% comment %}should learn to properly use static files with django{% endcomment %}
-<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
 
-<link rel="stylesheet" type="text/css" href="/static/csstheme/style.css">
-<link rel="stylesheet" type="text/css" href="/static/csstheme/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/csstheme/style.css">
+    <link href="/static/polifonia/chunk-vendors.rfs.css" rel="stylesheet" />
+    <link href="/static/polifonia/app.5b297683.css" rel="stylesheet" />
 
-<title>{{ globalvariables.longname }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/csstheme/font-awesome.min.css">
+
+    <title>{{ globalvariables.longname }}</title>
     <script src="/static/polifonia/app.24c26b5e.js" ></script>
-    <link
-      href="/static/polifonia/chunk-vendors.rfs.css"
-      rel="stylesheet"
-    />
-    <link
-      href="/static/polifonia/app.5b297683.css"
-      rel="stylesheet"
-    />
   </head>
   <body>
-<div id="page-container">
-<div id="container-wrap">
-{% block content %}
-{% endblock %}
-</div> <!-- container -->
+    {% comment %}<div id="flex-wrapper">{% endcomment %}
+      <div id="page-container">
+        <div id="content-wrap">
+          {% block content %}
+          {% endblock %}
+        </div>
+
+        <div style="flex-grow:1"></div>
+
+        <footer id="footer" class="py-5 mt-auto text-white site-footer" >
+          {% include 'footer-content.html' %}
+        </footer>
+      </div>
+
+      {% comment %}</div>{% endcomment %}
+
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-<script src="/static/js/verovio-toolkit.js"></script>
+    <script src="/static/js/verovio-toolkit.js"></script>
 
-<script>
- //   document.addEventListener("DOMContentLoaded", (event) => {
-  //      Module.onRuntimeInitialized = async _ => {
-            let vrvToolkit = new verovio.toolkit();
-            console.log("Verovio has loaded!");
-            var vrvOptions = {
-                scale : 35,
-                pageHeight : 20000,
-                adjustPageHeight : 1,
-                border : 0,
-                ignoreLayout : 1
-            };
-            vrvToolkit.setOptions(vrvOptions);
+    <script>
+      let vrvToolkit = new verovio.toolkit();
+      console.log("Verovio has loaded!");
+      var vrvOptions = {
+        scale : 35,
+        pageHeight : 20000,
+        adjustPageHeight : 1,
+        border : 0,
+        ignoreLayout : 1
+      };
+      vrvToolkit.setOptions(vrvOptions);
+    </script>
 
-
-//      fetch("https://www.verovio.org/examples/downloads/Schubert_Lindenbaum.mei")
-//        .then( (response) => response.text() )
-//        .then( (meiXML) => {
-//          let svg = tk.renderData(meiXML, {});
-//          document.getElementById("notation").innerHTML = svg;
-//        });
-//      }
-//  });
-</script>
-<div class="spacer"></div>
-        <footer data-v-aa3fef70="" class="py-5 mt-auto bg-dark-subtle text-white footer" >
-          <div data-v-aa3fef70="" class="container">
-            <div data-v-aa3fef70="" class="row mb-4">
-              <div data-v-aa3fef70="" class="col-md-4 mb-3">
-                <a
-                  data-v-aa3fef70=""
-                  href="https://polifonia.disi.unibo.it/portal/"
-                  class="d-flex align-items-center mb-3 link-body-emphasis text-decoration-none justify-content-center"
-                  ><img
-                    data-v-aa3fef70=""
-                    src="/static/polifonia/logo-polifonia-web-portal-white.85a4c3b0.svg"
-                    alt=""
-                /></a>
-              </div>
-              <div
-                data-v-aa3fef70=""
-                class="col-md-4 mb-3 px-4 d-flex justify-content-center"
-              >
-              {% comment %}mettre ici la GPL{% endcomment %}
-                <a
-                  rel="license"
-                  href="https://www.gnu.org/licenses/gpl-3.0.en.html"
-                  class="d-flex align-items-center text-white my-4"
-                  data-v-aa3fef70=""
-                  ><img
-                    alt="GNU GPLv3"
-                    style="border-width: 0"
-                    src="/static/polifonia/GPLv3_Logo_white.3fef3296.svg"
-                    data-v-aa3fef70=""
-                  /><span
-                    style="font-size: small"
-                    class="ms-2"
-                    data-v-aa3fef70=""
-                  >
-                    Polifonia FACETS is licensed under the GNU General Public Licence version 3.
-                  </span></a
-                >
-              </div>
-              <div data-v-aa3fef70="" class="col-md-4 mb-3 px-4 d-flex justify-content-center" >
-                <ul
-                  class="list-unstyled d-flex justify-content-center mt-4"
-                  data-v-aa3fef70=""
-                >
-                  <li class="ms-3" data-v-aa3fef70="">
-                    <a
-                      class="link-body-emphasis"
-                      href="https://polifonia-project.eu/"
-                      data-v-aa3fef70=""
-                      ><img
-                        class="bi"
-                        width="24"
-                        height="24"
-                        src="/static/polifonia/polifonia_logo_without_text_white.68a9a420.svg"
-                        title="Polifonia Web Portal"
-                        data-v-aa3fef70=""
-                    /></a>
-                  </li>
-                  <li class="ms-3" data-v-aa3fef70="">
-                    <a
-                      class="link-body-emphasis"
-                      href="https://twitter.com/PolifoniaH2020"
-                      data-v-aa3fef70=""
-                      ><img
-                        class="bi"
-                        width="24"
-                        height="24"
-                        src="/static/polifonia/x_logo_white.3c7f1f2a.svg"
-                        title="X.com"
-                        data-v-aa3fef70=""
-                    /></a>
-                  </li>
-                  <li class="ms-3" data-v-aa3fef70="">
-                    <a
-                      class="link-body-emphasis"
-                      href="https://linkedin.com/company/polifonia-h2020"
-                      data-v-aa3fef70=""
-                      ><img
-                        class="bi"
-                        width="24"
-                        height="24"
-                        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARQAAAEACAMAAABF6XnGAAACNFBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+dEmAAAAAAvHRSTlMAGWekv9nz/wduyP4CXeAeyzvpWPnJpdaPb1Y+JW0iwdNGR6cKqPx1dv1QcXKbBTmt+yb6D7tXDLoOrDjHmnBPdKbAviH3mXc6GA0DBhEbPFx7xPaybC4EMGbu+KlAjuLQEk22nDOSqx+fNSrcAWoLFWOKPfFR9PVBW16Vjc4XmCQ32oMs1H4TKyPh5K6g6t9rxbXjr8zw5lK4sZBMTlocKeizFEgJiLTb5TJFKC1LlAhk3WBlYnjCxnqq8utMeeAAAAVvSURBVHgB5MFHAoQgAAPAWAPSVf7/1b3a9byZwU7Tdv0w8m+NQ9+1DfCdsZOjADdZg298iJQRg8cHKVNKTnhVZoqZC14sK+WsCx6VlYLWggdppqQ54ZbPFJU97gTKCrhhImVFg2uWwiyuVQqruNQ4CnM/du1pwdEgDMJwTdRj27Zt27Ztrnnpa0cdrLq+9zh84vwVAldZFHUWuCpZUZcMV9kUdTa4yq6os8NVDkWdA65S5AmKoAiKoAiKoPyBBEVQBEVQBEVQBEVQBEVQUlLT0jMyMzPS01JTBOVjtqxs/FB2lo0eJScOTsXlUKPk5sFl+bm8KAWFcFNhESlKcQk8VFrMiFJWDo+VlxGiVMBLlXwoVfBaFRtKeDW8Vh1OhlIDjWq4UGqhVS0TSl09tKqvI0IpgmZFRCgJ0CyBB6WhEZo1NtCgNEG7JhqUEmhXQoPSDO2aaVAyoF0GDUomtMukQWmBdi3qTyQo8vKRN1r5SJYvbwQordCulQaloQ2atTXQoKhmaNaseFAKoFkBEUpdpvwd6Vw7tGpXTCiqAxp1KC6UTp2DYZ1kKKoLXutSbCiqG17qVnwoxT3wWE8Z5WinFx7qLSadd/W5n3cVyBDw1/JyqSej/a4mo/1KUaMoNZA1+PO4eEB9SmboYZ9n6GEyQ/8PEhRBERRBERRBERRBERRBMSlBERRBGUoaHkkYzR4bn5icmq6fmZ2rml+gRnEsLi2vwKmV1TXrOifKxmZ+Ndy2srW9Q4eyG7YHL0XuH5T9RRRo5e85lVN1h0fQavA4kQXlpB7anZ4VM6AMnMOnLgaMR7nMh69dXTvMRum6gR8N2gxGid+Hf01sG4uyeAu/u2swE+X+CgH0sG4gStkSAuv8kXEoC48RaHFPDEN5+oDAe7ZgFEpiHoLRc6NQXiA4vTQI5RWC1GSSMSivqxGsYtYNQSleRvCyGIJSiiAWmWQGSnA7KhMUrU8gQXkzJCjOvX3PDj0oWxmFcRx+4z/bNgZxkG3btm3btuvkTrYuLg13W++q0V7f77mEh5R0+9qTkm4pKen2k5LBAVLSHSQl3SFSMjhMSroj0aasPnrseHf7J9VjTKm0/+CEE7X0S62Tp9Z0sVDlZkaX0vH0GaU4e66chTkfWcriC0p3cc0oC7EhqpTjl5TZ5TEWoG9MKQuuKJurK8xveDwplQ5WVHaDr5nfllhS1l5XTjOrm1uzSFIqTVIeZ/aY141IUm4qr1PmVS+OlHNyuGVO5aNI2dhGDvNWm8/tGFJWX5ZLX/NpGEPKHfksNJ/FEaSUqyKf9nfN5V4EKf3ktcZcqhZ+ysgied03lweFn/JQbltGmsejwk8pJb9j5lL4KTXktz0hKSsV4HFCUqYrQP+EpNRTgKYJSXmiAE8TklJXAYoSkvJMATYlJGWTAtRKSEp7hUhIigothRRSSCGFFFJIIYUUUkghhRRSSCGFFFJIIYUUUkghhRRSSCGFFFJIIYUUUkghhRRSSCGFFFJIIYUUUkghhRRSSCGFFFJIIYUUUkghhRT9cdnUy36pIFJ+KS6ur+fFL0x6aTZFpNgfr7THzDRzidnrzikppPSf8abVlU4pKaS8fVf5fZUPKSmkfPz0+cvXj6kppAzv2nX4XymkWKdv5k6Jl/+TFFJIIYUUUkghhRRSSCGFFFJI+U+kkEIKKd+VaN9/lgdXhxXDAAwAlRhk1xzaf9QuEPx9usMZR2kOZyylWZwxlGZwZqa0GWemRGFpwqmdwv5wLlJYxLlQKasGXCiUVXAld4rqGZfaQklLw42xUdA2cGvdKGdb8WAsFLMMPGqdUnrDC7lUyqgl450Q90QBaY8BH0zzYZ3nz/LOmnnCk3/M/rVGzrTM3QAAAABJRU5ErkJggg=="
-                        title="LinkedIn"
-                        data-v-aa3fef70=""
-                    /></a>
-                  </li>
-                  <li class="ms-3" data-v-aa3fef70="">
-                    <a
-                      class="link-body-emphasis"
-                      href="https://github.com/polifonia-project"
-                      data-v-aa3fef70=""
-                      ><img
-                        class="bi"
-                        width="24"
-                        height="24"
-                        src="/static/polifonia/github-mark-white.fd5c0afd.svg"
-                        title="Github"
-                        data-v-aa3fef70=""
-                    /></a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            {% comment %}<div class="row mb-0" data-v-aa3fef70="">{% endcomment %}
-              {% comment %}<p{% endcomment %}
-                {% comment %}style="font-size: x-small"{% endcomment %}
-                {% comment %}class="bglink d-flex justify-content-center"{% endcomment %}
-                {% comment %}data-v-aa3fef70=""{% endcomment %}
-              {% comment %}>{% endcomment %}
-                {% comment %}<!--<a class="text-white mb-0" href="https://www.freepik.com/free-vector/low-poly-abstract-design_7178735.htm" data-v-aa3fef70="" >Background image by kjpargeter</a >&nbsp;on Freepik-->{% endcomment %}
-              {% comment %}</p>{% endcomment %}
-            {% comment %}</div>{% endcomment %}
-            {% comment %}<div class="row" data-v-aa3fef70="">{% endcomment %}
-              {% comment %}<div{% endcomment %}
-                {% comment %}class="d-flex flex-column flex-sm-row justify-content-between border-top py-4 my-4"{% endcomment %}
-                {% comment %}data-v-aa3fef70=""{% endcomment %}
-              {% comment %}>{% endcomment %}
-              {% comment %}</div>{% endcomment %}
-            {% comment %}</div>{% endcomment %}
-          {% comment %}</div>{% endcomment %}
-        </footer>
-</div> <!-- page-container -->
   </body>
 </html>

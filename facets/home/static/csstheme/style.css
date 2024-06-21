@@ -204,24 +204,19 @@ color: #eee;
 }
 
 #page-container {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  position: relative;
   min-height: 100vh;
 }
 
-.spacer {
-  flex: 1;
+#content-wrap {
+  padding-bottom: 200px;    /* Footer height */
 }
 
-#container-wrap {
-  padding-bottom: 2.5rem;    /* Footer height */
-}
-
-footer {
+#footer {
   position: absolute;
+  background-image: linear-gradient(120deg, #6400b5, red);
   bottom: 0;
   width: 100%;
-  background-color: #000;
+  height: 200px;            /* Footer height */
 }
 
