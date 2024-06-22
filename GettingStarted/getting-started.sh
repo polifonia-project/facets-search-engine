@@ -3,6 +3,20 @@
 URL="0.0.0.0:8000"
 ES_URL="0.0.0.0:9201"
 
+# Index francoise
+INDEX_NAME="francoise"
+echo -e "\n\nCreating index ${INDEX_NAME}"
+#curl -X PUT http://${URL}/rest/index/${INDEX_NAME}
+curl -X PUT http://${ES_URL}/${INDEX_NAME}
+
+#NB_FILES=`unzip -t ../data/francoise.zip |grep -v "/.*/"|wc -l`
+echo -e "\nimporting files from archive francoise.zip"
+for file in `ls ../data/data_to_use/francoise.zip`
+do
+  curl -X PUT -H "Content-type: application/zip" http://${URL}/rest/index/${INDEX_NAME}/francoisezip/ --data-binary @${file}
+done
+exit 0
+
 #Index Misc
 INDEX_NAME="misc"
 echo -e "\nCreating index ${INDEX_NAME}"
@@ -31,19 +45,6 @@ do
   let "N+=1" 
 done
 
-# Index francoise
-INDEX_NAME="francoise"
-echo -e "\n\nCreating index ${INDEX_NAME}"
-#curl -X PUT http://${URL}/rest/index/${INDEX_NAME}
-curl -X PUT http://${ES_URL}/${INDEX_NAME}
-
-#NB_FILES=`unzip -t ../data/francoise.zip |grep -v "/.*/"|wc -l`
-echo -e "\nimporting files from archive francoise.zip"
-for file in `ls ../data/data_to_use/francoise.zip`
-do
-  curl -X PUT -H "Content-type: application/zip" http://${URL}/rest/index/${INDEX_NAME}/francoisezip/ --data-binary @${file}
-done
-exit 0
 
 # Index chorals
 INDEX_NAME="chorals"

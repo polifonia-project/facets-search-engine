@@ -26,7 +26,6 @@
     <script src="/static/polifonia/app.24c26b5e.js" ></script>
   </head>
   <body>
-    {% comment %}<div id="flex-wrapper">{% endcomment %}
       <div id="page-container">
         <div id="content-wrap">
           {% block content %}
@@ -35,13 +34,10 @@
 
         <div style="flex-grow:1"></div>
 
-        <footer id="footer" class="py-5 mt-auto text-white site-footer" >
-          {% include 'footer-content.html' %}
-        </footer>
+        {% comment %}<footer id="footer" class="py-5 mt-auto text-white site-footer" >{% endcomment %}
+          {% comment %}{% include 'footer-content.html' %}{% endcomment %}
+        {% comment %}</footer>{% endcomment %}
       </div>
-
-      {% comment %}</div>{% endcomment %}
-
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
