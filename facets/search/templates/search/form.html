@@ -19,6 +19,7 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
 <!-- Tab content -->
 
 <form id="searchform" action="/search/results/" method="post" onsubmit="return validateMyForm(this);">
+    {% csrf_token %}
 
   <div id="formwrap"> <!-- wrapper div -->
 
@@ -105,7 +106,6 @@ You may input a query with a piano keyboard or in abc notation. Pick the suitabl
   </div> <!-- wrapper div-->
 
   <div id="text" class="searchtabcontent">
-    {% csrf_token %}
     <div class="p-3 bg-white ">
   nothing to see here, yet
     </div>
