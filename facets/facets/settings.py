@@ -37,6 +37,8 @@ DEBUG = False
 APPEND_SLASH = True
 ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'neuma-dev.huma-num.fr', ]
 
+CSRF_TRUSTED_ORIGINS=['https://neuma-dev.huma-num.fr/', 'neuma-dev.huma-num.fr']
+
 # SECURITY SETTING: disable scorelib index to avoid deletion from users
 DISABLE_SCORELIB = False
 
